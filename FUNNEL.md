@@ -11,6 +11,13 @@
 - P-0105/M-4 SNS：T3 通过。占用对 T2 误差 0（可进周报）。BW 未按信封 0.85 签字。
 - P-0106/M-5 AffineRebind：T3 通过。占用网表对 T2 误差 0（可进周报）。BW 未按 0.85 签字。
 
+## Night 扫描（2026-09-03，未签字）
+
+PR #22 已合入。产物在 `sims/P-0105/M-4/results/` 与 `sims/P-0106/M-5/results/`。
+t2_compare：SNS 336 行、AffineRebind 144 行，rel_err=0（仿真自报，未签字）。
+BW 为 H-DRAM-BB reduced-bbox，不签信封 0.85。数字未签字，不进周报、不进 T4。
+待评估审计签字。
+
 ## T2 淘汰
 
 P-0103/M-4 CR-MRDR；P-0101/M-3；P-0103/M-1；P-0103/M-5。
