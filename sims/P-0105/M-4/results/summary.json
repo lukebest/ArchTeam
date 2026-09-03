@@ -1,0 +1,65 @@
+{
+  "card": "P-0105/M-4 SNS",
+  "seed": 20260903,
+  "mode": "smoke",
+  "covering_bound": {
+    "max": 11,
+    "min": 10,
+    "cv": 0.04419417382415922,
+    "golden": false
+  },
+  "t2_flags_gt_30pct": 0,
+  "n_occ_rows": 64,
+  "n_cyc_rows": 12,
+  "bw_ci": [
+    {
+      "S": "2MiB",
+      "strategy": "mod384",
+      "map_ports": 1,
+      "map_lat": 1,
+      "page": "open",
+      "mask": "full",
+      "txns_per_cycle_ci": "0.064953 \u00b1 0.000000 (n=3)",
+      "mean": 0.06495340299350466,
+      "ci95_hw": 0.0,
+      "n": 3
+    },
+    {
+      "S": "2MiB",
+      "strategy": "sns",
+      "map_ports": 1,
+      "map_lat": 1,
+      "page": "open",
+      "mask": "full",
+      "txns_per_cycle_ci": "1.000000 \u00b1 0.000000 (n=3)",
+      "mean": 1.0,
+      "ci95_hw": 0.0,
+      "n": 3
+    },
+    {
+      "S": "512B",
+      "strategy": "mod384",
+      "map_ports": 1,
+      "map_lat": 1,
+      "page": "open",
+      "mask": "full",
+      "txns_per_cycle_ci": "1.000000 \u00b1 0.000000 (n=3)",
+      "mean": 1.0,
+      "ci95_hw": 0.0,
+      "n": 3
+    },
+    {
+      "S": "512B",
+      "strategy": "sns",
+      "map_ports": 1,
+      "map_lat": 1,
+      "page": "open",
+      "mask": "full",
+      "txns_per_cycle_ci": "1.000000 \u00b1 0.000000 (n=3)",
+      "mean": 1.0,
+      "ci95_hw": 0.0,
+      "n": 3
+    }
+  ],
+  "note": "Absolute BW is txns/cycle under \u5047\u8bbe H-DRAM-BB; no GB/s; 0.85 is not a measured mean."
+}
