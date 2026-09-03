@@ -1,37 +1,145 @@
 S,mask,strategy,alpha,n,n_DMC,n_bank,dead,cls_min,cls_mean,classes_AP,min_mean,note
 512B,full-good,skip-dead,1,48,384,3584,0,8,9.3333,48,0.7500,
+512B,full-good,stack,1,48,384,3584,0,8,9.3333,48,0.7500,
 512B,full-good,modn-a1,1,48,384,3584,0,8,9.3333,48,0.7500,
 512B,full-good,minimax,1,48,384,3584,0,8,9.3333,48,0.7500,
 512B,n=40,skip-dead,1,40,384,3584,0,8,9.3333,40,0.7500,
+512B,n=40,stack,1,40,384,3584,0,8,9.3333,40,0.7500,
 512B,n=40,modn-a1,1,40,384,4096,0,8,10.6667,40,0.7500,
 512B,n=40,minimax,1,40,384,4096,0,8,10.6667,40,0.7500,
+512B,unif-25%(n=36),skip-dead,1,36,384,3104,0,6,8.0833,36,0.7500,n=36 still has factor 3 — not a 3-adic test
+512B,unif-25%(n=36),stack,1,36,384,3328,0,7,8.6667,36,0.7500,n=36 still has factor 3 — not a 3-adic test
+512B,unif-25%(n=36),modn-a1,1,36,384,3072,0,4,8.0000,36,0.7500,n=36 still has factor 3 — not a 3-adic test
+512B,unif-25%(n=36),minimax,1,36,384,3072,0,4,8.0000,36,0.7500,n=36 still has factor 3 — not a 3-adic test
+512B,unif-12.5%(n=42),skip-dead,1,42,384,3424,0,7,8.9167,42,0.7500,
+512B,unif-12.5%(n=42),stack,1,42,384,3488,0,7,9.0833,42,0.7500,
+512B,unif-12.5%(n=42),modn-a1,1,42,384,3840,0,6,10.0000,42,0.7500,
+512B,unif-12.5%(n=42),minimax,1,42,384,3840,0,6,10.0000,42,0.7500,
+512B,unif-6.25%(n=45),skip-dead,1,45,384,3520,0,7,9.1667,45,0.7500,n=36 still has factor 3 — not a 3-adic test
+512B,unif-6.25%(n=45),stack,1,45,384,3584,0,8,9.3333,45,0.7500,n=36 still has factor 3 — not a 3-adic test
+512B,unif-6.25%(n=45),modn-a1,1,45,384,3776,0,5,9.8333,45,0.7500,n=36 still has factor 3 — not a 3-adic test
+512B,unif-6.25%(n=45),minimax,1,45,384,3776,0,5,9.8333,45,0.7500,n=36 still has factor 3 — not a 3-adic test
 512B,3-biased(n=32),skip-dead,1,32,384,3552,0,8,9.2500,32,0.7500,3-adic column only
+512B,3-biased(n=32),stack,1,32,384,3552,0,8,9.2500,32,0.7500,3-adic column only
 512B,3-biased(n=32),modn-a1,1,32,384,4096,0,8,10.6667,32,0.7500,3-adic column only
 512B,3-biased(n=32),minimax,1,32,384,4096,0,8,10.6667,32,0.7500,3-adic column only
 3x512B,full-good,skip-dead,1,48,375,3369,0,4,8.9840,16,0.2441,
+3x512B,full-good,stack,1,48,375,3369,0,4,8.9840,16,0.2441,
 3x512B,full-good,modn-a1,1,48,375,3369,0,4,8.9840,16,0.2441,
 3x512B,full-good,minimax,1,48,375,3369,0,4,8.9840,16,0.2441,
 3x512B,n=40,skip-dead,1,40,375,3369,0,4,8.9840,40,0.2441,
+3x512B,n=40,stack,1,40,375,3369,0,4,8.9840,40,0.2441,
 3x512B,n=40,modn-a1,1,40,375,3793,0,4,10.1147,40,0.2441,
 3x512B,n=40,minimax,1,40,375,3793,0,4,10.1147,40,0.2441,
+3x512B,unif-25%(n=36),skip-dead,1,36,375,2923,0,3,7.7947,12,0.2441,n=36 still has factor 3 — not a 3-adic test
+3x512B,unif-25%(n=36),stack,1,36,375,3135,0,4,8.3600,12,0.2441,n=36 still has factor 3 — not a 3-adic test
+3x512B,unif-25%(n=36),modn-a1,1,36,375,2867,0,2,7.6453,12,0.2441,n=36 still has factor 3 — not a 3-adic test
+3x512B,unif-25%(n=36),minimax,1,36,375,2867,0,2,7.6453,12,0.2441,n=36 still has factor 3 — not a 3-adic test
+3x512B,unif-12.5%(n=42),skip-dead,1,42,375,3219,0,4,8.5840,14,0.2441,
+3x512B,unif-12.5%(n=42),stack,1,42,375,3281,0,4,8.7493,14,0.2441,
+3x512B,unif-12.5%(n=42),modn-a1,1,42,375,3571,0,3,9.5227,14,0.2441,
+3x512B,unif-12.5%(n=42),minimax,1,42,375,3571,0,3,9.5227,14,0.2441,
+3x512B,unif-6.25%(n=45),skip-dead,1,45,375,3307,0,4,8.8187,15,0.2441,n=36 still has factor 3 — not a 3-adic test
+3x512B,unif-6.25%(n=45),stack,1,45,375,3369,0,4,8.9840,15,0.2441,n=36 still has factor 3 — not a 3-adic test
+3x512B,unif-6.25%(n=45),modn-a1,1,45,375,3500,0,3,9.3333,15,0.2441,n=36 still has factor 3 — not a 3-adic test
+3x512B,unif-6.25%(n=45),minimax,1,45,375,3500,0,3,9.3333,15,0.2441,n=36 still has factor 3 — not a 3-adic test
 3x512B,3-biased(n=32),skip-dead,1,32,375,3337,0,4,8.8987,32,0.2441,3-adic column only
+3x512B,3-biased(n=32),stack,1,32,375,3337,0,4,8.8987,32,0.2441,3-adic column only
 3x512B,3-biased(n=32),modn-a1,1,32,375,3793,0,4,10.1147,32,0.2441,3-adic column only
 3x512B,3-biased(n=32),minimax,1,32,375,3793,0,4,10.1147,32,0.2441,3-adic column only
 9x512B,full-good,skip-dead,1,48,321,2648,0,3,8.2492,16,0.1672,
+9x512B,full-good,stack,1,48,321,2648,0,3,8.2492,16,0.1672,
 9x512B,full-good,modn-a1,1,48,321,2648,0,3,8.2492,16,0.1672,
 9x512B,full-good,minimax,1,48,321,2648,0,3,8.2492,16,0.1672,
 9x512B,n=40,skip-dead,1,40,321,2648,0,3,8.2492,40,0.1672,
+9x512B,n=40,stack,1,40,321,2648,0,3,8.2492,40,0.1672,
 9x512B,n=40,modn-a1,1,40,321,2894,0,3,9.0156,40,0.1672,
 9x512B,n=40,minimax,1,40,321,2894,0,3,9.0156,40,0.1672,
+9x512B,unif-25%(n=36),skip-dead,1,36,321,2345,0,3,7.3053,4,0.1672,n=36 still has factor 3 — not a 3-adic test
+9x512B,unif-25%(n=36),stack,1,36,321,2508,0,3,7.8131,4,0.1672,n=36 still has factor 3 — not a 3-adic test
+9x512B,unif-25%(n=36),modn-a1,1,36,321,2209,0,2,6.8816,4,0.1672,n=36 still has factor 3 — not a 3-adic test
+9x512B,unif-25%(n=36),minimax,1,36,321,2209,0,2,6.8816,4,0.1672,n=36 still has factor 3 — not a 3-adic test
+9x512B,unif-12.5%(n=42),skip-dead,1,42,321,2536,0,3,7.9003,14,0.1672,
+9x512B,unif-12.5%(n=42),stack,1,42,321,2584,0,3,8.0498,14,0.1672,
+9x512B,unif-12.5%(n=42),modn-a1,1,42,321,2751,0,3,8.5701,14,0.1672,
+9x512B,unif-12.5%(n=42),minimax,1,42,321,2751,0,3,8.5701,14,0.1672,
+9x512B,unif-6.25%(n=45),skip-dead,1,45,321,2590,0,3,8.0685,5,0.1672,n=36 still has factor 3 — not a 3-adic test
+9x512B,unif-6.25%(n=45),stack,1,45,321,2648,0,3,8.2492,5,0.1672,n=36 still has factor 3 — not a 3-adic test
+9x512B,unif-6.25%(n=45),modn-a1,1,45,321,2634,0,3,8.2056,5,0.1672,n=36 still has factor 3 — not a 3-adic test
+9x512B,unif-6.25%(n=45),minimax,1,45,321,2634,0,3,8.2056,5,0.1672,n=36 still has factor 3 — not a 3-adic test
 9x512B,3-biased(n=32),skip-dead,1,32,321,2642,0,3,8.2305,32,0.1672,3-adic column only
+9x512B,3-biased(n=32),stack,1,32,321,2642,0,3,8.2305,32,0.1672,3-adic column only
 9x512B,3-biased(n=32),modn-a1,1,32,321,2894,0,3,9.0156,32,0.1672,3-adic column only
 9x512B,3-biased(n=32),minimax,1,32,321,2894,0,3,9.0156,32,0.1672,3-adic column only
+512KiB,full-good,skip-dead,1,48,384,3584,0,8,9.3333,3,0.7500,
+512KiB,full-good,stack,1,48,384,3584,0,8,9.3333,3,0.7500,
+512KiB,full-good,modn-a1,1,48,384,3584,0,8,9.3333,3,0.7500,
+512KiB,full-good,minimax,1,48,384,3584,0,8,9.3333,3,0.7500,
+512KiB,n=40,skip-dead,1,40,384,3584,0,8,9.3333,5,0.7500,
+512KiB,n=40,stack,1,40,384,3584,0,8,9.3333,5,0.7500,
+512KiB,n=40,modn-a1,1,40,384,4096,0,8,10.6667,5,0.7500,
+512KiB,n=40,minimax,1,40,384,4096,0,8,10.6667,5,0.7500,
+512KiB,unif-25%(n=36),skip-dead,1,36,384,3104,0,6,8.0833,9,0.7500,n=36 still has factor 3 — not a 3-adic test
+512KiB,unif-25%(n=36),stack,1,36,384,3328,0,7,8.6667,9,0.7500,n=36 still has factor 3 — not a 3-adic test
+512KiB,unif-25%(n=36),modn-a1,1,36,384,3072,0,4,8.0000,9,0.7500,n=36 still has factor 3 — not a 3-adic test
+512KiB,unif-25%(n=36),minimax,1,36,384,3072,0,4,8.0000,9,0.7500,n=36 still has factor 3 — not a 3-adic test
+512KiB,unif-12.5%(n=42),skip-dead,1,42,384,3424,0,7,8.9167,21,0.7500,
+512KiB,unif-12.5%(n=42),stack,1,42,384,3488,0,7,9.0833,21,0.7500,
+512KiB,unif-12.5%(n=42),modn-a1,1,42,384,3840,0,6,10.0000,21,0.7500,
+512KiB,unif-12.5%(n=42),minimax,1,42,384,3840,0,6,10.0000,21,0.7500,
+512KiB,unif-6.25%(n=45),skip-dead,1,45,384,3520,0,7,9.1667,45,0.7500,n=36 still has factor 3 — not a 3-adic test
+512KiB,unif-6.25%(n=45),stack,1,45,384,3584,0,8,9.3333,45,0.7500,n=36 still has factor 3 — not a 3-adic test
+512KiB,unif-6.25%(n=45),modn-a1,1,45,384,3776,0,5,9.8333,45,0.7500,n=36 still has factor 3 — not a 3-adic test
+512KiB,unif-6.25%(n=45),minimax,1,45,384,3776,0,5,9.8333,45,0.7500,n=36 still has factor 3 — not a 3-adic test
+512KiB,3-biased(n=32),skip-dead,1,32,384,3552,0,8,9.2500,1,0.7500,3-adic column only
+512KiB,3-biased(n=32),stack,1,32,384,3552,0,8,9.2500,1,0.7500,3-adic column only
+512KiB,3-biased(n=32),modn-a1,1,32,384,4096,0,8,10.6667,1,0.7500,3-adic column only
+512KiB,3-biased(n=32),minimax,1,32,384,4096,0,8,10.6667,1,0.7500,3-adic column only
+1MiB,full-good,skip-dead,1,48,384,3584,0,8,9.3333,3,0.7500,
+1MiB,full-good,stack,1,48,384,3584,0,8,9.3333,3,0.7500,
+1MiB,full-good,modn-a1,1,48,384,3584,0,8,9.3333,3,0.7500,
+1MiB,full-good,minimax,1,48,384,3584,0,8,9.3333,3,0.7500,
+1MiB,n=40,skip-dead,1,40,384,3584,0,8,9.3333,5,0.7500,
+1MiB,n=40,stack,1,40,384,3584,0,8,9.3333,5,0.7500,
+1MiB,n=40,modn-a1,1,40,384,4096,0,8,10.6667,5,0.7500,
+1MiB,n=40,minimax,1,40,384,4096,0,8,10.6667,5,0.7500,
+1MiB,unif-25%(n=36),skip-dead,1,36,384,3104,0,6,8.0833,9,0.7500,n=36 still has factor 3 — not a 3-adic test
+1MiB,unif-25%(n=36),stack,1,36,384,3328,0,7,8.6667,9,0.7500,n=36 still has factor 3 — not a 3-adic test
+1MiB,unif-25%(n=36),modn-a1,1,36,384,3072,0,4,8.0000,9,0.7500,n=36 still has factor 3 — not a 3-adic test
+1MiB,unif-25%(n=36),minimax,1,36,384,3072,0,4,8.0000,9,0.7500,n=36 still has factor 3 — not a 3-adic test
+1MiB,unif-12.5%(n=42),skip-dead,1,42,384,3424,0,7,8.9167,21,0.7500,
+1MiB,unif-12.5%(n=42),stack,1,42,384,3488,0,7,9.0833,21,0.7500,
+1MiB,unif-12.5%(n=42),modn-a1,1,42,384,3840,0,6,10.0000,21,0.7500,
+1MiB,unif-12.5%(n=42),minimax,1,42,384,3840,0,6,10.0000,21,0.7500,
+1MiB,unif-6.25%(n=45),skip-dead,1,45,384,3520,0,7,9.1667,45,0.7500,n=36 still has factor 3 — not a 3-adic test
+1MiB,unif-6.25%(n=45),stack,1,45,384,3584,0,8,9.3333,45,0.7500,n=36 still has factor 3 — not a 3-adic test
+1MiB,unif-6.25%(n=45),modn-a1,1,45,384,3776,0,5,9.8333,45,0.7500,n=36 still has factor 3 — not a 3-adic test
+1MiB,unif-6.25%(n=45),minimax,1,45,384,3776,0,5,9.8333,45,0.7500,n=36 still has factor 3 — not a 3-adic test
+1MiB,3-biased(n=32),skip-dead,1,32,384,3552,0,8,9.2500,1,0.7500,3-adic column only
+1MiB,3-biased(n=32),stack,1,32,384,3552,0,8,9.2500,1,0.7500,3-adic column only
+1MiB,3-biased(n=32),modn-a1,1,32,384,4096,0,8,10.6667,1,0.7500,3-adic column only
+1MiB,3-biased(n=32),minimax,1,32,384,4096,0,8,10.6667,1,0.7500,3-adic column only
 2MiB,full-good,skip-dead,1,48,384,3584,0,8,9.3333,3,0.7500,
+2MiB,full-good,stack,1,48,384,3584,0,8,9.3333,3,0.7500,
 2MiB,full-good,modn-a1,1,48,384,3584,0,8,9.3333,3,0.7500,
 2MiB,full-good,minimax,1,48,384,3584,0,8,9.3333,3,0.7500,
 2MiB,n=40,skip-dead,1,40,384,3584,0,8,9.3333,5,0.7500,
+2MiB,n=40,stack,1,40,384,3584,0,8,9.3333,5,0.7500,
 2MiB,n=40,modn-a1,1,40,384,4096,0,8,10.6667,5,0.7500,
 2MiB,n=40,minimax,1,40,384,4096,0,8,10.6667,5,0.7500,
+2MiB,unif-25%(n=36),skip-dead,1,36,384,3104,0,6,8.0833,9,0.7500,n=36 still has factor 3 — not a 3-adic test
+2MiB,unif-25%(n=36),stack,1,36,384,3328,0,7,8.6667,9,0.7500,n=36 still has factor 3 — not a 3-adic test
+2MiB,unif-25%(n=36),modn-a1,1,36,384,3072,0,4,8.0000,9,0.7500,n=36 still has factor 3 — not a 3-adic test
+2MiB,unif-25%(n=36),minimax,1,36,384,3072,0,4,8.0000,9,0.7500,n=36 still has factor 3 — not a 3-adic test
+2MiB,unif-12.5%(n=42),skip-dead,1,42,384,3424,0,7,8.9167,21,0.7500,
+2MiB,unif-12.5%(n=42),stack,1,42,384,3488,0,7,9.0833,21,0.7500,
+2MiB,unif-12.5%(n=42),modn-a1,1,42,384,3840,0,6,10.0000,21,0.7500,
+2MiB,unif-12.5%(n=42),minimax,1,42,384,3840,0,6,10.0000,21,0.7500,
+2MiB,unif-6.25%(n=45),skip-dead,1,45,384,3520,0,7,9.1667,45,0.7500,n=36 still has factor 3 — not a 3-adic test
+2MiB,unif-6.25%(n=45),stack,1,45,384,3584,0,8,9.3333,45,0.7500,n=36 still has factor 3 — not a 3-adic test
+2MiB,unif-6.25%(n=45),modn-a1,1,45,384,3776,0,5,9.8333,45,0.7500,n=36 still has factor 3 — not a 3-adic test
+2MiB,unif-6.25%(n=45),minimax,1,45,384,3776,0,5,9.8333,45,0.7500,n=36 still has factor 3 — not a 3-adic test
 2MiB,3-biased(n=32),skip-dead,1,32,384,3552,0,8,9.2500,1,0.7500,3-adic column only
+2MiB,3-biased(n=32),stack,1,32,384,3552,0,8,9.2500,1,0.7500,3-adic column only
 2MiB,3-biased(n=32),modn-a1,1,32,384,4096,0,8,10.6667,1,0.7500,3-adic column only
 2MiB,3-biased(n=32),minimax,1,32,384,4096,0,8,10.6667,1,0.7500,3-adic column only
