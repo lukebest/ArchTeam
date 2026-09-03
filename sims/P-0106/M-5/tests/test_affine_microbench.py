@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import csv
 import math
 import sys
 from pathlib import Path
@@ -13,6 +14,8 @@ sys.path.insert(0, str(_SIMS))
 from _lib.importsim import load_sim
 
 aff = load_sim(_HERE, "p0106_m5_sim")
+sys.path.insert(0, str(_HERE))
+import sweep as aff_sweep  # noqa: E402
 
 S2M = 2 * 1024 * 1024
 
@@ -56,6 +59,10 @@ def test_gcd_table_identity():
                 assert row["classes_AP"] == row["n"] // row["gcd_Sg_n"]
 
 
+S3X = 3 * 512
+S9X = 9 * 512
+
+
 def test_t2_cls_within_30pct():
     for st in ("skip-dead", "modn-a1", "minimax"):
         for mask, name in (
@@ -68,7 +75,55 @@ def test_t2_cls_within_30pct():
             assert math.isclose(cmp["t3_cls_mean"], cmp["t2_cls_mean"], rel_tol=0, abs_tol=1e-9)
 
 
+def test_t2_cls_factor3_doc_s_netlist():
+    """XOR_fold6 netlist occupancy for Doc S 3×512B / 9×512B (I=min(K,Q_tot))."""
+    for s in (S3X, S9X):
+        for st in ("skip-dead", "modn-a1", "minimax"):
+            for mask, name in (
+                (aff.mask_n40(), "n40"),
+                (aff.mask_full(), "full"),
+                (aff.mask_third_bias(), "third"),
+            ):
+                cmp = aff.compare_occupancy(st, mask, s, None)
+                assert not cmp["flag_gt_30pct"], (s, name, st, cmp)
+                assert cmp["t3_dead"] == cmp.get("t2_dead", -1) == 0
+                assert math.isclose(cmp["t3_cls_mean"], cmp["t2_cls_mean"], rel_tol=0, abs_tol=1e-9)
+                assert math.isclose(cmp["t3_n_bank"], cmp["t2_n_bank"], rel_tol=0, abs_tol=1e-9)
+
+
 def test_classes_ap_vs_net_printed_separately():
     occ = aff.occupancy("modn-a1", aff.mask_n40(), S2M, 4096)
     assert occ.classes_ap == 5
     assert occ.cls_mean > 0
+
+
+def test_smoke_strides_include_factor3_doc_s():
+    names = {n for n, _ in aff_sweep.SMOKE_STRIDES}
+    assert names == {"512B", "3x512B", "9x512B", "2MiB"}
+    assert "3x512B" in aff_sweep.SMOKE_CYCLE_S
+    assert {n for n, _ in aff_sweep.SMOKE_MASKS} == {"full-good", "n=40", "3-biased(n=32)"}
+    assert aff_sweep.SMOKE_STRATEGIES == ("skip-dead", "modn-a1", "minimax")
+
+
+def test_signed_smoke_tables_include_factor3_doc_s():
+    """Signed occupancy/t2_compare must carry XOR_fold6 netlist rows for 3×/9×512B."""
+    occ_path = _HERE / "results" / "occupancy.csv"
+    cmp_path = _HERE / "results" / "t2_compare.csv"
+    occ = list(csv.DictReader(occ_path.open()))
+    cmp = list(csv.DictReader(cmp_path.open()))
+    for rows in (occ, cmp):
+        s_vals = {r["S"] for r in rows}
+        assert {"512B", "3x512B", "9x512B", "2MiB"} <= s_vals
+        for need in ("3x512B", "9x512B"):
+            subset = [r for r in rows if r["S"] == need]
+            assert len(subset) == 9, (need, len(subset))  # 3 masks × 3 strategies
+    for r in cmp:
+        if r["S"] in ("3x512B", "9x512B"):
+            assert r["flag_gt_30pct"] == "False"
+            assert float(r["rel_err_cls"]) == 0.0
+            assert float(r["rel_err_n_bank"]) == 0.0
+            assert int(r["t3_dead"]) == 0
+            assert r["t3_cls_mean"] != ""
+            assert r["t2_cls_mean"] != ""
+    bw = list(csv.DictReader((_HERE / "results" / "bw_ci.csv").open()))
+    assert {r["S"] for r in bw} >= {"512B", "3x512B", "2MiB"}

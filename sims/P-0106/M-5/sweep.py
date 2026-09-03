@@ -82,13 +82,20 @@ MASKS = (
     ("3-biased(n=32)", mask_third_bias()),
 )
 
+# Signed smoke occupancy: Doc S 512B + factor-3 (3×512B, 9×512B) + 2MiB.
+# gcd_table.csv is AP sanity only and does not count as XOR_fold6 netlist coverage.
+SMOKE_STRIDES = (AFFINE_DOC[0], AFFINE_DOC[1], AFFINE_DOC[2], AFFINE_DOC[-1])
+SMOKE_MASKS = (MASKS[0], MASKS[1], MASKS[-1])  # full-good, n=40, 3-biased
+SMOKE_STRATEGIES = ("skip-dead", "modn-a1", "minimax")
+SMOKE_CYCLE_S = ("2MiB", "512B", "3x512B")
+
 
 def sweep(mode: str, out: Path, seed: int, n_trials: int, n_pts: int | None) -> dict:
     out.mkdir(parents=True, exist_ok=True)
     if mode == "smoke":
-        strides = [AFFINE_DOC[0], AFFINE_DOC[-1]]  # 512B, 2MiB
-        masks = [MASKS[0], MASKS[1], MASKS[-1]]  # full, n40, 3-biased
-        strategies = ("skip-dead", "modn-a1", "minimax")
+        strides = list(SMOKE_STRIDES)
+        masks = list(SMOKE_MASKS)
+        strategies = SMOKE_STRATEGIES
         n_pts_cyc = n_pts if n_pts is not None else 256
         n_trials = min(n_trials, 3)
         csr_ports_list = (1,)
@@ -160,7 +167,7 @@ def sweep(mode: str, out: Path, seed: int, n_trials: int, n_pts: int | None) -> 
     cyc_rows = []
     tpc_store: dict[tuple, list[float]] = {}
     cycle_masks = [m for m in masks if m[0] in ("n=40", "full-good", "3-biased(n=32)")]
-    cycle_S = [st for st in strides if st[0] in ("2MiB", "512B", "3x512B")]
+    cycle_S = [st for st in strides if st[0] in SMOKE_CYCLE_S]
     for trial in range(n_trials):
         tseed = seed + trial
         for s_name, s in cycle_S:
