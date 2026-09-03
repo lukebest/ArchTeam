@@ -8,6 +8,24 @@ S,mask,strategy,alpha,n,n_DMC,n_bank,dead,cls_min,cls_mean,classes_AP,min_mean,n
 512B,3-biased(n=32),skip-dead,1,32,384,3552,0,8,9.2500,32,0.7500,3-adic column only
 512B,3-biased(n=32),modn-a1,1,32,384,4096,0,8,10.6667,32,0.7500,3-adic column only
 512B,3-biased(n=32),minimax,1,32,384,4096,0,8,10.6667,32,0.7500,3-adic column only
+3x512B,full-good,skip-dead,1,48,375,3369,0,4,8.9840,16,0.2441,
+3x512B,full-good,modn-a1,1,48,375,3369,0,4,8.9840,16,0.2441,
+3x512B,full-good,minimax,1,48,375,3369,0,4,8.9840,16,0.2441,
+3x512B,n=40,skip-dead,1,40,375,3369,0,4,8.9840,40,0.2441,
+3x512B,n=40,modn-a1,1,40,375,3793,0,4,10.1147,40,0.2441,
+3x512B,n=40,minimax,1,40,375,3793,0,4,10.1147,40,0.2441,
+3x512B,3-biased(n=32),skip-dead,1,32,375,3337,0,4,8.8987,32,0.2441,3-adic column only
+3x512B,3-biased(n=32),modn-a1,1,32,375,3793,0,4,10.1147,32,0.2441,3-adic column only
+3x512B,3-biased(n=32),minimax,1,32,375,3793,0,4,10.1147,32,0.2441,3-adic column only
+9x512B,full-good,skip-dead,1,48,321,2648,0,3,8.2492,16,0.1672,
+9x512B,full-good,modn-a1,1,48,321,2648,0,3,8.2492,16,0.1672,
+9x512B,full-good,minimax,1,48,321,2648,0,3,8.2492,16,0.1672,
+9x512B,n=40,skip-dead,1,40,321,2648,0,3,8.2492,40,0.1672,
+9x512B,n=40,modn-a1,1,40,321,2894,0,3,9.0156,40,0.1672,
+9x512B,n=40,minimax,1,40,321,2894,0,3,9.0156,40,0.1672,
+9x512B,3-biased(n=32),skip-dead,1,32,321,2642,0,3,8.2305,32,0.1672,3-adic column only
+9x512B,3-biased(n=32),modn-a1,1,32,321,2894,0,3,9.0156,32,0.1672,3-adic column only
+9x512B,3-biased(n=32),minimax,1,32,321,2894,0,3,9.0156,32,0.1672,3-adic column only
 2MiB,full-good,skip-dead,1,48,384,3584,0,8,9.3333,3,0.7500,
 2MiB,full-good,modn-a1,1,48,384,3584,0,8,9.3333,3,0.7500,
 2MiB,full-good,minimax,1,48,384,3584,0,8,9.3333,3,0.7500,

@@ -39,6 +39,9 @@ Generator: `sims/_lib/workloads.py`.
 
 ## Sweep knobs
 
+`--mode smoke` occupancy / `t2_compare` strides are `{512B, 3×512B, 9×512B, 2MiB}`
+(factor-3 Doc S netlist rows required; `gcd_table.csv` is AP sanity only).
+Cycle BW reduced bbox covers `{512B, 3×512B, 2MiB}`.
 `--mode night` scans CSR ports `{1,4}`, decode latency `{2,1}`, β `{0, dmc[5:0]}`, page `{open,close}`.
 
 ## T2 compare

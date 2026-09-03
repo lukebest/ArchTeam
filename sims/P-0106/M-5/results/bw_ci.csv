@@ -8,6 +8,15 @@ S,mask,strategy,csr_ports,decode_lat,beta,page,txns_per_cycle_ci,mean,ci95_hw,n
 2MiB,n=40,minimax,1,2,zero,open,0.500000 ± 0.000000 (n=3),0.5,0.0,3
 2MiB,n=40,modn-a1,1,2,zero,open,0.500000 ± 0.000000 (n=3),0.5,0.0,3
 2MiB,n=40,skip-dead,1,2,zero,open,0.477178 ± 0.000000 (n=3),0.47717842323651455,0.0,3
+3x512B,3-biased(n=32),minimax,1,2,zero,open,0.500000 ± 0.000000 (n=3),0.5,0.0,3
+3x512B,3-biased(n=32),modn-a1,1,2,zero,open,0.500000 ± 0.000000 (n=3),0.5,0.0,3
+3x512B,3-biased(n=32),skip-dead,1,2,zero,open,0.500000 ± 0.000000 (n=3),0.5,0.0,3
+3x512B,full-good,minimax,1,2,zero,open,0.500000 ± 0.000000 (n=3),0.5,0.0,3
+3x512B,full-good,modn-a1,1,2,zero,open,0.500000 ± 0.000000 (n=3),0.5,0.0,3
+3x512B,full-good,skip-dead,1,2,zero,open,0.500000 ± 0.000000 (n=3),0.5,0.0,3
+3x512B,n=40,minimax,1,2,zero,open,0.500000 ± 0.000000 (n=3),0.5,0.0,3
+3x512B,n=40,modn-a1,1,2,zero,open,0.500000 ± 0.000000 (n=3),0.5,0.0,3
+3x512B,n=40,skip-dead,1,2,zero,open,0.500000 ± 0.000000 (n=3),0.5,0.0,3
 512B,3-biased(n=32),minimax,1,2,zero,open,0.500000 ± 0.000000 (n=3),0.5,0.0,3
 512B,3-biased(n=32),modn-a1,1,2,zero,open,0.500000 ± 0.000000 (n=3),0.5,0.0,3
 512B,3-biased(n=32),skip-dead,1,2,zero,open,0.500000 ± 0.000000 (n=3),0.5,0.0,3
