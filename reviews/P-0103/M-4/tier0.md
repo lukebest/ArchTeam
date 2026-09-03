@@ -1,6 +1,7 @@
-# Tier 0 · P-0103/M-4 · MRDR
+# Tier 0 · P-0103/M-4 · CR-MRDR（覆盖冻结窗 MRDR）
 
 - 机制卡: mechanisms/P-0103/M-4.md
+- 版本: CR-MRDR（割切鲁棒混合进位数位反转）。**冻结窗 MRDR 的 T0 作废**（T1 已在 S=1.5MiB 上把 n_DMC 锁死为 6）。本文件只评这一版。
 - 判决: PASS_T1
 - 可行性: PASS
 - 新颖性: DIFFERENT_APPROACH
@@ -8,14 +9,14 @@
 - 进入 Tier 1: YES
 
 ## 轴一 可行性
-- 因果性: `t0/t1` 来自当前 `G mod 9`，H0/H1 来自当前 `A[26:19]`/`A[16:9]` 的 XOR 折叠，bitrev 是接线。纯函数，无状态。
-- 完美预测/无限带宽/零延迟: 无预测器、无 FSM。1 拍组合（CSA 深度 ~4 + XOR 深度 3 + 模 3 加），partial-good 再 1 拍 SRAM。不是 0。
-- 关键边界（S=3·2^k、partial good、冻结奇数因子、512B/4K）: 卡点名「只做数位反转不够」：`3|δ` 时 trit 冻，反转到高位仍然冻。H0 取 `G[17:10]`（`δ=3072` 时低 10b 冻、该 8b 场以 3 步进且 `gcd(3,256)=1`），专打 DMC 因子 3；H1 取 `G[7:0]` 打小步长 bank trit。解码 `DMC=t0'+3·q[6:0]`、`bank=t1'+3·q[10:7]` 不改 384=3×128、48=3×16。XOR 折叠不是 `Z_3` 同态，不把 `3|δ` 传进 H0。partial-good 只改 `bank_in`，第二次重试用 H0 位，禁止 `+1`，DMC 锁定。512B 粒。H0 直方图 `{2,1,1}` 可能把 min/mean 打到 0.7–0.9，卡未把 0.85 写成已达到。
-- 硬件开销 vs 问题约束: 五张里最便宜：每核 ~200 GE + 接线 bitrev，无乘法器、无映射路径 RAM。GOOD_MAP 共享。不增端口/资源个数。在信封内。
+- 因果性: `d[i]=G[i]⊕G[i+11]⊕G[21]`、两路无权重 mod-3、H0/H1 折叠、接线反转、`DMC=t0'+3·q[6:0]` 都只看当前 `A`。无 FSM、无 stride 锁、不读未来请求。纯函数。
+- 完美预测/无限带宽/零延迟: 无预测器、无 warmup。1 拍组合（3-XOR 深度 2 + CSA ~4 + trit 加），partial-good 再 1 拍共享 SRAM。不是 0 拍。outstanding 128 盖住 mapper。
+- 关键边界（S=3·2^k、T1 杀手 1.5MiB、partial good、冻结奇数因子、512B/4K）: **没有忽略 T1 杀手。** `S=1.5MiB`、`δ=3072` 时 `G[9:0]` 冻；旧卡 `p=G[10:0]` 只剩 `p[10]`，反转后 `q[6:0]` 2 档 × trit 3 = 6。本卡每个二进制数位跨三条冻结线：低抽头打小步长，中抽头 `G[i+11]` 落在 `U=G>>10`（`U+=3`，`gcd(3,2^n)=1`），高抽头 `G[21]` 覆盖 ≤2MiB。卡主张杀手步长上 `| {q[6:0]} |=128`、H0 吃 `G[19:12]` 满 `Z_3`，故 n_DMC=384。这是可证伪的组合命题，不是直方图猜想。`S=4608B` 时整数 `G mod 9` 冻，trit 改吃 `G[0]`/`G[3]`，不是同态。`S=2MiB` 无因子 3，每个 `d[i]` 含 `G[21]`。不改 384=3×128、48=3×16。粒度 `G=A[63:9]`。partial-good：只改 `bank_in`，XOR 重试，禁止 `+1`、禁止改 DMC。消融（剪掉中/高抽头）必须回到 n_DMC=6——评估必跑，不是 T0 已达。
+- 硬件开销 vs 问题约束: 相对旧 MRDR 多 22 个 XOR2，每核 ~3×10^2 GE，无乘法器、无每核 ROM。GOOD_MAP 384×48b 1R 共享。只改 interleave，不增端口/DMC/die。信封内。
 
 ## 轴二 新颖性
-- vs 文献（引用具体论文/工作）: 纯 bit-reversal / mixed-radix digit-reversal 来自 FFT 重排（如 US5473556），不是 DRAM DMC 占用方案；卡已证明「只反转不够」。Zhang MICRO'00 permutation page interleave 与 Intel DRAM XOR decode 是 GF(2) 下「高位 XOR 进 bank 索引」；本卡必须在 `Z_3^2` 上做模 3 加，因为 384 与 48 都带因子 3，GF(2) 矩阵表达不了 trit。Seznec CRT 奇数存储器把奇数模当 bank 号本身，不把 trit 与 11b bitrev 拼成混合进制数位。Norton–Melton 布尔线性变换打 2 幂 stride，不注入 trit。结构是「11b bitrev（2 幂轴）+ 两路不相交 XOR-fold trit 注入（奇数轴）+ 混合进制接线解码」，不是已发表 DRAM map 的换名。
-- vs 本批其他卡: 与 M-1 同家族（往奇数坐标注入 2-adic 熵），但代数对象不同：无 CRT 模逆、无 Feistel ROM，两 trit 独立注入 + bitrev 把活的高 2-adic 位翻到 DMC 组 LSB。评估计划要求关掉 TRIT_INJ 的纯反转对照必须失败——这把与「只是 bitrev」划清。与 M-5（3b 切块 CSA，根本不算 `G mod 9`）不同。与 P-0105 五张不重复。
+- vs 文献: 3 抽头 `G[i]⊕G[i+11]⊕G[21]` 单独看是 XOR-scheme / Intel DRAM XOR decode / Vandierendonck GF(2) 哈希「冻结线两侧都有抽头」的稀疏实例（Frailong ICPP'85、Rau ISCA'91）。混合进位数位反转来自 FFT（US5473556），不是 DRAM DMC 占用方案。本卡的对象是三者的合成：**跨冻结边界的 3 线性型 → 接线反转 → 两路不相交 trit 注入 → `t'+3·q` 解码**，专门打「2-adic 组索引在大 `3·2^k` 上冻死、trit 再乘在塌缩组上」这条 T1 路径。GF(2) 矩阵表达不了因子 3；trit 仍在 `Z_3` 上。没有找到「3 抽头 XOR 数位 + 混合进制反转 + trit 注入」的 ISCA/MICRO DRAM map。不是 EXACT_MATCH。
+- vs 本批已过线卡: 与 **P-0103/M-1 MRFI** 同属「把仍活 2-adic 熵送进奇数坐标」，但代数对象不同：MRFI 是 CRT 切开 + `Z_9` 单边 Feistel ROM；本卡不算 `G mod 9` 做 Feistel，组索引本身被改成割切鲁棒线性型。与 **P-0103/M-5 B3CSH** 都避开整数 `G mod 9`，但 B3CSH 是 3b 切块 + `Z_3` CSA 树，没有数位反转、没有 11 个 3 抽头组索引。与已淘汰的 P-0105/CRXS（每割切两侧抽头的一张 GF(2) 矩阵、打相位不变）相关但问题不同：CRXS 无 trit、不解码 `384=3×128`。不是兄弟重复。旧 MRDR 是本卡剪掉中/高抽头的消融臂，不是同一张机制。
 
 ## 判决理由
-轴一通过：纯组合、覆盖 `δ=3/24/3072` 的活源点名、partial-good 不跨 DMC、开销在信封内。新颖性 DIFFERENT_APPROACH：混合进制数位置换必须搭配 trit 注入才打得开冻结因子 3，这是可被对照实验证伪的结构命题（关注入则 n_DMC 仍 128）。XOR-fold 满 `Z_3` 不是定理、直方图 2:1 偏置是 T1 要测的量，不是 T0 淘汰点。送入 T1。
+轴一通过：纯组合；T1 杀手步长被写成数位定义而不靠加宽同一 `G[n:0]` 窗；partial-good 不跨 DMC；开销在只改交织信封内。卡内散文把 `q[6:0]` 写成含 `U[1..7]`，公式是 `q[j]=d[10−j]`（组比特来自 `d[10:4]`）——下标要对着公式建模，这是 T1 打印翻转计数的事，不是 T0 淘汰。新颖性 DIFFERENT_APPROACH：相对冻结窗 MRDR 换的是数位对象；相对 XOR-scheme 仍保留 `Z_3` trit 与混合进制解码。结构命题「杀手步长上 `|q[6:0]|=128` 而对照卡 =2」可供顶会论证。送入 T1。T1 主指标必须是 `S=1.5MiB` 的 n_DMC（384 不是 6）；公共 `G[21]` 相关与 H0 `{2,1,1}` 偏置是评测量。
