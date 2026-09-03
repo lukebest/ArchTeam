@@ -1,26 +1,21 @@
 # Tier 0 · P-0101/M-3 · 层次正交放置
 
 - 机制卡: mechanisms/P-0101/M-3.md
-- 判决: REJECT
+- 判决: PASS_T1
 - 可行性: PASS
-- 新颖性: FUNCTIONAL_EQUIVALENT
-- 质量: INCREMENTAL
-- 进入 Tier 1: NO
+- 新颖性: DIFFERENT_APPROACH
+- 质量: ISCA_WORTHY
+- 进入 Tier 1: YES
 
 ## 轴一 可行性
-- 因果性: Stage A/B 只看当前地址；可选 SK 表 boot 写、译码 1R。无跨请求状态。
-- 完美预测/无限带宽/零延迟: 无 stride 预言。SK 关闭则纯组合；打开则 1 cycle 读。未假设无限 DMC 口。
-- 关键边界: 成功标准写成 DMC 占用 ≈1.0，明确「不是 bank 占用 >K/N」。S=2MiB 时 K=4096≥384，分层放置不证伪鸽笼。ENC3 用区分位，不把因子 3 交给 `G mod 384`。不跨 DMC 借 bank。
-- 硬件开销: 组合 <0.2kGE；可选 96B SK flop file。仍在只改 interleave 信封内。
+- 因果性: Stage A `dmc0=ENC3(addr[25:24])·128+addr[32:26]`，Stage B `bank` 来自 `addr[23:21]` 等，均为当前地址组合。可选 SK 仅 boot 写。无 stride 神谕、无飞行中改表。
+- 完美预测/无限带宽/零延迟: 无。无 SK 纯组合；有 SK 为 96B 1R + 模加，1 cycle。outstanding 128 覆盖。
+- 关键边界: **不**宣称 bank 占用 >K/N。成功标准是 DMC 占用 `min(K,384)/384=1`：`K=4096>384`，铺满 384 个 DMC 不违反鸽笼（鸽笼锁的是 18432 bank）。Stage A 用 9 个区分位喂 `384=128×3`，AP 上这些位满变 ⇒ `|π_DMC|=384`。bank 层每 DMC ~`K/384≈10.67` 点，`10.67/48≈22.2%=K/N`。partial-good：bank clip 到 0..47，不跨 DMC。512B 粒、不改 120/384/18432。
+- 硬件开销 vs 问题约束: 组合抽取 `<0.2kGE`；可选 SK 96B flop ≈4.6kGE。只改 interleave。T1 风险（不淘汰）：Stage A 只吃 `addr[32:24]`，`S=512B` 时这些位每 16MiB 才动，顺序流会在单个 DMC 上粘住——必须与大步长一起报，不能用 2MiB 成功掩盖。
 
 ## 轴二 新颖性
-- vs 文献: 「先铺 channel/DMC、再铺 bank」是多级 interleave 的默认工程（Intel/JEDEC channel-rank-bank XOR；Zhang permutation page interleave 的分层）。7b 抽取 + ENC3 + 可选斜表 = 高位抽取加 3-way，不是新图。
-- vs 本周卡: 相对 M-1 只是把同一区分位优先接到 DMC 而不是 flat。P-0105/M-5 轴均衡仿射、P-0103 的 DMC 奇数因子注入是同一「别把 DOF 倒进一条轴」命题的不同包装。
+- vs 文献: 层次 channel/rank/bank 译码本身是 DRAM 标准；XOR-scheme、I-Poly、Intel/HBM hash 把高低位混进同一索引。本卡的可论证对象不是又一张哈希，而是鸽笼下的**目标函数切换**：接受 bank 占用 ≤22.2%，把 min/mean BW 的 roofline 改到「K 点是否盖住 384 DMC」。`384=128×3` 用 7b 接线 + 3-way 满射，而不是 `G mod 384`（`gcd(4096,384)=128` → 3 个 DMC）。这与 Seznec 素数模、Harper 偏斜、Latin square、bit-reversal 都不同构：那些仍在追求桶数或 2D 模板，不陈述「N_DMC 可被 K 盖满、N_bank 不能」。标 DIFFERENT_APPROACH。
+- vs 本批其他卡: 相对 M-1/M-2：同一 K 个点，本卡先铺 DMC，避免 `flat` 连续块 `/48` 挤进 ~86 个 DMC（卡内对照 ×3～×4.5）。相对 P-0105/AB2A（Z_n 互素 2D 仿射、INCREMENTAL）和 CRXS（GF(2) 双侧抽头、INCREMENTAL）：那些打 start-address/phase 不变性；本卡打 P-0101 的「空桶不可避免之后 BW 不要塌到 9 个 DMC」。相对 P-0103 奇数因子注入，症状是 `3|δ` 不是 2 幂窗冻结。无 EXACT_MATCH。
 
-## 轴三 质量
-- 机制完整度: 四层占用探针、与 M-1 对照、失败标准写对（禁止用 bank>K/N 当成功）。
-- 可证伪性: S=2MiB 上 n_DMC 应 ≈384；HA 份额有 1.5× 上限。
-- 增量: 接线优先级，不是新不变量。
-
-## 理由
-可行性通过，问题对齐（DMC 先撞墙）写得清楚。新颖性仍是分层 XOR/抽取。不进 Tier 1。
+## 判决理由
+轴一通过：DMC 占用 384/384 与 bank 占用 ≤22.2% 同时成立，不证伪本题。新颖性是鸽笼约束下的分层放置目标，不是 XOR/CRT 换名。结构足够支撑顶会论证（9 DMC vs 384 DMC 的 Little/roofline，以及 M-1 连续块对照）。非 EXACT_MATCH。进入 T1。T1 必须按层计数 die/HA/DMC/bank，并扫 `S=512B` 看高位 DMC 是否粘死。
