@@ -14,6 +14,6 @@ Tier 2 first-principles analytical specs and occupancy models.
 
 Not in this batch: `P-0103/M-4` CR-MRDR.
 
-Envelope TEAM-SPEC: `team-384dmc-18432bank`. Bench name: `team-interleave-microbench`.
+Envelope and loads: **负载基线 TEAM-SPEC / 问题 YAML** (table is off-repo / shared disk; not a GitHub path). Bench: `team-interleave-microbench`.
 
 Run (stdlib only): `python3 models/<P>/<M>/model.py`.

@@ -9,17 +9,40 @@
 | Problem | `problems/P-0105.yaml` (start-address phase) |
 | Mechanism | `mechanisms/P-0105/M-4.md` |
 | T1 | `reviews/P-0105/M-4/tier1_synthesis.md`, `Dr.Sim.md` |
-| Envelope | TEAM-SPEC `team-384dmc-18432bank` |
+| Envelope | 负载基线 TEAM-SPEC / 问题 YAML (`team-384dmc-18432bank`) |
 | Bench | `team-interleave-microbench` |
 | Out of scope | CR-MRDR; AES/GF(256); no silicon ±15% |
 
+The 负载基线 table lives off-repo (shared disk). **Do not cite a GitHub path for it.**
+
 `fold384` covering `4096=10·384+256` ⇒ maxload 11 / min 10 / CV≈0.044 is a **12-bit uniform covering bound**, independent of the S-box. **Forbidden** to calibrate the model against those numbers as golden mechanism results.
+
+### 负载基线 TEAM-SPEC / 问题 YAML（口径冻结）
+
+**Envelope (only interleave may change):** 2×Die2 × 60 core/die × 96 HA/die × 2 pipe/HA × 1 DMC/pipe × 48 bank/DMC → **120 core / 384 DMC / 18432 bank**.
+
+| Quantity | Value | SOURCE |
+|----------|--------|--------|
+| grain / page / W | 512B / 4K / 8GiB=2^33 | 负载基线 TEAM-SPEC / 问题 YAML |
+| outstanding / in-flight | 128 / core; Q_tot=15360 | 负载基线 TEAM-SPEC / 问题 YAML |
+| stride range | 1B–2MiB | 负载基线 TEAM-SPEC / 问题 YAML |
+| s_crit | 2^33/18432 ≈ 455.11 KiB | 问题 YAML |
+| K @ 2MiB / ceiling | 4096 / 22.2% | 问题 YAML |
+
+**UNKNOWN (do not fill):** clock, μ_d, DRAM type, row-buffer / tCAS, per-bank peak, DMC microarchitecture.
+
+**假设:** H-TXN = 512B/txn (负载基线 TEAM-SPEC); H-MAP-LAT = 1–2 cycle (card self-estimate, not silicon); H-MU-D named only.
+
+No public silicon: no ±15% claim. Occupancy algebra is exact. Absolute BW is a **separate column** `n_DMC·μ_d` (假设 H-MU-D). **0.85** is the problem pass line, not a measured mean. Forbidden: H100 STREAM 91–94%, 353 ns, 10 MC as 384-bucket proxy.
+
+**Generator:** `team-interleave-microbench`. **Public counterexamples:** STREAM, random p-chase, 2-power-only, resident SRAM/L2, decode-* packs, **a single base/phase**.
 
 ## 2. Variables
 
 | Symbol | Unit | Domain | SOURCE |
 |--------|------|--------|--------|
-| W, grain, N_DMC, N_bank, Q_tot | — | 2^33, 512, 384, 18432, 15360 | YAML; identities |
+| W, grain, N_DMC, N_bank, Q_tot | — | 2^33, 512, 384, 18432, 15360 | 负载基线 TEAM-SPEC / 问题 YAML |
+| s_crit | B | ≈455.11 KiB | 负载基线 TEAM-SPEC / 问题 YAML |
 | x12 | 1 | phys[20:9] | card §2 |
 | y12 | 1 | phys[32:21] | card §2 |
 | x' | 1 | (x+7y) mod 2^12 | card; 12b truncate |
@@ -100,8 +123,10 @@ and the same for visit-share vectors if needed. T1: n_DMC=384 and occupancy rela
 
 ```
 X_rel = min(384, |I|) / n_DMC_I
-BW ≤ n_DMC_I · μ_d          # 假设 H-MU-D; default no GB/s
+BW ≤ n_DMC_I · μ_d          # 假设 H-MU-D; ABSOLUTE BW is a separate column
 ```
+
+Default: no GB/s. Do not fill H100 STREAM 91–94% or 353 ns. **0.85 is the problem pass line, not a measured mean.**
 
 Shear walks the row-buffer axis; occupancy ≠ DRAM BW. Do not convert covering CV into GB/s.
 
@@ -121,8 +146,8 @@ Shear walks the row-buffer axis; occupancy ≠ DRAM BW. Do not convert covering 
 | S(0..15) checksum, 12b shear netlist, fold384 on 12b | exact |
 | Uniform covering 11/10 | exact **counterfactual** if raw uniform; not a measured SNS output |
 | S-box discrepancy vs base | experimental; no Weil bound |
-| H-MU-D | 假设 |
-| DRAM tRRD/tCCD/tFAW | UNKNOWN; not filled |
+| H-MU-D, H-TXN, H-MAP-LAT (card 1–2 cycle) | 假设; not silicon |
+| Clock / DRAM type / tCAS / tRRD / tCCD / tFAW / per-bank peak | UNKNOWN; not filled |
 
 ## 9. Sensitivity
 
@@ -141,15 +166,23 @@ Sweep: those two base families × S set. Never retune S(u) after seeing CV.
 
 ## 11. Workloads
 
-- S ∈ {2MiB, 1MiB, 512KiB, 4608B, 512B}.
-- Bases: 512B-grain phases in `0..4K−512`, **and** 2MiB-aligned, separate tables.
-- Ablation rows on the same S=2MiB bases.
-- Bench: `team-interleave-microbench`.
+SOURCE: 负载基线 TEAM-SPEC / 问题 YAML + card §4 + T1. Generator: `team-interleave-microbench`.
+
+**Pass pack (this card):**
+
+- For **each** S, sweep **multiple** base/phase values. **Must include S=2MiB and S=512B.** Also 1MiB, 512KiB; 4608B is 3-adic×phase and stays **alone**.
+- Base families, **separate tables:** 512B-grain phases in `0..4K−512`, and 2MiB-aligned.
+- **Measuring a single base is a counterexample.**
+- Ablation rows (shear-only; S-box(x[11:4]) only) on the same S=2MiB bases.
+
+**Public counterexamples (not pass lines):** STREAM, random p-chase, 2-power-only, resident SRAM/L2, decode-* packs, single-base.
 
 ## 12. Forbidden
 
 - AES / GF(256) S-box
 - Calibrating against 11/10/0.044 as golden
 - Averaging 4608B into a 2-power row
-- decode-*; STREAM pass; H100 384-proxy; hardcoded GB/s
+- decode-*; STREAM / p-chase / 2-power-only / resident / single-base as pass lines
+- H100 384-proxy; H100 STREAM 91–94%; H100 353 ns; hardcoded GB/s
+- Treating 0.85 as a measured mean
 - Joint ranking vs other Batch A cards

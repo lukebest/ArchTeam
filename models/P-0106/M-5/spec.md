@@ -9,17 +9,42 @@
 | Problem | `problems/P-0106.yaml` (partial good / live set) |
 | Mechanism | `mechanisms/P-0106/M-5.md` |
 | T1 | `reviews/P-0106/M-5/tier1_synthesis.md`, `Dr.Sim.md` |
-| Envelope | TEAM-SPEC `team-384dmc-18432bank` |
+| Envelope | 负载基线 TEAM-SPEC / 问题 YAML (`team-384dmc-18432bank`) |
 | Bench | `team-interleave-microbench` |
 | Out of scope | CR-MRDR; no silicon ±15%; no cross-DMC steal |
 
+The 负载基线 table lives off-repo (shared disk). **Do not cite a GitHub path for it.**
+
 Main gain is **modulus 48 → n_live**, not picking α. `gcd(α,n)=1` ⇒ `gcd(α·S_g,n)=gcd(S_g,n)` for any S_g (integer identity). α search is a constant on gcd.
+
+### 负载基线 TEAM-SPEC / 问题 YAML（口径冻结）
+
+**Envelope (only interleave may change):** 2×Die2 × 60 core/die × 96 HA/die × 2 pipe/HA × 1 DMC/pipe × 48 bank/DMC → **120 core / 384 DMC / 18432 bank**.
+
+| Quantity | Value | SOURCE |
+|----------|--------|--------|
+| grain / page / W | 512B / 4K / 8GiB=2^33 | 负载基线 TEAM-SPEC / 问题 YAML |
+| outstanding / in-flight | 128 / core; Q_tot=15360 | 负载基线 TEAM-SPEC / 问题 YAML |
+| stride range | 1B–2MiB | 负载基线 TEAM-SPEC / 问题 YAML |
+| s_crit | 2^33/18432 ≈ 455.11 KiB | 问题 YAML |
+| K @ 2MiB / ceiling | 4096 / 22.2% | 问题 YAML |
+| production-like mask | **n=40 → L=32** (+ spare on that DMC), **uniform** | 负载基线 TEAM-SPEC |
+
+**UNKNOWN (do not fill):** clock, μ_d, DRAM type, row-buffer / tCAS, per-bank peak, DMC microarchitecture. **Do not invent a production retire spectrum.**
+
+**假设:** H-TXN = 512B/txn (负载基线 TEAM-SPEC); H-MAP-LAT = 1–2 cycle (card self-estimate, not silicon); H-MU-D named only.
+
+No public silicon: no ±15% claim. Occupancy algebra is exact. Absolute BW is a **separate column** `n_DMC·μ_d` (假设 H-MU-D). **0.85** is the problem pass line, not a measured mean. Forbidden: H100 STREAM 91–94%, 353 ns, H100 row-remap as this-machine calibration.
+
+**Generator:** `team-interleave-microbench`. **Public counterexamples:** STREAM, random p-chase, 2-power-only, resident SRAM/L2, decode-* packs.
 
 ## 2. Variables
 
 | Symbol | Unit | Domain | SOURCE |
 |--------|------|--------|--------|
-| W, grain, N_DMC, N_bank, Q_tot | — | 2^33, 512, 384, 18432, 15360 | YAML; identities |
+| W, grain, N_DMC, N_bank, Q_tot | — | 2^33, 512, 384, 18432, 15360 | 负载基线 TEAM-SPEC / 问题 YAML |
+| s_crit | B | ≈455.11 KiB | 负载基线 TEAM-SPEC / 问题 YAML |
+| n_prod | 1 | 40 (L=32+spare), uniform | 负载基线 TEAM-SPEC |
 | M[d] | 1 | 48b live mask | card; per DMC |
 | n | 1 | popcount(M) ∈ [0,48] | card |
 | α | 1 | (Z/nZ)* ∩ listed candidates | card §2 |
@@ -96,16 +121,15 @@ The **silicon** g is XOR_fold6, domain 64 points, **not** Z/nZ. Print both:
 
 Dead hits must be 0.
 
-Masks (TEAM-SPEC, **not measured yield**):
+Masks. **Do not invent a production retire spectrum.** SOURCE: 负载基线 TEAM-SPEC / 问题 YAML.
 
-| Label | n typical | Factor 3? | Role |
-|-------|-----------|-----------|------|
+| Label | n | Factor 3? | Role |
+|-------|---|-----------|------|
+| n=40 uniform (L=32+spare) | 40=8×5 | no 3 | **钉死的生产像对照** — 负载基线 TEAM-SPEC |
+| still mod 48 + skip-dead | 48 then skip | uses 48 | **required contrast** |
 | full-good | 48 | yes | gain vs no-rebind ≈0 |
-| 6.25% uniform | 45 | yes | problem-scan |
-| 12.5% uniform | 42 | yes | problem-scan |
-| 25% uniform | 36=4×9 | **still has 3** | **not** a 3-adic test |
-| n=40 (L=32+spare) | 40=8×5 | no 3 | 负载基线 production-like |
-| 3-residue-biased retire | e.g. drop bank≡0 (mod 3) ⇒ n=32=2^5 | 3 removed | **only** 3-adic column |
+| 6.25 / 12.5 / 25% uniform | 45 / 42 / 36 | 36 still has 3 | **optional problem-scan sensitivity**, not yield, not 3-adic |
+| 3-residue-biased | e.g. n=32 | 3 removed | T1 3-adic column only; not a invented fab map |
 
 Issued set I = first min(K, Q_tot) AP points.
 
@@ -117,7 +141,7 @@ BW ≤ n_DMC_I · μ_d
 BW ≤ Σ_d n_live_classes_d · μ_b
 ```
 
-μ_d, μ_b UNKNOWN. Default: no GB/s. Class-count ×3 is not BW ×3.
+μ_d, μ_b UNKNOWN. Absolute BW is a **separate column** with μ_d labeled 假设. Default: no GB/s. Class-count ×3 is not BW ×3. Do not fill H100 STREAM 91–94% or 353 ns. **0.85 is the problem pass line, not a measured mean.**
 
 ## 7. T1 kill-lines (CONSTRAINTS)
 
@@ -134,15 +158,17 @@ BW ≤ Σ_d n_live_classes_d · μ_b
 | gcd identity under gcd(α,n)=1 | exact |
 | kth_one bijection onto live set | exact |
 | XOR_fold6 image of an AP | exact only via the netlist |
-| 6.25/12.5/25% and n=40 | TEAM-SPEC, not yield data |
-| H-FOLD6, H-UP-DMC, H-MU-D | 假设 |
+| n=40 → L=32 uniform | 负载基线 TEAM-SPEC (not measured yield) |
+| 6.25/12.5/25% | optional problem-scan sensitivity; not a production spectrum |
+| H-FOLD6, H-UP-DMC, H-MU-D, H-TXN, H-MAP-LAT | 假设; not silicon |
+| Clock / DRAM type / tCAS / per-bank peak | UNKNOWN; not filled |
 
 ## 9. Sensitivity
 
 1. **n versus 48** (whether 3 remains in n).
 2. **g netlist vs integer AP** (XOR_fold6 can change class occupancy vs the gcd table).
 
-Sweep: Doc S × {full-good, n=40, uniform 25%, 3-biased}. Columns: skip-dead, mod-n α=1, minimax. No fitted α.
+Sweep: Doc S (must include factor-3 strides) × **required** {n=40 uniform, mod-48 skip-dead} plus optional {full-good, 6.25/12.5/25%, 3-biased}. Columns: skip-dead, mod-n α=1, minimax. No fitted α. Do not invent a fab retire map.
 
 ## 10. Magic-gap (CLAIM)
 
@@ -154,9 +180,18 @@ Sweep: Doc S × {full-good, n=40, uniform 25%, 3-biased}. Columns: skip-dead, mo
 
 ## 11. Workloads
 
-Documented S: {512B, 3×512B, 9×512B, 512KiB, 1MiB, 2MiB}, S_g=S>>9.
+SOURCE: 负载基线 TEAM-SPEC / 问题 YAML + card §4 + T1. Generator: `team-interleave-microbench`.
 
-Masks: full-good; n=40 uniform (负载基线); uniform 6.25/12.5/25% as scan; 3-residue-biased as the only 3-adic column.
+**Pass pack (this card) — 钉死:**
+
+- Mask: **n=40 → L=32**, **uniform**. Contrast: **still `mod 48` + skip-dead**.
+- Documented S **must include factor 3:** {512B, 3×512B, 9×512B, 512KiB, 1MiB, 2MiB}, S_g=S>>9.
+- Full-good row: gain vs no-rebind ≈0.
+- **Do not invent a production retire spectrum.**
+
+**Optional sensitivity (problem-scan TEAM-SPEC, not yield):** uniform 6.25% / 12.5% / 25%. Uniform 25% (n=36) still has factor 3 — not a 3-adic test. T1 3-residue-biased remains a separate diagnostic column, not a fab map.
+
+**Public counterexamples (not pass lines):** STREAM, random p-chase, 2-power-only, resident SRAM/L2, decode-* packs, H100 row-remap as silicon.
 
 ## 12. Forbidden
 
@@ -165,5 +200,8 @@ Masks: full-good; n=40 uniform (负载基线); uniform 6.25/12.5/25% as scan; 3-
 - Calling uniform 25% (n=36) a 3-adic test
 - Hand-writing α=1 and labeling it “rebound”
 - Retuning fold taps; H100 row remap as calibration
-- decode-*; STREAM pass; hardcoded GB/s
+- Inventing a production retire spectrum
+- decode-*; STREAM / p-chase / 2-power-only / resident as pass lines
+- H100 row remap; H100 STREAM 91–94%; H100 353 ns; hardcoded GB/s
+- Treating 0.85 as a measured mean
 - Joint ranking vs other Batch A cards

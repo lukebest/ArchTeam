@@ -9,18 +9,43 @@
 | Problem | `problems/P-0103.yaml` (3-adic X_rel=3) |
 | Mechanism | `mechanisms/P-0103/M-1.md` |
 | T1 | `reviews/P-0103/M-1/tier1_synthesis.md`, `Dr.Sim.md` |
-| Envelope | TEAM-SPEC `team-384dmc-18432bank` |
+| Envelope | 负载基线 TEAM-SPEC / 问题 YAML (`team-384dmc-18432bank`) |
 | Bench | `team-interleave-microbench` |
 | Style | LIMINAL / roofline |
 | Out of scope | CR-MRDR; no silicon ±15% |
 
+The 负载基线 table lives off-repo (shared disk). **Do not cite a GitHub path for it.**
+
 Two DMC definitions coexist on the card. The model must check them **pointwise**. Neither `G mod 384` nor `r' mod 3` may substitute for assembled DMC.
+
+### 负载基线 TEAM-SPEC / 问题 YAML（口径冻结）
+
+**Envelope (only interleave may change):** 2×Die2 × 60 core/die × 96 HA/die × 2 pipe/HA × 1 DMC/pipe × 48 bank/DMC → **120 core / 384 DMC / 18432 bank**.
+
+| Quantity | Value | SOURCE |
+|----------|--------|--------|
+| grain / page / W | 512B / 4K / 8GiB=2^33 | 负载基线 TEAM-SPEC / 问题 YAML |
+| outstanding / in-flight | 128 / core; Q_tot=15360 | 负载基线 TEAM-SPEC / 问题 YAML |
+| stride range | 1B–2MiB | 负载基线 TEAM-SPEC / 问题 YAML |
+| s_crit | 2^33/18432 ≈ 455.11 KiB | 问题 YAML |
+| K @ 2MiB / ceiling | 4096 / 22.2% | 问题 YAML |
+
+**UNKNOWN (do not fill):** clock, μ_d, DRAM type, row-buffer / tCAS, per-bank peak, DMC microarchitecture.
+
+**假设:** H-TXN = 512B/txn (负载基线 TEAM-SPEC); H-MAP-LAT = 1–2 cycle (card self-estimate, not silicon); H-MU-D named only.
+
+No public silicon for this machine: no ±15% claim. Occupancy algebra (K, N, gcd, n_DMC bounds) is exact. Absolute BW is a **separate column** `n_DMC·μ_d` (假设 H-MU-D). Primary results are relative occupancy.
+
+**0.85** is the **problem pass line**, not a measured mean. Forbidden foreign pins: H100 STREAM 91–94%, 353 ns, 10 MC as ×3 proxy.
+
+**Generator:** `team-interleave-microbench`. **Public counterexamples:** STREAM, random p-chase, **2-power-only** (this card’s named anti-example), resident SRAM/L2, decode-* packs.
 
 ## 2. Variables
 
 | Symbol | Unit | Domain | SOURCE |
 |--------|------|--------|--------|
-| W, grain, N_DMC, N_bank, Q_tot | — | 2^33, 512, 384, 18432, 15360 | problem YAML; identities |
+| W, grain, N_DMC, N_bank, Q_tot | — | 2^33, 512, 384, 18432, 15360 | 负载基线 TEAM-SPEC / 问题 YAML |
+| s_crit | B | ≈455.11 KiB | 负载基线 TEAM-SPEC / 问题 YAML |
 | G | 1 | A[63:9] | card §2.2 |
 | p | 1 | G[10:0] ∈ [0,2047] | card §2.2 |
 | r | 1 | G mod 9 ∈ [0,8] | card §2.2; 64≡1 (mod 9) |
@@ -118,7 +143,7 @@ K = ⌊(W−base)/S⌋+1
 For linear f(G)=G mod N: |im| = N / gcd(δ, N), δ=S_g=S/512
 ```
 
-SOURCE: problem YAML. When δ≡0 (mod 3), gcd(δ,384) eats the factor 3 ⇒ n_DMC ≤ min(384,K)/3, X_rel=3. When δ≡0 (mod 9), bank ×9 is lost.
+SOURCE: 负载基线 TEAM-SPEC / 问题 YAML. When δ≡0 (mod 3), gcd(δ,384) eats the factor 3 ⇒ n_DMC ≤ min(384,K)/3, X_rel=3. When δ≡0 (mod 9), bank ×9 is lost.
 
 Per-stride live bits (G):
 
@@ -142,8 +167,10 @@ Issued set I = first min(K, Q_tot) AP points.
 ```
 Q_tot = 15360
 X_rel = min(384, |I|) / n_DMC_I
-BW ≤ n_DMC_I · μ_d                 # 假设 H-MU-D; default: do not print GB/s
+BW ≤ n_DMC_I · μ_d                 # 假设 H-MU-D; ABSOLUTE BW is a separate column
 ```
+
+Default: do not print GB/s. Do not fill H100 STREAM 91–94% or 353 ns. **0.85 is the problem pass line, not a measured mean.**
 
 GOOD_MAP 1R contention: 120 cores × issue cannot each get 1R/cycle. Occupancy recovery that waits on the port is not free BW. 100% good skips SRAM (card). This occupancy model counts map images; it does not invent a queueing closed form beyond Little: inflight / n_DMC vs inflight / 384.
 
@@ -166,7 +193,9 @@ min/mean = occupied-DMC visit min/mean on I. Kill uses that ratio, not a fitted 
 | Linear-mod image sizes | exact gcd |
 | 1.5MiB F covering all 9 residues | **not** a theorem; card says 6b entropy, “expectation” |
 | H-XOR2, H-MU-D | 假设 |
-| Silicon / H100 TB/s | forbidden |
+| Clock, μ_d, DRAM type, tCAS / row-buffer, per-bank peak | UNKNOWN; not filled |
+| H-TXN, H-MAP-LAT (card 1–2 cycle) | 假设; not silicon |
+| H100 STREAM 91–94% / 353 ns / 10 MC | forbidden as this-machine pins |
 
 ## 9. Sensitivity
 
@@ -187,16 +216,25 @@ Sweep: S ∈ {512B,1KiB,1536B,3KiB,4608B,12KiB,1.5MiB,2MiB} sequential, never av
 
 ## 11. Workloads
 
-- S ∈ {512B, 1KiB, 1536B, 3KiB, 4608B, 12KiB, 1.5MiB, 2MiB}, sequential AP, never averaged.
+SOURCE: 负载基线 TEAM-SPEC / 问题 YAML + card §4 + T1. Generator: `team-interleave-microbench`.
+
+**Pass pack (this card):**
+
+- **Main S = 3·2^k**, including **3×512B (1536B)**, **4608B**, **9×512B (4608B is 9·512)**, plus 12KiB (δ=24), 1.5MiB (δ=3072), 3KiB.
+- **2-power contrast on the same table:** 512B, 1KiB, 2MiB.
+- Never average S rows. 1.5MiB is its own column.
+- **Scanning only 2-power strides is a counterexample** (Feistel looks like a no-op).
 - Partial-good: 100% good; random 0/6/12%; 1/3-pattern. Separate tables.
-- 120-core shared GOOD_MAP 1R named on partial-good rows.
-- Bench: `team-interleave-microbench`.
+- Sequential AP; GOOD_MAP 1R shared named on partial-good rows.
+
+**Public counterexamples (not pass lines):** STREAM, random p-chase, 2-power-only, resident SRAM/L2, decode-* packs.
 
 ## 12. Forbidden
 
 - Substituting G mod 384 or r' mod 3 for assembled DMC
 - Averaging 1.5MiB with 1536B
 - XOR retry +1
-- decode-*; STREAM pass line; H100 ×3 proxy
-- Hardcoded GB/s; CLAIM numbers as model inputs
+- decode-*; STREAM / p-chase / 2-power-only / resident as pass lines
+- H100 ×3 proxy; H100 STREAM 91–94%; H100 353 ns
+- Hardcoded GB/s; treating 0.85 as a measured mean; CLAIM numbers as model inputs
 - Joint ranking vs other Batch A cards

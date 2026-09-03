@@ -9,17 +9,40 @@
 | Problem | `problems/P-0103.yaml` |
 | Mechanism | `mechanisms/P-0103/M-5.md` |
 | T1 | `reviews/P-0103/M-5/tier1_synthesis.md`, `Dr.Sim.md` |
-| Envelope | TEAM-SPEC `team-384dmc-18432bank` |
+| Envelope | 负载基线 TEAM-SPEC / 问题 YAML (`team-384dmc-18432bank`) |
 | Bench | `team-interleave-microbench` |
 | Out of scope | CR-MRDR; no silicon ±15% |
 
+The 负载基线 table lives off-repo (shared disk). **Do not cite a GitHub path for it.**
+
 `dmc_odd = (d0+d1+d2) mod 3`. **Forbidden:** using `d0` as the DMC trit. Integer identity: `Σ trit(C_i) = d0 + 3·d1 + 9·d2` ⇒ `Σ mod 3 = d0`. The two formulas differ.
+
+### 负载基线 TEAM-SPEC / 问题 YAML（口径冻结）
+
+**Envelope (only interleave may change):** 2×Die2 × 60 core/die × 96 HA/die × 2 pipe/HA × 1 DMC/pipe × 48 bank/DMC → **120 core / 384 DMC / 18432 bank**.
+
+| Quantity | Value | SOURCE |
+|----------|--------|--------|
+| grain / page / W | 512B / 4K / 8GiB=2^33 | 负载基线 TEAM-SPEC / 问题 YAML |
+| outstanding / in-flight | 128 / core; Q_tot=15360 | 负载基线 TEAM-SPEC / 问题 YAML |
+| stride range | 1B–2MiB | 负载基线 TEAM-SPEC / 问题 YAML |
+| s_crit | 2^33/18432 ≈ 455.11 KiB | 问题 YAML |
+| K @ 2MiB / ceiling | 4096 / 22.2% | 问题 YAML |
+
+**UNKNOWN (do not fill):** clock, μ_d, DRAM type, row-buffer / tCAS, per-bank peak, DMC microarchitecture.
+
+**假设:** H-TXN = 512B/txn (负载基线 TEAM-SPEC); H-MAP-LAT = 1–2 cycle (card self-estimate, not silicon); H-MU-D named only.
+
+No public silicon: no ±15% claim. Occupancy algebra is exact. Absolute BW is a **separate column** `n_DMC·μ_d` (假设 H-MU-D). **0.85** is the problem pass line, not a measured mean. Forbidden: H100 STREAM 91–94%, 353 ns, 10 MC as ×3 proxy.
+
+**Generator:** `team-interleave-microbench`. **Public counterexamples:** STREAM, random p-chase, 2-power-only, resident SRAM/L2, decode-* packs.
 
 ## 2. Variables
 
 | Symbol | Unit | Domain | SOURCE |
 |--------|------|--------|--------|
-| W, grain, N_DMC, N_bank, Q_tot | — | 2^33, 512, 384, 18432, 15360 | YAML; identities |
+| W, grain, N_DMC, N_bank, Q_tot | — | 2^33, 512, 384, 18432, 15360 | 负载基线 TEAM-SPEC / 问题 YAML |
+| s_crit | B | ≈455.11 KiB | 负载基线 TEAM-SPEC / 问题 YAML |
 | C0..C7 | 1 | 3b chunks of A[32:9] | card §2.2 |
 | trit(c) | 1 | ROM[c] ∈ {0,1,2} | card table |
 | (s,cy) | 1 | CSA: a+b+c = s+3·cy | card; integer |
@@ -126,8 +149,10 @@ Integer identity, not a fit. Control: same I, DMC_ctrl n_DMC ≈ 128 when 3|δ.
 
 ```
 X_rel = min(384, |I|) / n_DMC_I
-BW ≤ n_DMC_I · μ_d          # 假设 H-MU-D; default no GB/s
+BW ≤ n_DMC_I · μ_d          # 假设 H-MU-D; ABSOLUTE BW is a separate column
 ```
+
+Default: no GB/s. Do not fill H100 STREAM 91–94% or 353 ns. **0.85 is the problem pass line, not a measured mean.**
 
 LUT 3,3,2 bias is visible in the issued histogram. “Covered Z_3 ⇒ min/mean≥0.9” is forbidden as an implication.
 
@@ -147,7 +172,8 @@ LUT 3,3,2 bias is visible in the issued histogram. “Covered Z_3 ⇒ min/mean�
 | GF(2) rank | exact (computed) |
 | “one live trit ⇒ d0 full Z_3” | exact for isolated full-run chunk; **not** a theorem for dmc_odd under carry correlation |
 | expander / Weil / min/mean 0.9 | not theorems |
-| H-XOR2, H-MU-D | 假设 |
+| H-XOR2, H-MU-D, H-TXN, H-MAP-LAT (card 1–2 cycle) | 假设; not silicon |
+| Clock / DRAM type / tCAS / per-bank peak | UNKNOWN; not filled |
 
 ## 9. Sensitivity
 
@@ -166,10 +192,17 @@ Sweep: same S set as MRFI, never averaged; print flips + V + rank. No retune of 
 
 ## 11. Workloads
 
-- S ∈ {512B, 1KiB, 1536B, 3KiB, 4608B, 12KiB, 1.5MiB, 2MiB} sequential, never averaged.
-- Partial-good: N_good=32 (1/3-pattern) and N_good=36 (still has factor 3) separate.
+SOURCE: 负载基线 TEAM-SPEC / 问题 YAML + card §4 + T1. Generator: `team-interleave-microbench`.
+
+**Pass pack (this card):**
+
+- **Named δ ∈ {3, 9, 24, 3072}** ⇒ S ∈ {1536B, 4608B, 12KiB, 1.5MiB}, plus the rest of **3·2^k** and 2-power contrast on the same never-averaged table: {512B, 1KiB, 3KiB, 2MiB}.
+- Print C0..C7 flip counts every S; named rows must match δ=3→C0, δ=9→C0+C1, δ=24→C1+C2, δ=3072→C3.
+- **After `k mod N_good`, forbid another mod 3.** N_good=32 vs 36 remain separate tables.
 - Control column: G mod 3 as DMC trit.
-- Bench: `team-interleave-microbench`.
+- Sequential AP.
+
+**Public counterexamples (not pass lines):** STREAM, random p-chase, 2-power-only, resident SRAM/L2, decode-* packs.
 
 ## 12. Forbidden
 
@@ -177,5 +210,7 @@ Sweep: same S set as MRFI, never averaged; print flips + V + rank. No retune of 
 - Another mod 3 after k mod N_good
 - Claiming GF(2) rank 11 without the computed number
 - Hiding S=2MiB p_mix[0] death as n_DMC=384
-- decode-*; STREAM pass; H100 ×3; hardcoded GB/s
+- decode-*; STREAM / p-chase / 2-power-only / resident as pass lines
+- H100 ×3; H100 STREAM 91–94%; H100 353 ns; hardcoded GB/s
+- Treating 0.85 as a measured mean
 - Joint ranking vs other Batch A cards

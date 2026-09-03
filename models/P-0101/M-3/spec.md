@@ -9,29 +9,62 @@
 | Problem | `problems/P-0101.yaml` (鸽笼 22.2%；成功禁止 bank 占用 >K/N) |
 | Mechanism | `mechanisms/P-0101/M-3.md` |
 | T1 | `reviews/P-0101/M-3/tier1_synthesis.md`, `Dr.Sim.md` |
-| Envelope | TEAM-SPEC `team-384dmc-18432bank` |
+| Envelope | 负载基线 TEAM-SPEC / 问题 YAML (`team-384dmc-18432bank`) |
 | Bench | `team-interleave-microbench` |
 | Style | LIMINAL / roofline: die/HA/DMC/bank occupancy → Little → BW ≤ n·μ |
-| Out of scope | CR-MRDR; Python is `model.py` beside this file; no silicon ±15% claim |
+| Out of scope | CR-MRDR; no silicon ±15% claim |
 
-This spec is occupancy algebra plus a named-μ roofline. Clock, DRAM type, row-buffer timings, and μ_d are **UNKNOWN**. Absolute GB/s appear only as `μ_d * occupancy` with μ_d labeled 假设, and are not a primary output.
+The 负载基线 table lives off-repo (shared disk). **Do not cite a GitHub path for it.**
+
+### 负载基线 TEAM-SPEC / 问题 YAML（口径冻结）
+
+**Envelope (only interleave may change):** 2×Die2 × 60 core/die × 96 HA/die × 2 pipe/HA × 1 DMC/pipe × 48 bank/DMC → **120 core / 384 DMC / 18432 bank**.
+
+| Quantity | Value | SOURCE |
+|----------|--------|--------|
+| grain | 512B; G=addr>>9 | 负载基线 TEAM-SPEC / 问题 YAML |
+| page | 4K | 负载基线 TEAM-SPEC / 问题 YAML |
+| W | 8GiB = 2^33 | 负载基线 TEAM-SPEC / 问题 YAML |
+| outstanding / core | 128 | 负载基线 TEAM-SPEC / 问题 YAML |
+| in-flight Q_tot | 15360 = 120×128 | integer identity + 负载基线 TEAM-SPEC |
+| stride range | 1B–2MiB | 负载基线 TEAM-SPEC / 问题 YAML |
+| s_crit | W/N = 2^33/18432 ≈ 455.11 KiB | 问题 YAML |
+| K @ S=2MiB | 4096 | 问题 YAML |
+| occupancy ceiling | K/N = 4096/18432 ≈ 22.2% | 问题 YAML pigeonhole |
+
+**UNKNOWN (do not fill):** clock, μ_d, DRAM type, row-buffer / tCAS, per-bank peak, DMC microarchitecture.
+
+**假设 (named, not silicon):**
+
+- H-TXN: one issued transaction = 512B (grain). SOURCE: 负载基线 TEAM-SPEC.
+- H-MAP-LAT: mapper 1–2 cycle — mechanism-card self-estimate, **not** a silicon measurement.
+- H-MU-D: per-DMC peak service rate. Named only.
+
+**This machine has no public measurement.** Do not claim ±15% vs silicon. Occupancy algebra (K, N, gcd, n_DMC upper bounds) is exact. Absolute BW, if shown at all, is a **separate column** `n_DMC·μ_d` with μ_d labeled 假设 H-MU-D. Primary results are relative occupancy.
+
+**0.85** is the **problem pass line** (YAML / T1 CONSTRAINT), **not** a measured mean.
+
+**Forbidden foreign pins:** H100 STREAM 91–94%, H100 353 ns, H100 10 MC as a 384-bucket or ×3 proxy.
+
+**Generator:** `team-interleave-microbench`. **Public counterexamples (not pass lines):** STREAM, random p-chase, 2-power-only, working set resident in SRAM/L2, decode-* packs.
 
 ## 2. Variables
 
 | Symbol | Unit | Domain | SOURCE |
 |--------|------|--------|--------|
-| W | B | 2^33 | problem YAML; 8GiB shared |
-| grain | B | 512 | problem YAML; G = addr>>9 |
-| page | B | 4096 | problem YAML |
-| N_die | 1 | 2 | YAML: 2×Die2 |
-| N_core | 1 | 120 | YAML: 2×60 |
-| N_HA | 1 | 192 | YAML: 2×96 |
-| N_pipe | 1 | 384 | YAML: HA×2 |
-| N_DMC | 1 | 384 | YAML; 1 DMC / pipe |
-| N_bank | 1 | 18432 | YAML; 384×48 |
-| B_dmc | 1 | 48 | YAML |
-| Q_core | 1 | 128 | YAML outstanding/core |
+| W | B | 2^33 | 负载基线 TEAM-SPEC / 问题 YAML |
+| grain | B | 512 | 负载基线 TEAM-SPEC / 问题 YAML; G = addr>>9 |
+| page | B | 4096 | 负载基线 TEAM-SPEC / 问题 YAML |
+| N_die | 1 | 2 | 负载基线 TEAM-SPEC / 问题 YAML: 2×Die2 |
+| N_core | 1 | 120 | 负载基线 TEAM-SPEC / 问题 YAML: 2×60 |
+| N_HA | 1 | 192 | 负载基线 TEAM-SPEC / 问题 YAML: 2×96 |
+| N_pipe | 1 | 384 | 负载基线 TEAM-SPEC / 问题 YAML: HA×2 |
+| N_DMC | 1 | 384 | 负载基线 TEAM-SPEC / 问题 YAML; 1 DMC / pipe |
+| N_bank | 1 | 18432 | 负载基线 TEAM-SPEC / 问题 YAML; 384×48 |
+| B_dmc | 1 | 48 | 负载基线 TEAM-SPEC / 问题 YAML |
+| Q_core | 1 | 128 | 负载基线 TEAM-SPEC / 问题 YAML |
 | Q_tot | 1 | 15360 | integer identity 120×128 |
+| s_crit | B | 2^33/18432 ≈ 455.11 KiB | 负载基线 TEAM-SPEC / 问题 YAML |
 | S | B | {512, 2^19, 2^20, 2^21} | card §4 + T1 |
 | base | B | [0, W) grain-aligned | card §4 random base |
 | K | 1 | ⌊(W−base)/S⌋+1 | problem YAML; pigeonhole |
@@ -162,7 +195,7 @@ BW      ≤ n_bank_I · μ_b                                 # μ_b UNKNOWN; do 
 BW      ≤ n_HA_I · μ_ha                                  # UNKNOWN
 ```
 
-Report occupancy ratios. **Do not print 9/384 as a measured speedup.** Do not print GB/s unless an operator explicitly sets μ_d; default model output omits GB/s.
+Report occupancy ratios. **Do not print 9/384 as a measured speedup.** Absolute BW is a **separate optional column** `n_DMC_I · μ_d` (假设 H-MU-D). Default model output omits GB/s. Do not fill H100 STREAM 91–94% or 353 ns as this machine’s pins.
 
 min/mean structural: visit histogram over the 384 DMC slots on set I (zeros included for `min_all`; occupied-only for `min_occ/mean_occ`). Primary balance number is `min_occ/mean_occ`.
 
@@ -183,7 +216,8 @@ Copied as constraints. Verdict is not rewritten.
 | inflight unique DMC at S=512B sequential (typically 1 if no 16MiB crossing) | exact for this issued-window definition |
 | B-modN image size N/gcd(S_g,N) | exact |
 | H-B4, H-ENC9, H-MU-D | 假设 |
-| Clock, tRCD/tRAS/tRC/tREFI, DRAM type | UNKNOWN; not filled |
+| Clock, μ_d, DRAM type, row-buffer/tCAS, per-bank peak, DMC microarchitecture | UNKNOWN; not filled |
+| H-TXN (512B/txn), H-MAP-LAT (1–2 cycle, card self-estimate) | 假设; not silicon |
 | Public silicon for this machine | none; no ±15% claim |
 
 ## 9. Sensitivity (two parameters; sweep, no fitted coeffs)
@@ -206,12 +240,17 @@ Sweep plan: S ∈ {512B, 512KiB, 1MiB, 2MiB} × ≥8 random grain-aligned bases,
 
 ## 11. Workloads
 
-Card + T1 + 负载基线:
+SOURCE: 负载基线 TEAM-SPEC / 问题 YAML + card §4 + T1. Generator: `team-interleave-microbench`.
 
-- S ∈ {512B, 512KiB, 1MiB, 2MiB} × random base (≥8), sequential AP.
-- Issued window Q_tot=15360 on the same table as full-AP image when K < Q_tot.
-- 100% good banks (this card does not implement partial-good; clip≠mask).
-- Bench: `team-interleave-microbench`. STREAM is not a pass line.
+**Pass pack (this card):**
+
+- S ∈ {512B, 512KiB, 1MiB, 2MiB} × random grain-aligned base (≥8), sequential AP.
+- Four-layer probes on **issued** requests: die / HA / DMC / bank.
+- Success = **DMC occupancy ≈ 1.0** and **bank occupancy ≤ 22.2%** (K/N at S=2MiB). Filling 18432 banks at S=2MiB is **not** a pass item.
+- Issued window Q_tot=15360 on the same table (when K < Q_tot the image is the full AP).
+- 100% good banks (clip ≠ partial-good).
+
+**Public counterexamples (not pass lines):** STREAM, random p-chase, 2-power-only, resident SRAM/L2, decode-* packs.
 
 ## 12. Forbidden
 
@@ -219,9 +258,9 @@ Card + T1 + 负载基线:
 - Reporting only S=2MiB
 - Bank occupancy >K/N as success
 - Treating 9 vs 384 Little as measured speedup
-- decode-* benches; STREAM as pass line; averaging killer strides
-- H100 10 MC as 384-bucket or ×3 proxy
-- Hardcoded GB/s; filling ns/TB/s from H100
+- decode-* benches; STREAM / p-chase / 2-power-only / resident as pass lines
+- H100 10 MC as 384-bucket or ×3 proxy; H100 STREAM 91–94%; H100 353 ns
+- Hardcoded GB/s; treating 0.85 as a measured mean
 - hash%384 in place of Stage A
 - Tuning SK or ENC3 after seeing occupancy
 - Joint ranking vs other Batch A cards
