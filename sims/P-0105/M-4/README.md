@@ -21,7 +21,7 @@ Seed: **20260903**. Trials use `20260903 + trial`.
 3. `z = ROM[x'[11:4]] XOR y[7:0]`; `raw = (z<<4)|x'[3:0]`; fold384 coarse-q + one correction.
 4. `bank_in = x'[9:4] mod 48` (6b window). Per-DMC bank histogram and `bank%8` kinds.
 5. Ablations: shear-only; S-box(x[11:4]) only (must vary DMC id with phase at S=2MiB).
-6. Base families reported separately: 512B-grain and 2MiB-aligned. S set locked; 4608B alone.
+6. Base families reported separately: 512B-grain (`GRAIN_BASES`) and 2MiB-aligned (`ALIGNED_2MIB`). Signed smoke S=`{2MiB,1MiB,512KiB,4608B,512B}`; 4608B alone.
 7. Partial-good: random 1/16 (3/48) and 1/3 residue. Bitmap + PE 1-cycle retry; S-box does not remap.
 8. Inflight occupies mapper/DRAM slots by cycle. Warm-up drops the first 10% of completions (cold row-buffer prefix). Refresh is not modeled.
 
@@ -36,7 +36,7 @@ Generator: `sims/_lib/workloads.py` (stand-in for off-repo `team-interleave-micr
 
 ## Sweep knobs
 
-`--mode night` scans mapper ports `{1,4}`, map latency `{1,2}` (card 1-cycle vs Archi serial 2-cycle), PE masks `{full, rand1/16, third}`, page `{open,close}`.
+`--mode smoke` is the signed table: full T2 pass-pack S, `GRAIN_BASES` + `ALIGNED_2MIB`, all six mappers, plus cycle rows for `map_ports∈{1,4}` and PE masks `{full, rand1/16, third}` (假设 H-DRAM-BB). `--mode night` adds map latency `{1,2}`, page `{open,close}`, and B-low/B-high on the cycle driver.
 
 ## T2 compare
 

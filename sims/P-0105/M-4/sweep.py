@@ -85,15 +85,21 @@ def sweep(mode: str, out: Path, seed: int, n_trials: int, n_pts: int | None) -> 
     mx, mn, cv = covering_bound()
 
     if mode == "smoke":
-        strides = [SNS_STRIDES[0], SNS_STRIDES[-1]]  # 2MiB, 512B
-        bases_grain = GRAIN_BASES[:4]
-        bases_align = ALIGNED_2MIB[:2]
-        strategies = ("sns", "mod384", "sbox", "shear")
+        # Signed table = T2 pass-pack S, not a 2MiB/512B subset.
+        # 4608B stays its own name (never folded into a power-of-two row).
+        strides = list(SNS_STRIDES)
+        bases_grain = GRAIN_BASES
+        bases_align = ALIGNED_2MIB
+        strategies = STRATEGIES  # four baselines + shear/sbox ablations
         cycle_strats = ("sns", "mod384")
         n_pts_cyc = n_pts if n_pts is not None else 256
         n_trials = min(n_trials, 3)
-        pe_masks = [("full", mask_full())]
-        map_ports_list = (1,)
+        pe_masks = [
+            ("full", mask_full()),
+            ("rand1/16", mask_random_frac(seed, 3)),
+            ("third", mask_third()),
+        ]
+        map_ports_list = (1, 4)
         map_lats = (1,)
         page_pols = ("open",)
     else:
@@ -177,7 +183,7 @@ def sweep(mode: str, out: Path, seed: int, n_trials: int, n_pts: int | None) -> 
     for trial in range(n_trials):
         tseed = seed + trial
         b = GRAIN_BASES[trial % len(GRAIN_BASES)]
-        for s_name, s in strides[: 2 if mode == "smoke" else None]:
+        for s_name, s in strides:
             n = issued_count(b, s, n_pts_cyc)
             addrs = ap_addrs(b, s, n)
             for st in cycle_strats:
@@ -217,6 +223,7 @@ def sweep(mode: str, out: Path, seed: int, n_trials: int, n_pts: int | None) -> 
                                         "n_bank": r.n_bank,
                                         "pe_retries": r.pe_retries,
                                         "poisoned": r.poisoned,
+                                        "hypothesis": "H-DRAM-BB",
                                     }
                                 )
 
@@ -236,6 +243,7 @@ def sweep(mode: str, out: Path, seed: int, n_trials: int, n_pts: int | None) -> 
                 "mean": m,
                 "ci95_hw": hw,
                 "n": n,
+                "hypothesis": "H-DRAM-BB",
             }
         )
 
@@ -262,15 +270,38 @@ def sweep(mode: str, out: Path, seed: int, n_trials: int, n_pts: int | None) -> 
             "P-0105/M-4 SNS  T2 vs T3 n_DMC (S=2MiB, base=0) — occupancy, not BW",
         )
 
+    # signed S set: SNS grain512 / base=0, 4608B is its own bar
+    s_labels, s_t2, s_t3 = [], [], []
+    for r in cmp_rows:
+        if r["family"] == "grain512" and r["base"] == "0x0" and r["strategy"] == "sns":
+            s_labels.append(r["S"])
+            s_t2.append(r["t2_n_dmc"])
+            s_t3.append(r["t3_n_dmc"])
+    if s_labels:
+        _plot(
+            out / "t2_vs_t3_n_dmc_by_S.png",
+            s_labels,
+            s_t2,
+            s_t3,
+            "n_DMC",
+            "P-0105/M-4 SNS  T2 vs T3 n_DMC by S (grain512, base=0, SNS) — 4608B standalone",
+        )
+
     meta = {
         "card": "P-0105/M-4 SNS",
         "seed": seed,
         "mode": mode,
+        "signed_S": [name for name, _ in strides],
         "covering_bound": {"max": mx, "min": mn, "cv": cv, "golden": False},
         "t2_flags_gt_30pct": len(flags),
         "n_occ_rows": len(occ_rows),
         "n_cyc_rows": len(cyc_rows),
         "bw_ci": summary,
+        "bbox": (
+            f"8 cores × 16 outstanding, AP {n_pts_cyc} points, "
+            f"map_ports={list(map_ports_list)}, masks={[m for m, _ in pe_masks]}, "
+            "reduced-bbox; not 120-core / Q_tot=15360 envelope 0.85"
+        ),
         "note": "Absolute BW is txns/cycle under 假设 H-DRAM-BB; no GB/s; 0.85 is not a measured mean.",
     }
     (out / "summary.json").write_text(json.dumps(meta, indent=2) + "\n")
