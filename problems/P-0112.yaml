@@ -1,0 +1,21 @@
+generality_score: 7
+同源:
+  - address-interleaving-lab Mapper.hpp map_bank（bg2&&bg3==1 打 ERROR 仍返回；DV200 则改写 row 位）
+
+CONTEXT: |
+  冻结信封：每 DMC 48 bank。只改 interleave；2×Die2；120 core / 384 DMC / 18432 bank；
+  512B；4K 页；8GiB 共享；outstanding 128；stride 1B～2MiB。必须覆盖 bank partial good。
+  48=16×3，不是自由的 6 bit。库把 HBM 风格 BG 位编进 bank_id。
+
+SYMPTOM: |
+  IPoly/DivMod 路径：bg2 与 bg3 同时为 1 时打印 ERROR，仍返回 group*4+bank，bank_id 可以离开 0–47。
+  DV200 路径：同样的 11 编码不报错，改用矩阵行改写 bg2/bg3，48 轴占用随编码走。
+  待证伪：8GiB、stride 1B～2MiB、起始地址扫描上，存在地址使 bank_id∉[0,47]，
+  或 48 轴占用随 BG 编码塌缩导致 min/mean BW 越出 0.85。
+
+CONSTRAINT: |
+  硬件冻住 48 bank/DMC。映射只能发出合法 bank 编码。只改 interleave。
+  难在：48 的奇数因子 3 不能靠两个自由 BG 位表示；非法码要么越界要么 silently 改写，
+  两者都会让 48 轴的占用账失真。
+  证伪条件：若库映射在该扫描上永不发出 bg2&&bg3、bank_id 恒在 0–47、48 轴占用不随编码塌缩，
+  则 BG 非法码不是本信封的症状。
