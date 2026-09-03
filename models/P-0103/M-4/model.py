@@ -2,7 +2,8 @@
 """P-0103/M-4 CR-MRDR (G[23]) — T2 first-principles occupancy model.
 
 Self-contained. Python 3. stdlib only. No external files. No H100.
-Absolute GB/s is not reported (clock / μ_d / DRAM type are UNKNOWN).
+Absolute BW is a μ_d-assumption column (not printed). Clock / μ_d / DRAM /
+row-buffer UNKNOWN. Envelope source: TEAM-SPEC / problem YAML. No H100.
 
 Runs three mapper arms on the same AP (not a second old-card file):
   current   LIVE_DIGIT on,  TRIT_INJ on
@@ -360,7 +361,12 @@ def main() -> int:
         f"grain={GRAIN_BYTES}B W={WORKING_SET_BYTES}B  "
         f"{N_CORE} cores × {OUTSTANDING_PER_CORE} outstanding = {N_INFLIGHT}"
     )
-    print("clock / μ_d / DRAM type: UNKNOWN. absolute GB/s: not reported. no H100.")
+    print(
+        "source: TEAM-SPEC / problem YAML. "
+        "clock / μ_d / DRAM / row-buffer: UNKNOWN. "
+        "absolute BW = μ_d assumption (not printed). "
+        "0.85 is a pass line, not a mean. no H100. no ±15% vs silicon."
+    )
     print(
         f"mapper: d[i]=G[i]⊕G[i+{MID_TAP_STRIDE}]⊕G[{HIGH_TAP}]  "
         f"q[j]=d[{N_DIGIT_MSB}-j]  DMC=t0'+{RADIX_TRIT}·q[6:0]  "
@@ -379,7 +385,8 @@ def main() -> int:
     hist_min_mean = min(hist_w) / statistics.mean(hist_w)
     print(
         f"{{2,1,1}} trit-class: min/mean = {min(hist_w)}/{statistics.mean(hist_w):.4f} "
-        f"= {hist_min_mean:.4f} even if n_DMC={N_DMC} (occupancy, not BW 0.85)"
+        f"= {hist_min_mean:.4f} even if n_DMC={N_DMC} "
+        f"(occupancy; BW 0.85 is a pass line, not a mean)"
     )
     print()
 

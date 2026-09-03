@@ -2,6 +2,8 @@
 
 独立分析模型。只评这一张。不是周报数字。
 
+**源（信封与到达过程）：负载基线 TEAM-SPEC / 问题 YAML。** 不引用本机绝对路径。不填 H100。
+
 ## 0. Identity
 
 | 项 | 值 |
@@ -11,25 +13,49 @@
 | 作废 | 冻结窗 MRDR；G[21] 稿；其上全部 T0/T1 数字与任何旧 T2 |
 | 批次 | **Batch B，仅本卡。** 不与 Batch A（P-0101/M-3、P-0103/M-1、P-0103/M-5、P-0105/M-4、P-0106/M-5）混写结论 |
 | 实现 | `models/P-0103/M-4/model.py`（stdlib，三臂同一 mapper 开关） |
-| 信封 | 384 DMC / 18432 bank / 2×192 DMC/die × 96 HA / 512B grain / W=8GiB / 128 outstanding/core |
-| 未知 | 时钟、μ_d、DRAM 类型。**禁止填 H100。绝对 GB/s = 假设，默认不报。禁止 ±15% vs silicon**（无公开硅测） |
+| 信封源 | **负载基线 TEAM-SPEC / 问题 YAML**（同一 TEAM-SPEC，勿填 H100） |
+| 信封 | 2×Die2；120 core / 384 DMC / 18432 bank；粒度 512B；\(W=8\,\mathrm{GiB}\)；outstanding 128；in-flight \(120\times 128=15360\) |
+| 未知 | \(\mu_d\)、时钟、DRAM 类型、行缓冲。本机无公开实测，**不对硅 ±15%** |
+| 主结果 | **相对占用**（\(\lvert q\rvert\)、\(n_{\mathrm{DMC}}\)、die 比、trit 类）。绝对 BW 单列 = \(\mu_d\) **假设**，不是主表 |
+| 合格线 | min/mean BW **0.85 是合格线，不是均值** |
 
-本文件写 **CONSTRAINT / CLAIM / 未证严 / 假设**。消融 6/3 与 `die=DMC[8]` 是约束，不是已测收益。
+本文件写 **CONSTRAINT / CLAIM / 未证严 / 假设**。消融 6/3 与 `die=DMC[8]` 是约束，不是已测收益。卡自身杀手步长与消融仍是主评测。
+
+## 0.1 TEAM-SPEC 负载（主评测生成器）
+
+| 项 | 规定 | 源 |
+| --- | --- | --- |
+| 生成器 | `team-interleave-microbench`（须含因子 3 与 9、base 相位、die 冻结项） | 负载基线 TEAM-SPEC |
+| 到达 | 顺序 AP，\(G_{k+1}=G_k+\delta\)，\(G\in[0,W/512)\)，120 核同相位 | 负载基线 TEAM-SPEC / 问题 YAML |
+| 资源 | 只改 interleave；\(N_{\mathrm{DMC}}=384=2^{7}\cdot 3\)、\(N_{\mathrm{bank}}=18432=2^{11}\cdot 9\) 冻住 | 问题 YAML |
+| 主评测 | **1.5MiB 与 2MiB 分列**；消融 `d[i]=G[i]` → \(n_{\mathrm{DMC}}=6\) 与 \(3\)；`die=DMC[8]` 按字实现，对照 `/192` | 卡 + T1 |
+| 绝对 BW | 单列 \(\mathrm{BW}=n_{\mathrm{DMC}}\cdot\mu_d\)（或再乘 min/mean），\(\mu_d=\)假设。主表不填 GB/s | TEAM-SPEC；本机未知 |
+| 0.85 | **合格线**：该行 min/mean BW 是否 \(\ge 0.85\)。禁止把 0.85 写成均值、也不用它平均各 \(S\) | 问题 YAML 待证伪句 |
+
+**公共反例（不得当主评测，不得稀释杀手行）：**
+
+- STREAM 天花板（小步长已满也能让坏映射过关）
+- 随机 p-chase
+- **只跑 2 幂**（512B / 1KiB / 2MiB 而丢掉 \(3\mid\delta\)）
+- 工作集 **驻留**（进 SRAM / 不打 DRAM）
+- decode 包（decode-* / 非 TEAM-SPEC 到达）
+
+**禁止 H100 代理。** H100 10 MC 没有 9 轴（\(18432=2^{11}\times 9\)、\(384=2^{7}\times 3\)），不当 ×3 代理，不填 H100 HBM GB/s、时钟或行缓冲。`hbm-stride-h100` 若出现在库里只许几何对照，不许代替 1.5MiB。
 
 ## 1. Variables
 
-符号只从信封、卡 §2.2、Little (1961) 来。不引入拟合参数。
+符号只从 **负载基线 TEAM-SPEC / 问题 YAML**、卡 §2.2、Little (1961) 来。不引入拟合参数。不填 H100。
 
 | 符号 | 定义 | 源 |
 | --- | --- | --- |
-| \(A\) | 字节地址 | 信封 |
-| \(G=A[63:9]\) | 512B 粒块地址。\(G=A/2^{9}\) | P-0103.yaml；512B\(=2^{9}\) |
-| \(N_{\mathrm{DMC}}=384=2^{7}\cdot 3\) | 逻辑控制器数 | 信封 |
-| \(N_{\mathrm{bank}}=18432=2^{11}\cdot 9\) | bank 数 | 信封 |
-| \(N_{\mathrm{die}}=2\)，每 die 192 DMC，每 die 96 HA，每 HA 2 pipe | 物理装箱 | 信封 2×Die2 |
-| \(W=8\,\mathrm{GiB}\) | 共享工作集 | 信封 |
-| \(K_{\mathrm{core}}=120\)，\(O=128\) | 核数 × 每核 outstanding | 信封 |
-| \(N_{\mathrm{inflight}}=K_{\mathrm{core}}\cdot O=15360\) | 闭环 token | Little 的 \(L\) 上界 |
+| \(A\) | 字节地址 | 负载基线 TEAM-SPEC / 问题 YAML |
+| \(G=A[63:9]\) | 512B 粒块地址。\(G=A/2^{9}\) | 问题 YAML；512B\(=2^{9}\) |
+| \(N_{\mathrm{DMC}}=384=2^{7}\cdot 3\) | 逻辑控制器数 | 负载基线 TEAM-SPEC / 问题 YAML |
+| \(N_{\mathrm{bank}}=18432=2^{11}\cdot 9\) | bank 数 | 同上 |
+| \(N_{\mathrm{die}}=2\)，每 die 192 DMC，每 die 96 HA，每 HA 2 pipe | 物理装箱 | TEAM-SPEC 2×Die2 |
+| \(W=8\,\mathrm{GiB}\) | 共享工作集 | 负载基线 TEAM-SPEC / 问题 YAML |
+| \(K_{\mathrm{core}}=120\)，\(O=128\) | 核数 × 每核 outstanding | 同上 |
+| \(N_{\mathrm{inflight}}=K_{\mathrm{core}}\cdot O=15360\) | 闭环 token | TEAM-SPEC；Little 的 \(L\) 上界 |
 | \(\delta=S/512\) | 粒步长（整数） | \(S\) 被 512B 整除 |
 | \(d[i]\) | 11 个二进制数位，\(i=0..10\) | 卡 LIVE_DIGIT |
 | \(q[j]=d[10-j]\) | 11 位倒序 | 卡 DIGIT_REV |
@@ -44,10 +70,11 @@
 | \(\mathrm{die_{env}}=\lfloor\mathrm{DMC}/192\rfloor\) | **只对照**。禁止替换主列 | T1 Archi/Sim/Sys |
 | \(n_{\mathrm{DMC}}=\lvert\{\mathrm{DMC}(G_k)\}\rvert\) | AP 上计桶，不是秩 | Sim T1 |
 | \(\lvert q[6:0]\rvert=\lvert\{q[6:0](G_k)\}\rvert\) | 同上 | Sim T1 |
-| \(\mu_d\) | 每 DMC 服务率 | **UNKNOWN** |
-| \(\mathrm{BW_{peak}}\) | 峰值带宽 | **假设**。本模型不数值化 |
+| \(\mu_d\) | 每 DMC 服务率 | **UNKNOWN**（时钟 / DRAM / 行缓冲同） |
+| \(\mathrm{BW_{abs}}\) | \(n_{\mathrm{DMC}}\cdot\mu_d\)（假设列） | TEAM-SPEC；**非主结果** |
+| \(0.85\) | min/mean BW **合格线** | 问题 YAML；不是均值 |
 
-顺序 AP：\(G_{k+1}=G_k+\delta\)，\(G\in[0,W/512)\)。S 集合永不平均：
+顺序 AP（TEAM-SPEC / `team-interleave-microbench`）：\(G_{k+1}=G_k+\delta\)，\(G\in[0,W/512)\)。S 集合永不平均：
 
 \[
 S\in\{512\mathrm{B},\,1\mathrm{KiB},\,1536\mathrm{B},\,3\mathrm{KiB},\,4608\mathrm{B},\,12\mathrm{KiB},\,1.5\mathrm{MiB},\,2\mathrm{MiB}\}.
@@ -189,17 +216,20 @@ L_{\mathrm{DMC}}=\frac{15360}{n_{\mathrm{DMC}}}.
 | 6 | \(15360/6=2560\) | 冻结窗 / 消融 1.5MiB |
 | 3 | \(15360/3=5120\) | 冻结窗 / 消融 2MiB |
 
-这是占用压力，**不是**测得带宽。
+这是占用压力，**不是**测得带宽。主结果停在这一列。
 
-**Roofline（Williams, Waterman, Patterson, CACM 2009 的墙形式）。** 本机 \(\mu_d\) 未知，故
+**Roofline（Williams, Waterman, Patterson, CACM 2009 的墙形式）。** TEAM-SPEC 未给出 \(\mu_d\)、时钟、DRAM 类型、行缓冲，故绝对墙只许一列假设：
 
 \[
-\mathrm{BW}\le n_{\mathrm{DMC}}\cdot \mu_d,\qquad \mu_d=\text{UNKNOWN},\qquad \mathrm{BW_{peak}}=\text{假设}.
+\mathrm{BW_{abs}}=n_{\mathrm{DMC}}\cdot\mu_d,\qquad \mu_d=\text{UNKNOWN 假设}.
 \]
 
-本模型 **默认不报绝对 GB/s**。占用屋顶是 \(n_{\mathrm{DMC}}/384\) 与 min/mean 两列，与 BW 0.85 **分列**。禁止用 H100 的 10 MC 当 ×3 代理（Bench T1）。禁止「平均 BW / 打满 18432」当合格。
+- **主表：** 相对占用（\(n_{\mathrm{DMC}}/384\)、\(\lvert q\rvert\)、die 比、trit 类、min/mean 占用）。
+- **绝对 BW：** 单列，保留 \(\mu_d\) 符号，不填 H100 GB/s。本 `model.py` 默认不打印该列。
+- **0.85：** 该行 min/mean BW 的 **合格线**，不是各 \(S\) 的均值，也不与占用 min/mean 平均。占用 min/mean 与 BW 0.85 **分列**。
+- 禁止用 H100 10 MC 当 ×3 代理（无 9 轴）。禁止「平均 BW / 打满 18432」当合格。本机无公开硅测，**不对硅 ±15%**。
 
-1 拍 mapper 相对 128 outstanding：延迟被 outstanding 盖住（卡 §3）。2 GHz 是卡上 STA **目标**，不是本信封的已知时钟——不写入数值 BW。
+1 拍 mapper 相对 128 outstanding：延迟被 outstanding 盖住（卡 §3）。2 GHz 是卡上 STA **目标**，不是 TEAM-SPEC 已知时钟——不写入数值 BW。
 
 ## 7. \(X_{\mathrm{rel}}\)：占用比，不是测得 BW
 
@@ -228,8 +258,8 @@ MAGIC-GAP **CLAIM**（占用，待三臂计数，不是周报）：
 
 卡写 \(\sim 0.7\)。条件：\(t_0\) 冻、只靠 \(H_0\)，且 \(H0_2\) 在该 AP 上接近均匀——后一项 **未证严**（折叠非同态）。因此：
 
-- 占用 min/mean 与 BW 0.85 **分列**。
-- \(n_{\mathrm{DMC}}=384\) 不证明 min/mean≥0.85，更不证明 BW≥0.85。
+- 占用 min/mean 与 BW 0.85 **分列**。0.85 是合格线，不是均值。
+- \(n_{\mathrm{DMC}}=384\) 不证明占用 min/mean 过线，更不证明 BW≥0.85。
 - 三类流量单独打印。禁止用「满 3 类」冒充均匀。
 
 T1 Archi 在同窗口报过占用 min/mean 0.70/0.75/0.68。那是 T1 组合仿真，**不是本 T2 的已测数字**，不写入结果表。本模型只保留 \(\{2,1,1\}\Rightarrow 3/4\) 这条组合上界。
@@ -252,15 +282,15 @@ T1 Archi 在同窗口报过占用 min/mean 0.70/0.75/0.68。那是 T1 组合仿�
 3. 关 TRIT_INJ：\(\lvert q\rvert\) 仍 128，\(n_{\mathrm{DMC}}\approx 128\)。若关注入也到 384，trit 又在偷占 6→384。
 4. 按卡实现 `die=DMC[8]`（禁止默默改成 `/192`），打印两 die 发行比；`HA≥96` 或单 die \(\neq 192\) 为装箱失败。另打一行 `die=DMC/192` 只作对照。die 比 \(\ge 1.5\) 则 \(n_{\mathrm{DMC}}=384\) 不得记 BW 成功。
 5. ≤4GiB 工作集、\(G[23]\) 冻结、120 核同相位时 \(\lvert q\rvert\) 是否仍 128。
-6. 占用 min/mean 与 BW 0.85 分列；\(\{2,1,1\}\) 三类流量、1R 冲突、NACK 占发行口分列。禁止 H100 ×3 代理，禁止平均 BW / 打满 18432 过关。
+6. 占用 min/mean 与 BW 0.85 分列（0.85=合格线，不是均值）；\(\{2,1,1\}\) 三类流量、1R 冲突、NACK 占发行口分列。禁止 H100 ×3 代理，禁止平均 BW / 打满 18432 过关。生成器必须是 `team-interleave-microbench`；STREAM / 随机 p-chase / 只跑 2 幂 / 驻留 / decode 包是公共反例。
 7. 禁止用 GF(2) 秩代替 AP 上 \(\lvert q[6:0]\rvert\)。打印 \(\mathrm{corr}(q[i],G[23])\) 与两两相关。
 8. S 集合分列不平均。4608B 上 \(G\bmod 9\) 冻 \(\neq\) XOR 数位冻。
 9. GOOD_MAP 1R；100% good 跳过 vs partial-good 冲突分列；XOR 重试 \(\ge 48\) 则 −48（禁止 −32）；`live5=G[23:19]`；第三 miss = NACK，DMC 不变。禁止 +1，禁止跨 DMC。
 
 ## 11. 本模型打印 / 不打印
 
-**打印：** 三臂 × 两杀手的 \(\lvert q[6:0]\rvert\)、\(n_{\mathrm{DMC}}\)、`die=DMC[8]` 发行比与每 die 唯一 DMC、对照 `die_env`、trit 类流量、HA≥96、装箱失败、4GiB 敏感、相关、Little 驻留、占用 CLAIM。消融 6/3 **assert**。
+**打印：** 三臂 × 两杀手的 \(\lvert q[6:0]\rvert\)、\(n_{\mathrm{DMC}}\)、`die=DMC[8]` 发行比与每 die 唯一 DMC、对照 `die_env`、trit 类流量、HA≥96、装箱失败、4GiB 敏感、相关、Little 驻留、占用 CLAIM。消融 6/3 **assert**。主评测仍是 1.5MiB/2MiB 分列 + 消融 6/3 + `die=DMC[8]`。
 
-**不打印：** 绝对 GB/s、H100 数、±15% 硅、周报、Batch A 对照结论、把 `die` 改写成 `/192` 的「修正」主列。
+**不打印：** 填了数的绝对 GB/s、H100 数、±15% 硅、周报、Batch A 对照结论、把 `die` 改写成 `/192` 的「修正」主列、本机绝对路径。
 
-**合格不是：** 平均 BW、打满 18432、\(n_{\mathrm{DMC}}=384\) 同时 die 比 ≥1.5 还记 BW 成功。
+**合格不是：** 平均 BW、打满 18432、STREAM / 只跑 2 幂过关、\(n_{\mathrm{DMC}}=384\) 同时 die 比 ≥1.5 还记 BW 成功、把 0.85 当均值。
