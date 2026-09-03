@@ -1,0 +1,20 @@
+generality_score: 8
+同源:
+  - P-0101
+  - address-interleaving-lab knowledge/implementation-and-validation.md（每层和联合 histogram）
+
+CONTEXT: |
+  冻结信封：2×Die2；层级为 die=2 / HA=96 / pipe=2 / bank=48，联合 N=18432。
+  只改 interleave；512B；4K 页；8GiB 共享；outstanding 128；stride 1B～2MiB。必须覆盖 bank partial good。
+
+SYMPTOM: |
+  S=2MiB 时 K=4096。
+  2 < 4096，96 < 4096，2 < 4096，48 < 4096，故各轴有可能满射；联合 18432>4096，联合必不满。
+  库指标同时报每层 histogram 和联合 histogram。若合格标准写成「打满 18432」，2MiB 上所有映射必失败。
+  待证伪：联合占用停在 ≤22.2% 的同时，存在 stride/base 使某一轴（尤其 HA 或 DMC）占用远低于该轴容量，
+  min/mean BW 越出 0.85。
+
+CONSTRAINT: |
+  硬件冻住，只改 interleave。
+  难在：联合空桶不可消灭，轴上扎堆可以消灭。合格标准必须分开，否则大 stride 上没有可过的映射。
+  证伪条件：若「联合占满 N」在 S=2MiB 上可被某可逆映射达到，则分轴/联合分列不是本问题。

@@ -1,0 +1,23 @@
+generality_score: 8
+同源:
+  - address-interleaving-lab knowledge/implementation-and-validation.md（disabled target、valid mask、故障）
+  - 人钉：必须覆盖 bank partial good
+
+CONTEXT: |
+  冻结信封：2×Die2；120 core / 384 DMC / 18432 bank。只改 interleave；512B；4K 页；8GiB 共享；
+  outstanding 128；stride 1B～2MiB。必须覆盖 bank partial good。
+  库要求合法目标集合进入配置，并测 disabled target / valid mask / 故障。
+  现有 OriginalMapper / ModMapper / IPolyModMapper* 没有 live-set 输入。
+
+SYMPTOM: |
+  活桶数 N' < 18432。s_crit 变成 W/N'。
+  退役率 6.25%/12.5%/25% 时 N'≈17280/16128/13824 量级（按 bank 计）。
+  只禁桶不重映射：死桶原像叠到活桶，额外失衡。
+  丢掉奇数因子会改变与 δ 的 gcd：3-adic 必撞集合变化，并行度同时下降。
+  待证伪：在 0/6.25/12.5/25% bank 退役下，起始地址+stride 扫描的 min/mean BW 越出 0.85，
+  或映射把地址送到已退役 bank。
+
+CONSTRAINT: |
+  硬件冻住，不能跨 DMC 借 bank 补洞。只改 interleave。
+  难在：live set 是运行时集合，映射必须在其上可逆，合格标准随 N' 变，不能沿用满好 18432 的占用账。
+  证伪条件：若对上述退役率，映射均不命中死桶、可逆到 live set、且 min/mean BW≥0.85，则 partial good 不是本信封的症状。

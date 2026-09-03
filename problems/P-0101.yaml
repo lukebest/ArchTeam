@@ -1,0 +1,24 @@
+generality_score: 8
+同源:
+  - P-0005
+  - address-interleaving-lab knowledge/ipoly-primer.md（低位交织在 stride=kM 塌缩）
+  - address-interleaving-lab codebase/Mappers.py
+
+CONTEXT: |
+  冻结信封：2×Die2；每 die 60 AI core / 96 HA；每 HA 2 pipe；每 pipe 1 DMC；每 DMC 48 bank。
+  整机 120 core / 384 DMC / 18432 bank。只改 interleave；粒度 512B；页 4K；作业 8GiB 整机共享；
+  每核 outstanding 128 且互不依赖；stride 1B～2MiB。必须覆盖 bank partial good。
+  现有算法库含 bit-field / 整数取模 / XOR / I-Poly / LUT 映射。本问题不依赖其中任何一种映射。
+
+SYMPTOM: |
+  W=8GiB=2^33，N=18432，s_crit=W/N≈455.11 KiB。
+  S=2MiB 时 K=⌊(W−base)/S⌋+1=4096，占用上界 4096/18432=22.2%，与映射函数无关。
+  S=512KiB 时 K=16384<N；S=1MiB 时 K=8192<N。凡 S>s_crit，必有空桶。
+  待证伪：在冻结信封上，任意可逆映射在 S∈{512KiB,1MiB,2MiB} 上占用仍 ≤K/N，
+  且不同起始地址的 min/mean 读写带宽比随 S 跨过 s_crit 跳变。
+
+CONSTRAINT: |
+  硬件拓扑冻住，不能改 DMC/bank 数。只改 interleave。
+  难在：请求集合基数 K 由窗口和 stride 锁死，映射不能制造出多于 K 个互异点。
+  2MiB 打满 18432 不是合格项。
+  证伪条件：若存在可逆映射使 S=2MiB 时占用 >22.2%，则本问题不成立。

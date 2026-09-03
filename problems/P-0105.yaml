@@ -1,0 +1,22 @@
+generality_score: 8
+同源:
+  - address-interleaving-lab knowledge/implementation-and-validation.md（同 base/同 phase vs 错 phase）
+  - address-interleaving-lab codebase/Mappers.py
+
+CONTEXT: |
+  冻结信封：2×Die2；每 die 60 AI core / 96 HA；每 HA 2 pipe；每 pipe 1 DMC；每 DMC 48 bank。
+  整机 120 core / 384 DMC / 18432 bank。只改 interleave；粒度 512B；页 4K；作业 8GiB 整机共享；
+  每核 outstanding 128 且互不依赖；stride 1B～2MiB。必须覆盖 bank partial good。
+  人钉症状：起始地址差异、不同 stride，读写带宽抖动。
+
+SYMPTOM: |
+  S=2MiB 时最多 4096 个互异点。不同起始地址落到 18432 里不同的 4096-子集。
+  各轴容量 2 / 96 / 2 / 48 都 <4096，联合 18432 盖不住。
+  子集若在 HA 或 DMC 上扎堆，min/mean 读写带宽比随 base 变；各轴均匀则抖的只剩联合空桶。
+  库的验证套件把「同 base/同 phase、错 phase」列为必测，正是这条。
+  待证伪：存在 stride 固定、只改起始地址，使 min/mean BW 跨过 0.85 上下，或占用控制器数变化 ≥2×。
+
+CONSTRAINT: |
+  硬件冻住，只改 interleave。
+  难在：大 stride 下映射看到的是一个随 base 滑动的稀疏子集，不是全空间均匀性。
+  证伪条件：若所有可逆映射在任意 base、S∈[1B,2MiB] 上 min/mean BW 不随 base 变（相对差 <5%），则起始地址不是本信封的症状。

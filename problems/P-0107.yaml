@@ -1,0 +1,20 @@
+generality_score: 7
+同源:
+  - address-interleaving-lab codebase/Mappers.py（HA %31 × 8 bank，die 步长 124；与 96 HA × 48 bank 对不齐）
+
+CONTEXT: |
+  冻结信封：每 die 96 HA、每 HA 2 pipe、每 DMC 48 bank；整机 384 DMC / 18432 bank。
+  只改 interleave；512B；4K 页；8GiB 共享；outstanding 128；stride 1B～2MiB。必须覆盖 bank partial good。
+  库的 OriginalMapper/BaseMapper/ModMapper 把 HA 做成 %31、bank 做成 8=2^3、die 步长 124=31×4。
+
+SYMPTOM: |
+  96 与 48 的 gcd=48，不是互素对。31 对不齐 96；8 对不齐 48；124 对不齐每 die 9216 bank。
+  把库映射直接打到冻结信封上，目标 ID 会越界、碰撞或留下未覆盖 HA。
+  待证伪：库内 %31/8/124 族映射在冻结层级上产生越界 ID，或占用 HA 数恒 ≤31 <96，
+  读写带宽随 stride 抖且无法解释为 96×48 的满层级。
+
+CONSTRAINT: |
+  评估必须对着冻结的 96 HA / 48 bank / 384 DMC，不能把库的 31×8 当成信封。
+  只改 interleave。
+  难在：层级因子不互素，且库的资源格子与冻结格子不同构。
+  证伪条件：若 %31×8 族在冻结信封上占用恰好 96 HA 与 48 bank、无越界、min/mean BW≥0.85，则格子错位不是症状。

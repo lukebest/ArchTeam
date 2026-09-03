@@ -1,0 +1,22 @@
+generality_score: 7
+同源:
+  - address-interleaving-lab codebase/Mappers.py（IPolyModMapper192/248：GF(2) 点乘后再 %192/%248）
+  - knowledge/ipoly-primer.md（I-Poly 是 GF(2) 余数，不是整数 % 2^m−1）
+
+CONTEXT: |
+  冻结信封同上：2×Die2；120 core / 384 DMC / 18432 bank。只改 interleave；512B；4K 页；8GiB 共享；
+  outstanding 128；stride 1B～2MiB。必须覆盖 bank partial good。
+  库把 I-Poly/XOR 与整数取模串起来：先 GF(2) 余数，再 %192 或 %248。
+
+SYMPTOM: |
+  I-Poly 工作在 GF(2)，没有进位；整数 stride 的 3-adic 陪集不是 GF(2) 线性子空间。
+  串上 %192（=64×3）或 %248（=8×31）后，像集再被整数模数切一刀。
+  192 对齐每 die 192 DMC，248 对不齐 384 或 18432 的任何一层。
+  待证伪：GF(2) 前级在纯 2 幂 stride 上均匀之后，S=3·2^k 或对 248 的坏模，
+  min/mean 带宽比仍越出 0.85；或映射目标集合势不等于冻结层级（384/18432）。
+
+CONSTRAINT: |
+  硬件冻住，只改 interleave。不允许把「再取一次模」写成修复。
+  难在：两个代数（GF(2) 与 Z/NZ）的坏 stride 集不同，串联会把两套塌缩都留下。
+  证伪条件：若 GF(2) 后再整数取模的映射在 S∈[1B,2MiB] 全部起始地址上
+  目标集合恰为 384 DMC / 18432 bank，且 min/mean BW≥0.85，则本问题不成立。

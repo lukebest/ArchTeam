@@ -1,0 +1,23 @@
+generality_score: 8
+同源:
+  - P-0005
+  - address-interleaving-lab codebase/Mappers.py（ModMapper %31、Mod192Mapper %192、Mod248Mapper %248）
+
+CONTEXT: |
+  冻结信封：2×Die2；120 core / 384 DMC / 18432 bank；N_bank=18432=2^11×9，N_DMC=384=2^7×3，
+  每 DMC 48=2^4×3 bank。只改 interleave；粒度 512B；页 4K；8GiB 共享；outstanding 128；stride 1B～2MiB。
+  必须覆盖 bank partial good。
+  库中大量映射是整数取模：块地址 % 31 / % 192 / % 248。
+
+SYMPTOM: |
+  线性 f(G)=G mod N 时，步长 δ=S/gcd(S,512) 下 |im|≤N/gcd(δ,N)。
+  - 2 幂 stride 吃掉 2 幂因子；奇数因子仍在。
+  - δ≡0 (mod 3) 时 DMC 因子 3 丢掉，n_DMC 掉到 min(384,K)/3，X_rel=3。
+  - δ≡0 (mod 9) 时 bank 的 ×9 丢掉，只剩 2048 桶。范围内含 S=4608B 及其倍数。
+  库内 Mod192Mapper：192=64×3，%192 直接暴露因子 3。ModMapper %31 对不齐 96 HA。
+  待证伪：S=3·2^k 时，即便映射在 2 幂 stride 上均匀，min/mean 读写带宽比仍越出 0.85，占用控制器数 < min(384,K)。
+
+CONSTRAINT: |
+  硬件冻住，不能改带 3 的资源个数。只改 interleave。
+  难在：资源个数的奇数因子与等差到达过程的陪集结构同构，整数取模把它变成占用塌缩。
+  证伪条件：若所有整数取模映射在 S=3·2^k 上仍 n_DMC=min(384,K) 且 min/mean BW≥0.85，则本问题不成立。

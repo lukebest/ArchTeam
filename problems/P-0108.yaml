@@ -1,0 +1,19 @@
+generality_score: 7
+同源:
+  - address-interleaving-lab codebase/Mappers.py（OriginalMapper die = A[18]^A[15]^A[12]^A[9]，这些位同时进 HA/bank）
+
+CONTEXT: |
+  冻结信封：2×Die2，每 die 必须能单独作为已知好 die 组装。只改 interleave；512B；4K 页；
+  8GiB 共享；120 core；outstanding 128；stride 1B～2MiB。必须覆盖 bank partial good。
+  库 OriginalMapper：die 是若干中位 XOR，同一批位也进入 HA 与 bank。
+
+SYMPTOM: |
+  冻住一颗 die（KGD 退役或单 die 组装）后，另一颗 die 上同一 grain 的 (HA,pipe,bank) 会变。
+  die 只有 2 值。若 die 与 HA/bank 共享支撑，2MiB 窗内 die 翻转会带动其他轴。
+  待证伪：存在地址对，只改 die 位或只退役一颗 die，使另一颗 die 的 HA/DMC/bank 编号改变，
+  或整机 min/mean BW 相对双 die 满好掉到 0.85 以下且不能用容量减半解释。
+
+CONSTRAINT: |
+  硬件冻住。只改 interleave。
+  难在：2 die 是可分离的组装单位，映射若把 die 编进其他轴，退役一颗会撕另一颗。
+  证伪条件：若冻 die 后另一颗的 (HA,pipe,bank) 完全不变，且单 die 带宽符合半机容量，则 die 耦合不是症状。

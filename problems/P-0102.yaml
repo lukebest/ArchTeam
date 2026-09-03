@@ -1,0 +1,23 @@
+generality_score: 8
+同源:
+  - address-interleaving-lab codebase/Mappers.py（IPoly 支撑从 bit9 起 20 bit，覆盖 [9,29)）
+  - address-interleaving-lab knowledge/ipoly-primer.md（低 m×m 满秩仍可能丢高位）
+
+CONTEXT: |
+  冻结信封：2×Die2；120 core / 384 DMC / 18432 bank。只改 interleave；粒度 512B；页 4K；
+  作业 8GiB 整机共享；每核 outstanding 128；stride 1B～2MiB。必须覆盖 bank partial good。
+  块地址 G=addr>>9。2 幂 stride s=2^m 冻结 bit[0,m)。库中多项 I-Poly/XOR 映射只吃从粒度位往上的固定窗。
+
+SYMPTOM: |
+  8GiB 窗对应 bit[0,33)。S=2MiB=2^21 时可变位是 [21,33)，宽 12。
+  若映射支撑 ⊂ bit[0,L) 且 L≤21，则 2MiB 上信息量 I=0，全部点进同一桶。
+  库内 IPolyModMapper* 用 A[9 : 9+20)，即 [9,29)：2MiB 仍碰到窗上沿，但 [29,33) 未进映射；
+  OriginalMapper 的 die/HA/bank 位主要落在 [9,24] 一带。
+  待证伪：存在起始地址与 S≥1MiB，使读写带宽相对满映射基线崩溃（min/mean 远低于 0.85），
+  且占用集中到 1 个或少数 HA/DMC。
+
+CONSTRAINT: |
+  硬件冻住，只改 interleave。
+  难在：大 stride 把低位滤掉，映射若只盯连续流常用的中低位，base/stride 一换就抖。
+  证伪条件：若所有支撑不含 [21,33) 的映射在 S=2MiB、任意 base 上占用仍按各轴均匀、min/mean BW≥0.85，
+  则位窗饥饿不是本信封的症状。
