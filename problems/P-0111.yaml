@@ -1,0 +1,26 @@
+generality_score: 7
+同源:
+  - P-0106
+  - P-0107
+  - address-interleaving-lab DV200 Params.hpp PG94（HHAPerDie=94，HA_PG_FACTOR=47）
+  - hbm_balance_analyze.py 47×4×2×3×16=18048
+
+CONTEXT: |
+  冻结信封：2×Die2；每 die 96 HA；每 DMC 48 bank；整机 384 DMC / 18432 bank。只改 interleave；
+  粒度 512B；页 4K；8GiB 共享；outstanding 128；stride 1B～2MiB。必须覆盖 bank partial good。
+  库的 C++ 默认编译是 PG94：每 die 94 HA、HA 因子 47、分析器按 18048 桶解码。FG 96 路径被注释掉。
+  退役被做成换一台机器，而不是冻结信封上的 live-set。
+
+SYMPTOM: |
+  默认树：HHAPerDie=94，nWays=47，BankNum=94×2×2×48=18048 ≠ 18432。
+  DV200Mapper 断言 hhaNum∈{96,192}，默认 188 会直接断言失败。
+  PG94 下分区仍用 96/m_partitionNum；0722 Random 按 96 抽样，可抽到不存在的 HA 94–95。
+  待证伪：在冻结 8GiB 扫描上，PG94 默认映射的目标集合势不是 18432，或 HA 占用恒 ≤94，
+  或对冻结 96 HA 编号越界。
+
+CONSTRAINT: |
+  评估必须对着冻结的 96 HA / 18432 bank。不能把 PG94 当成信封。
+  只改 interleave。
+  难在：partial good 是 96 里关掉 2 个 HA，不是把模数改成 47、把 N 改成 18048。
+  证伪条件：若 PG94 默认映射在冻结信封上占用恰好 96 HA 与 18432 bank、无越界、min/mean BW≥0.85，
+  则编译期换几何不是本信封的症状。
