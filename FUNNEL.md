@@ -8,15 +8,15 @@
 
 人已定：T4 周五周报里再拍。不开 T4。
 
-- P-0105/M-4 SNS：T3 通过。占用对 T2 误差 0（可进周报）。BW 未按信封 0.85 签字。
-- P-0106/M-5 AffineRebind：T3 通过。占用网表对 T2 误差 0（可进周报）。BW 未按 0.85 签字。
+- P-0105/M-4 SNS：T3 smoke 通过（round 2）。占用对 T2 误差 0（可进周报）。BW 未按信封 0.85 签字。
+- P-0106/M-5 AffineRebind：T3 smoke 通过。占用网表对 T2 误差 0（可进周报）。BW 未按 0.85 签字。
 
-## Night 扫描（2026-09-03，未签字）
+## Night 扫描（2026-09-03）
 
 PR #22 已合入。产物在 `sims/P-0105/M-4/results/` 与 `sims/P-0106/M-5/results/`。
-t2_compare：SNS 336 行、AffineRebind 144 行，rel_err=0（仿真自报，未签字）。
-BW 为 H-DRAM-BB reduced-bbox，不签信封 0.85。数字未签字，不进周报、不进 T4。
-待评估审计签字。
+
+- SNS：仿真称评估审计单独通过、修复清单无。仓内 `reviews/P-0105/M-4/t3_audit.md` 仍是 smoke round 2，无 night 签字文件。已退回评估审计入仓。占用沿用已签字 smoke（336 行 rel_err=0）。night BW 未签字，不进周报、不开 T4。
+- AffineRebind：night 仍在审，不与 SNS 混。
 
 ## T2 淘汰
 
