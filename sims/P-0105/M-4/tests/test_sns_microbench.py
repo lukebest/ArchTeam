@@ -64,3 +64,19 @@ def test_t2_512b_sns_matches():
     cmp = sns.compare_occupancy("sns", 0, 512, 512)
     assert not cmp["flag_gt_30pct"]
     assert cmp["t3_n_dmc"] == cmp["t2_n_dmc"]
+
+
+def test_t2_pass_pack_s_like_to_like():
+    """I=min(K,Q_tot) occupancy vs frozen T2 for the signed S set, 4608B alone."""
+    from _lib.workloads import SNS_STRIDES
+
+    names = [n for n, _ in SNS_STRIDES]
+    assert names == ["2MiB", "1MiB", "512KiB", "4608B", "512B"]
+    for s_name, s in SNS_STRIDES:
+        for st in ("sns", "mod384", "low", "high", "shear", "sbox"):
+            cmp = sns.compare_occupancy(st, 0, s)
+            assert not cmp["flag_gt_30pct"], (s_name, st, cmp)
+            assert cmp["t3_n_dmc"] == cmp["t2_n_dmc"], (s_name, st, cmp)
+            assert cmp["t3_n_bank"] == cmp["t2_n_bank"], (s_name, st, cmp)
+            if s_name == "4608B" and st == "sns":
+                assert cmp["t3_n_dmc"] == 384
