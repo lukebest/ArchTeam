@@ -6,6 +6,9 @@ One-command smoke:
 
 Night (21:00) full:
   python3 sims/P-0106/M-5/sweep.py --mode night
+
+Night occupancy / t2_compare write to <out>/night/ and do not
+overwrite the signed smoke fixture at <out>/{occupancy,t2_compare}.csv.
 """
 
 from __future__ import annotations
@@ -126,7 +129,8 @@ def sweep(mode: str, out: Path, seed: int, n_trials: int, n_pts: int | None) -> 
                 t3 = occupancy(st, mask, s, n_pts)
                 cmp = compare_occupancy(st, mask, s, n_pts)
                 note = ""
-                if "25%" in label:
+                # Exact unif-25% label only — "25%" is a substring of "6.25%".
+                if label.startswith("unif-25%"):
                     note = "n=36 still has factor 3 — not a 3-adic test"
                 if "3-biased" in label:
                     note = "3-adic column only"
@@ -208,6 +212,7 @@ def sweep(mode: str, out: Path, seed: int, n_trials: int, n_pts: int | None) -> 
                                             "n_DMC": r.n_dmc,
                                             "n_bank": r.n_bank,
                                             "repair_done": r.repair_done,
+                                            "hypothesis": "H-DRAM-BB",
                                         }
                                     )
 
@@ -228,12 +233,16 @@ def sweep(mode: str, out: Path, seed: int, n_trials: int, n_pts: int | None) -> 
                 "mean": m,
                 "ci95_hw": hw,
                 "n": n,
+                "hypothesis": "H-DRAM-BB",
             }
         )
 
     flags = [r for r in cmp_rows if r.get("flag_gt_30pct")]
-    _write_csv(out / "occupancy.csv", occ_rows)
-    _write_csv(out / "t2_compare.csv", cmp_rows)
+    # Night occupancy/t2_compare stay out of the signed smoke fixture.
+    occ_dir = out / "night" if mode == "night" else out
+    occ_dir.mkdir(parents=True, exist_ok=True)
+    _write_csv(occ_dir / "occupancy.csv", occ_rows)
+    _write_csv(occ_dir / "t2_compare.csv", cmp_rows)
     _write_csv(out / "cycles.csv", cyc_rows)
     _write_csv(out / "bw_ci.csv", summary)
 
@@ -245,7 +254,7 @@ def sweep(mode: str, out: Path, seed: int, n_trials: int, n_pts: int | None) -> 
             t3v.append(float(r["t3_cls_mean"]))
     if labels:
         _plot(
-            out / "t2_vs_t3_cls_mean.png",
+            occ_dir / "t2_vs_t3_cls_mean.png",
             labels,
             t2v,
             t3v,
@@ -260,11 +269,24 @@ def sweep(mode: str, out: Path, seed: int, n_trials: int, n_pts: int | None) -> 
         "t2_flags_gt_30pct": len(flags),
         "n_occ_rows": len(occ_rows),
         "n_cyc_rows": len(cyc_rows),
+        "occupancy_csv": str(occ_dir / "occupancy.csv"),
+        "t2_compare_csv": str(occ_dir / "t2_compare.csv"),
         "bw_ci": summary,
-        "note": "Main gain is mod 48→n, not α. Uniform 25% is not 3-adic. No GB/s.",
+        "bbox": (
+            f"8 cores × 16 outstanding, AP {n_pts_cyc} points, "
+            f"csr_ports={list(csr_ports_list)}, decode_lat={list(decode_lats)}, "
+            f"masks={[m for m, _ in cycle_masks]}, "
+            "reduced-bbox; not 120-core / Q_tot=15360 envelope 0.85"
+        ),
+        "note": (
+            "Main gain is mod 48→n, not α. Uniform 25% is not 3-adic. "
+            "Absolute BW is txns/cycle under 假设 H-DRAM-BB; no GB/s; "
+            "0.85 is not a measured mean."
+        ),
     }
     (out / "summary.json").write_text(json.dumps(meta, indent=2) + "\n")
     print(f"AffineRebind sweep mode={mode} seed={seed} → {out}")
+    print(f"occupancy/t2_compare → {occ_dir}")
     print(f"T2 occupancy |T3-T2|/T2 > 30% flags: {len(flags)}")
     for s in summary:
         print(f"  BW {s['S']:8} {s['mask']:16} {s['strategy']:10} ports={s['csr_ports']} "
