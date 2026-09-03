@@ -1,0 +1,5 @@
+S,strategy,map_ports,map_lat,page,mask,txns_per_cycle_ci,mean,ci95_hw,n
+2MiB,mod384,1,1,open,full,0.064953 ± 0.000000 (n=3),0.06495340299350466,0.0,3
+2MiB,sns,1,1,open,full,1.000000 ± 0.000000 (n=3),1.0,0.0,3
+512B,mod384,1,1,open,full,1.000000 ± 0.000000 (n=3),1.0,0.0,3
+512B,sns,1,1,open,full,1.000000 ± 0.000000 (n=3),1.0,0.0,3

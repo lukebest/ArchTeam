@@ -7,67 +7,57 @@ from pathlib import Path
 
 _HERE = Path(__file__).resolve().parents[1]
 _SIMS = _HERE.parents[1]
-sys.path.insert(0, str(_HERE))
 sys.path.insert(0, str(_SIMS))
 
 from _lib.dram import DramTiming
-from sim import (
-    CSR,
-    SimConfig,
-    map_one,
-    mask_n40,
-    mask_third_bias,
-    occupancy,
-    run_cycles,
-)
+from _lib.importsim import load_sim
+
+aff = load_sim(_HERE, "p0106_m5_sim")
 
 
 def test_repair_fills_minimax_not_handwritten():
-    csr = CSR()
+    csr = aff.CSR()
     assert not csr.repaired
-    csr.repair(mask_n40(), "minimax")
+    csr.repair(aff.mask_n40(), "minimax")
     assert csr.repaired
     assert csr.n[0] == 40
-    # n=40: gcd(1,40)=1 so search may pick 1 (constant on gcd) — that is legal
     assert csr.alpha[0] == 1
-    csr.repair(mask_third_bias(), "minimax")
+    csr.repair(aff.mask_third_bias(), "minimax")
     assert csr.n[0] == 32
     assert csr.alpha[0] >= 1
 
 
 def test_true_alpha1_column_is_separate():
-    a = occupancy("modn-a1", mask_n40(), 2 * 1024 * 1024, 256)
-    b = occupancy("minimax", mask_n40(), 2 * 1024 * 1024, 256)
+    a = aff.occupancy("modn-a1", aff.mask_n40(), 2 * 1024 * 1024, 256)
+    b = aff.occupancy("minimax", aff.mask_n40(), 2 * 1024 * 1024, 256)
     assert a.alpha == 1
-    # large 2-power: occupancy diff must be <5%
     if a.cls_mean:
         assert abs(b.cls_mean - a.cls_mean) / a.cls_mean < 0.05
 
 
 def test_dead_hits_zero_on_live_paths():
     for st in ("skip-dead", "stack", "modn-a1", "minimax"):
-        for mask in (mask_n40(), mask_third_bias()):
-            occ = occupancy(st, mask, 2 * 1024 * 1024, 512)
+        for mask in (aff.mask_n40(), aff.mask_third_bias()):
+            occ = aff.occupancy(st, mask, 2 * 1024 * 1024, 512)
             assert occ.dead == 0, (st, occ.dead)
 
 
 def test_n0_poisons_without_cross_dmc():
-    csr = CSR()
+    csr = aff.CSR()
     csr.repair(0, "minimax")
     assert csr.n[0] == 0
-    dmc, bank, _, _ = map_one(0, "minimax", csr)
+    dmc, bank, _, _ = aff.map_one(0, "minimax", csr)
     assert bank < 0
-    # DMC extractor still returns a local id — no steal
     assert 0 <= dmc < 384
 
 
 def test_repair_before_run_flag():
     addrs = [i * 512 for i in range(16)]
-    r = run_cycles(
+    r = aff.run_cycles(
         addrs,
-        SimConfig(
+        aff.SimConfig(
             strategy="minimax",
-            mask=mask_n40(),
+            mask=aff.mask_n40(),
             n_cores=2,
             outstanding=4,
             warmup_frac=0.0,
@@ -88,7 +78,7 @@ def test_two_cycle_decode_costs_more_than_one():
         page_policy="close", tRCD=1, tCL=1, tRP=1, tRAS=2, tBURST=1,
         tRRD_S=1, tRRD_L=1, tCCD_S=1, tCCD_L=1, tFAW=4, tRTP=1,
     )
-    a = run_cycles(addrs, SimConfig(decode_lat=2, n_cores=1, outstanding=1, warmup_frac=0.0, dram=timing))
-    b = run_cycles(addrs, SimConfig(decode_lat=1, n_cores=1, outstanding=1, warmup_frac=0.0, dram=timing))
+    a = aff.run_cycles(addrs, aff.SimConfig(decode_lat=2, n_cores=1, outstanding=1, warmup_frac=0.0, dram=timing))
+    b = aff.run_cycles(addrs, aff.SimConfig(decode_lat=1, n_cores=1, outstanding=1, warmup_frac=0.0, dram=timing))
     assert a.decode_cycles == 16
     assert b.decode_cycles == 8

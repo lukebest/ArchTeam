@@ -7,29 +7,24 @@ from pathlib import Path
 
 _HERE = Path(__file__).resolve().parents[1]
 _SIMS = _HERE.parents[1]
-sys.path.insert(0, str(_HERE))
 sys.path.insert(0, str(_SIMS))
 
+from _lib.importsim import load_sim
 from _lib.stats import rel_err
 from _lib.workloads import GRAIN, GRAIN_BASES
-from sim import (
-    compare_occupancy,
-    covering_bound,
-    occupancy,
-    rel_diff_n_dmc,
-)
 
+sns = load_sim(_HERE, "p0105_m4_sim")
 
 S2M = 2 * 1024 * 1024
 
 
 def test_1d_mod384_collapses_to_3_dmc_at_2mib():
-    occ = occupancy("mod384", 0, S2M, 4096)
+    occ = sns.occupancy("mod384", 0, S2M, 4096)
     assert occ.n_dmc == 3
 
 
 def test_sns_covers_384_at_2mib():
-    occ = occupancy("sns", 0, S2M, 4096)
+    occ = sns.occupancy("sns", 0, S2M, 4096)
     assert occ.n_dmc == 384
     assert occ.bank_per_min == 6 and occ.bank_per_max == 6
     assert occ.kind8_min == 1
@@ -38,36 +33,34 @@ def test_sns_covers_384_at_2mib():
 def test_abl_sbox_varies_phase_id_at_2mib():
     ids = []
     for b in (0, GRAIN, 2 * GRAIN, 7 * GRAIN):
-        occ = occupancy("sbox", b, S2M, 4096)
+        occ = sns.occupancy("sbox", b, S2M, 4096)
         ids.append(tuple(i for i, c in enumerate(occ.dmc_h) if c))
         assert occ.n_dmc == 1
-    assert len(set(ids)) > 1  # shear-necessary ablation
+    assert len(set(ids)) > 1
 
 
 def test_sns_rel_diff_across_grain_bases():
-    vals = [occupancy("sns", b, S2M, 4096).n_dmc for b in GRAIN_BASES]
+    vals = [sns.occupancy("sns", b, S2M, 4096).n_dmc for b in GRAIN_BASES]
     assert all(v == 384 for v in vals)
-    assert rel_diff_n_dmc(vals) < 0.05
+    assert sns.rel_diff_n_dmc(vals) < 0.05
 
 
 def test_covering_bound_not_used_as_golden():
-    mx, mn, cv = covering_bound()
+    mx, mn, cv = sns.covering_bound()
     assert mx == 11 and mn == 10
     assert abs(cv - 0.0442) < 0.001
-    # SNS maxload at S=2MiB happens to match covering — do not assert equality
-    # as a pass condition. Just confirm the bound is printed independently.
-    occ = occupancy("sns", 0, S2M, 4096)
+    occ = sns.occupancy("sns", 0, S2M, 4096)
     assert occ.maxload >= 1
 
 
 def test_t2_occupancy_within_30pct():
     for st in ("sns", "mod384", "low", "high", "shear", "sbox"):
-        cmp = compare_occupancy(st, 0, S2M, 4096)
+        cmp = sns.compare_occupancy(st, 0, S2M, 4096)
         assert not cmp["flag_gt_30pct"], cmp
         assert rel_err(cmp["t3_n_dmc"], cmp["t2_n_dmc"]) < 1e-12
 
 
 def test_t2_512b_sns_matches():
-    cmp = compare_occupancy("sns", 0, 512, 512)
+    cmp = sns.compare_occupancy("sns", 0, 512, 512)
     assert not cmp["flag_gt_30pct"]
     assert cmp["t3_n_dmc"] == cmp["t2_n_dmc"]
