@@ -269,8 +269,8 @@ def sweep(mode: str, out: Path, seed: int, n_trials: int, n_pts: int | None) -> 
         "t2_flags_gt_30pct": len(flags),
         "n_occ_rows": len(occ_rows),
         "n_cyc_rows": len(cyc_rows),
-        "occupancy_csv": str(occ_dir / "occupancy.csv"),
-        "t2_compare_csv": str(occ_dir / "t2_compare.csv"),
+        "occupancy_csv": str((occ_dir / "occupancy.csv").relative_to(_HERE)),
+        "t2_compare_csv": str((occ_dir / "t2_compare.csv").relative_to(_HERE)),
         "bw_ci": summary,
         "bbox": (
             f"8 cores × 16 outstanding, AP {n_pts_cyc} points, "
