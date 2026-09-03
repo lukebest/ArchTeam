@@ -1,0 +1,26 @@
+generality_score: 8
+同源:
+  - P-0105
+  - drafts/D-0105-M4-vertical
+
+CONTEXT: |
+  冻结信封：120 core / 384 DMC / 18432 bank；轴容量 2 / 96 / 2 / 48 各 <4096；
+  8GiB 共享；512B；outstanding 128；stride 1B～2MiB。只改 interleave。
+  假设占用 discrepancy 对 base 已不变。
+  S=2MiB：n_DMC=384 恒定，maxload=11，minload=10，CV≈0.044，跨 base 相对差=0。
+  S=4608B：maxload=28，minload=14，CV≈0.13–0.14，仍几乎与 base 无关。
+  covering：4096=10×384+256 → 256 桶 11 hit、128 桶 10 hit。
+
+SYMPTOM: |
+  - stride 相关负载不均：S=2MiB 时 CV≈0.044、max/min=1.1；
+    S=4608B 时 CV≈0.13–0.14、max/min=2。只换步长，峰谷比从 1.1 跳到 2，CV 约 3×。
+  - 12 bit → 384 的 covering 下界 11 vs 10：把 12 bit 再混合一遍也消不掉。
+  - 占用 ≠ DRAM 带宽：occupancy CV=0.044 不能直接写成 BW≥0.85。
+  待证伪：base 已不改占用之后，仍存在 stride 使 occupancy CV 相差 ≥3×
+  或 max/min 从 1.1 升到 ≥2，或 occupancy 预测与 cycle 级 min/mean BW 相对差 ≥5%。
+
+CONSTRAINT: |
+  硬件冻住。禁止把剩余抖动写成「再混合 12 bit」。
+  难在：base 项置零之后，剩下 stride 选取的格方向，以及 4096 点对 384 桶的 covering 下界。
+  证伪条件：若所有 stride∈[1B,2MiB] 上 occupancy CV≤0.044、max/min≤1.1，
+  且 cycle 级 min/mean BW≥0.85 且与占用预测相对差 <5%，则本问题不成立。

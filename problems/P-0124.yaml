@@ -1,0 +1,22 @@
+generality_score: 7
+同源:
+  - P-0105
+  - drafts/D-0105-M4-foundational
+
+CONTEXT: |
+  P-0105 把起始地址写成可自由扫的自变量。现在问「base 是值得优化的独立随机变量」
+  在真实作业上是否成立。硬件仍冻：120 core / 384 DMC / 18432 bank，8GiB，512B。
+
+SYMPTOM: |
+  定义 p_align = 公开 trace 上 p(base ≡ 0 mod 2MiB)。次级：p(base ≡ 0 mod 4KiB)。
+  - 待测：公开 CPU/加速器内存 trace（至少含 SPECcpu、数据中心、LLM 推理已发表地址流）
+    上统计起始地址模 2MiB。
+  - 若 p_align > 0.95，则「任意 phase 都要匀」是错问题。
+  - 若 p_align ≤ 0.05，前提成立，本问题关闭。
+  - 中间带：报条件分布，不把不变性当全称命题。
+
+CONSTRAINT: |
+  禁止改映射。禁止把「强制 2MiB 对齐」写成机制。
+  只问 p_align 在公开 trace 上测得到、否得到。
+  证伪条件：公开 trace 上 p_align ≤ 0.05，或错 phase 请求占比 ≥5%
+  且对应 min/mean BW 越出 0.85，则本问题不成立。
