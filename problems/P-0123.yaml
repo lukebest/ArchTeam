@@ -1,0 +1,22 @@
+generality_score: 8
+同源:
+  - P-0105
+  - P-0114
+  - drafts/D-0105-M4-horizontal
+
+CONTEXT: |
+  对象是 LLM decode 的 KV / activation 铺放，不是 DRAM 内部 bank 映射。
+  token 下标行走；mesh 列或 HBM 通道是固定桶。起始 token 相当于 base/phase。
+  公开工作点：13B 级与已发表 (B,S)。C=8 或 16。
+
+SYMPTOM: |
+  13B 级、S≈2048 时单序列 KV 约 1.7GB。
+  - 换起始 token 时，若列占用多重集随原点变，则 maxload/minload 与最热列编号都会变。
+  - 待测：扫起始 token，报每列 occupancy 与 max/min。
+    若某起始 token 把流量打到少数列，逐步时间不能用满通道 bytes/β 解释。
+  待证伪：存在公开 (B,S)，使列占用对起始 token 的相对差 ≥5%，或列 max/min 随起始 token 变。
+
+CONSTRAINT: |
+  不改通道内部 bank 映射。
+  难在结构是（原点 × 行走）的滑动稀疏子集；占用多重集是否对原点不变由格方向决定。
+  证伪条件：若所有已发表 (B,S) 上列占用对起始 token 独立（相对差 <5%），则该同构不成立。
