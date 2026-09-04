@@ -4,24 +4,17 @@
 配额: 新问题 30 → 机制 150 → 过 T0 40 → 过 T1 12 → T2 8 → T3 3
 用量: 问题 30/30 · 机制 25/150 · T0 过 7/40 · T1 过 6/12 · T2 过 2/8 · T3 过 2/3
 
-## 今日 09:00（2026-09-04）
+## 周五 17:00 周报收口（2026-09-04）
 
-- 派出：无（问题配额满；无待进下一层交接）
-- 退回：无
-- Affine night：PR #25+#26 仍 OPEN、均可合，顺序 **先 #25 再 #26**；main 尚无 `t3_night_audit.md` / `results/night/`，台账不标已签
-- 拍板项：Top 两张 T4 或停止 → 今日 17:00 周报再拍（人已定）
+- Affine night：PR #25+#26 已合入 main；`t3_night_audit.md` 在仓，verdict 通过。占用沿用已签字 smoke；night BW 不签信封 0.85。
+- SNS night：PR #23 已合入（此前台账已记）。
+- 拍板项交人：两张 Top **T4 或停止**；是否扩配额；下周是否切 VR/CIM 备案（P-0133–P-0136）。
+- 未签字数字（reduced-bbox BW、信封 0.85）不进周报绝对值。
 
-## Top（T3 通过）
+## Top（T3 通过，评估审计签字）
 
-人已定：T4 周五周报里再拍。不开 T4。
-
-- P-0105/M-4 SNS：T3 smoke 通过（round 2）。占用对 T2 误差 0（可进周报）。BW 未按信封 0.85 签字。night 签字已合（PR #23）。
-- P-0106/M-5 AffineRebind：T3 smoke 通过。占用网表对 T2 误差 0（可进周报）。BW 未按 0.85 签字。
-
-## Night 扫描（2026-09-03）
-
-- SNS：night 签字已合入（PR #23）。占用沿用已签字 smoke。night BW 不签信封 0.85，不进周报绝对值、不开 T4。
-- AffineRebind：技术通过。PR #25（路径修复）与 PR #26（`t3_night_audit.md`，verdict 通过）均 OPEN、MERGEABLE。合入顺序：**先 #25，再 #26**。两文件都在 main 后再改台账为已签。BW 不签 0.85，未签不进周报/T4。
+- P-0105/M-4 SNS：smoke `t3_audit` round 2 通过；night `t3_night_audit` 通过（PR #23）。占用对 T2 336 行 `rel_err=0`。BW 未按信封 0.85 签字。
+- P-0106/M-5 AffineRebind：smoke `t3_audit` round 2 通过；night `t3_night_audit` 通过（PR #25+#26）。占用网表对 T2 `rel_err=0`。BW 未按 0.85 签字。
 
 ## 下周备案（未入仓）
 
@@ -31,9 +24,9 @@ P-0133–P-0136。下周一配额开后再推 yaml，不派建筑师。
 
 P-0103/M-4 CR-MRDR；P-0101/M-3；P-0103/M-1；P-0103/M-5。
 
-## 已知方案确认
+## 已知方案确认（T0）
 
-P-0102/M-2、P-0102/M-4 EXACT_MATCH
+P-0102/M-2、P-0102/M-4 EXACT_MATCH。
 
 ## 本周备案（未派建筑师）
 
