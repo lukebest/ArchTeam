@@ -15,8 +15,12 @@
 
 PR #22 已合入。产物在 `sims/P-0105/M-4/results/` 与 `sims/P-0106/M-5/results/`。
 
-- SNS：仿真称评估审计单独通过、修复清单无。仓内 `reviews/P-0105/M-4/t3_audit.md` 仍是 smoke round 2，无 night 签字文件。已退回评估审计入仓。占用沿用已签字 smoke（336 行 rel_err=0）。night BW 未签字，不进周报、不开 T4。
+- SNS：night 签字已合入（PR #23，`reviews/P-0105/M-4/t3_night_audit.md`，verdict 通过）。占用沿用已签字 smoke（336 行 rel_err=0）。night BW 为 H-DRAM-BB reduced-bbox，不签信封 0.85，不进周报绝对值、不开 T4。
 - AffineRebind：night 仍在审，不与 SNS 混。
+
+## 下周备案（未入仓）
+
+P-0133–P-0136（原本地 P-0008–P-0011）：VR / CIM 线索。下周一配额开后再推 yaml，不派建筑师。
 
 ## T2 淘汰
 
