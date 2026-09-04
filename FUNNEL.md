@@ -15,8 +15,8 @@
 
 PR #22 已合入。
 
-- SNS：night 签字已合入（PR #23，`reviews/P-0105/M-4/t3_night_audit.md`）。占用沿用已签字 smoke。night BW 不签信封 0.85，不进周报绝对值、不开 T4。
-- AffineRebind：**night 退回**。main 上 night 表覆盖签字 smoke fixture，pytest 19/1 红。不混写、不进 T4/周报。已退回微架构仿真：拆 night/smoke 路径后再送签。
+- SNS：night 签字已合入（PR #23）。占用沿用已签字 smoke。night BW 不签信封 0.85，不进周报绝对值、不开 T4。
+- AffineRebind：**night 退回，修复中**。PR #22 合入时仍是坏表（night 盖 smoke）。微架构仿真另开新 PR：只动 P-0106/M-5，恢复签字 smoke、night 写 `results/night/`、pytest 全绿后再交评估审计。SNS 不动。不进周报/T4，不签 0.85。
 
 ## 下周备案（未入仓）
 
