@@ -8,19 +8,19 @@
 
 人已定：T4 周五周报里再拍。不开 T4。
 
-- P-0105/M-4 SNS：T3 smoke 通过（round 2）。占用对 T2 误差 0（可进周报）。BW 未按信封 0.85 签字。
+- P-0105/M-4 SNS：T3 smoke 通过（round 2）。占用对 T2 误差 0（可进周报）。BW 未按信封 0.85 签字。night 签字已合（PR #23）。
 - P-0106/M-5 AffineRebind：T3 smoke 通过。占用网表对 T2 误差 0（可进周报）。BW 未按 0.85 签字。
 
 ## Night 扫描（2026-09-03）
 
-PR #22 已合入。产物在 `sims/P-0105/M-4/results/` 与 `sims/P-0106/M-5/results/`。
+PR #22 已合入。
 
-- SNS：night 签字已合入（PR #23，`reviews/P-0105/M-4/t3_night_audit.md`，verdict 通过）。占用沿用已签字 smoke（336 行 rel_err=0）。night BW 为 H-DRAM-BB reduced-bbox，不签信封 0.85，不进周报绝对值、不开 T4。
-- AffineRebind：night 仍在审，不与 SNS 混。
+- SNS：night 签字已合入（PR #23，`reviews/P-0105/M-4/t3_night_audit.md`）。占用沿用已签字 smoke。night BW 不签信封 0.85，不进周报绝对值、不开 T4。
+- AffineRebind：**night 退回**。main 上 night 表覆盖签字 smoke fixture，pytest 19/1 红。不混写、不进 T4/周报。已退回微架构仿真：拆 night/smoke 路径后再送签。
 
 ## 下周备案（未入仓）
 
-P-0133–P-0136（原本地 P-0008–P-0011）：VR / CIM 线索。下周一配额开后再推 yaml，不派建筑师。
+P-0133–P-0136。下周一配额开后再推 yaml，不派建筑师。
 
 ## T2 淘汰
 
