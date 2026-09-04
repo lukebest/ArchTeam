@@ -43,6 +43,7 @@ Generator: `sims/_lib/workloads.py`.
 (factor-3 Doc S netlist rows required; `gcd_table.csv` is AP sanity only).
 Cycle BW reduced bbox covers `{512B, 3×512B, 2MiB}`.
 `--mode night` scans CSR ports `{1,4}`, decode latency `{2,1}`, β `{0, dmc[5:0]}`, page `{open,close}`.
+Night occupancy / `t2_compare` write to `results/night/` and do not overwrite the signed smoke fixture.
 
 ## T2 compare
 
@@ -50,5 +51,7 @@ Cycle BW reduced bbox covers `{512B, 3×512B, 2MiB}`.
 If `|T3−T2|/T2 > 30%`, inspect this simulator; do not silently pick T2.
 `stack` has no T2 column (sibling negative control only).
 
-Results: `results/occupancy.csv`, `t2_compare.csv`, `gcd_table.csv`, `cycles.csv`, `bw_ci.csv`, `t2_vs_t3_cls_mean.png`, `summary.json`.
+Signed smoke fixture: `results/occupancy.csv`, `results/t2_compare.csv`.
+Night occupancy: `results/night/occupancy.csv`, `results/night/t2_compare.csv`.
+Cycle BW: `results/cycles.csv`, `results/bw_ci.csv`, `results/summary.json`.
 See `report.md`.
