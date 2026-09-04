@@ -14,7 +14,7 @@
 ## Night 扫描（2026-09-03）
 
 - SNS：night 签字已合入（PR #23）。占用沿用已签字 smoke。night BW 不签信封 0.85，不进周报绝对值、不开 T4。
-- AffineRebind：评估审计**技术裁决通过**（单独，不混 SNS）。pytest 20 passed；night 后 smoke 36 行未变；`results/night/` 144 行；BW 不签 0.85。PR #25 仍 OPEN，等人批合。签字文件按 SNS 口径：合入 #25 后再落 `reviews/P-0106/M-5/t3_night_audit.md`。仓内无该文件前不改台账为已签字、不进周报/T4。
+- AffineRebind：技术通过。PR #25（路径修复）与 PR #26（`t3_night_audit.md`，verdict 通过）均 OPEN。合入顺序：**先 #25，再 #26**。两文件都在 main 后再改台账为已签。BW 不签 0.85，未签不进周报/T4。
 
 ## 下周备案（未入仓）
 
