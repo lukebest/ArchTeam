@@ -1,12 +1,20 @@
 # T3 report · P-0106/M-5 AffineRebind
 
-Smoke: `python3 sims/P-0106/M-5/sweep.py --mode smoke --seed 20260903 --n-trials 3`
-Artifacts: `results/occupancy.csv`, `t2_compare.csv`, `gcd_table.csv`, `cycles.csv`, `bw_ci.csv`, `t2_vs_t3_cls_mean.png`.
+Smoke (signed occupancy fixture):
+`python3 sims/P-0106/M-5/sweep.py --mode smoke --seed 20260903 --n-trials 3`
+
+Night (2026-09-03):
+`python3 sims/P-0106/M-5/sweep.py --mode night --seed 20260903 --n-trials 3`
+
+**Signed smoke occupancy** (do not overwrite): `results/occupancy.csv`, `results/t2_compare.csv`.
+**Night occupancy** (distinct): `results/night/occupancy.csv`, `results/night/t2_compare.csv`.
+Night cycle BW: `results/cycles.csv`, `results/bw_ci.csv`, `results/summary.json`.
+`gcd_table.csv` remains AP sanity and is **not** netlist coverage.
 
 T3 audit (`reviews/P-0106/M-5/t3_audit.md`) bounced the first smoke as incomplete:
-occupancy / `t2_compare` had only `{512B, 2MiB}`. This signed re-run expands smoke
-strides to `{512B, 3×512B, 9×512B, 2MiB}` so the auditor's smoke re-run is the
-sign-off table. `gcd_table.csv` remains AP sanity and is **not** netlist coverage.
+occupancy / `t2_compare` had only `{512B, 2MiB}`. The signed smoke fixture expands
+strides to `{512B, 3×512B, 9×512B, 2MiB}`. Night writes occupancy to `results/night/`
+so that fixture stays distinct.
 
 ## Scope
 
@@ -81,30 +89,38 @@ and we did not retune taps.
 
 Uniform 25% (`n=36`) still has factor 3 — not treated as 3-adic. 3-adic only from the 3-residue-biased column.
 
-## Cycle BW (假设 H-DRAM-BB, decode_lat=2, csr_ports=1, 256-point AP, warmup 10%)
+## Cycle BW (假设 H-DRAM-BB, night reduced bbox, AP=512)
 
-Reduced bbox `|I|=256`. Every cell `mean ± 95% CI (n=3)`. No GB/s. μ_d UNKNOWN.
-0.85 is the problem pass line, **not** a measured mean; this 256-point smoke is
-**not** signed as envelope 0.85.
+Night bbox: **8 cores × 16 outstanding**, AP **512** points, warmup 10%,
+`csr_ports∈{1,4}`, `decode_lat∈{2,1}`, `beta∈{zero,dmc}`, `page∈{open,close}`,
+masks `{full-good, n=40, 3-biased(n=32)}`, cycle S `{512B, 3×512B, 2MiB}`,
+n_trials=3, seed=`20260903+trial`.
+This is **not** the 120-core / `Q_tot=15360` envelope. 0.85 is the problem pass
+line, **not** a measured mean; reduced-bbox night is **not** signed as envelope 0.85.
+Every cell `mean ± 95% CI (n=3)`. No GB/s. μ_d UNKNOWN. `hypothesis=H-DRAM-BB`.
+
+Selected cells (`decode_lat=2`, `csr_ports=1`, `beta=zero`, `page=open`) from
+`results/bw_ci.csv`:
 
 | S | mask | strategy | txns/cycle |
 |---|------|----------|------------|
-| 2MiB | n=40 | skip-dead | 0.477178 ± 0.000000 (n=3) |
+| 2MiB | n=40 | skip-dead | 0.489362 ± 0.000000 (n=3) |
 | 2MiB | n=40 | modn-a1 | 0.500000 ± 0.000000 (n=3) |
 | 2MiB | n=40 | minimax | 0.500000 ± 0.000000 (n=3) |
-| 2MiB | full-good | skip-dead / a1 / minimax | 0.477178 ± 0.000000 (n=3) |
-| 2MiB | 3-biased | skip-dead | 0.477178 ± 0.000000 (n=3) |
+| 2MiB | full-good | skip-dead / a1 / minimax | 0.489362 ± 0.000000 (n=3) |
+| 2MiB | 3-biased | skip-dead | 0.489362 ± 0.000000 (n=3) |
 | 2MiB | 3-biased | modn-a1 / minimax | 0.500000 ± 0.000000 (n=3) |
-| 512B | all smoke cells | all | 0.500000 ± 0.000000 (n=3) |
-| 3×512B | all smoke cells | all | 0.500000 ± 0.000000 (n=3) |
+| 512B | all night cells at this bbox | all | 0.500000 ± 0.000000 (n=3) |
+| 3×512B | all night cells at this bbox | all | 0.500000 ± 0.000000 (n=3) |
 
 2-cycle decode × 1 CSR port caps throughput at 0.5 txn/cyc. On that ceiling,
 3×512B sits at 0.500 for every mask/strategy — class-count ×3 is **not** BW ×3
 (n=40 3×512B occupancy 10.1147/8.9840 ≈ ×1.13; cycle BW ratio = 1.00, both at the cap).
-Cycle `cls_mean` at `|I|=256` collapses to ~1.0–1.51 and must not be mixed with
-full-occupancy `cls_mean`. Cycle `dead=0`, `repair_done=True`.
+Cycle `cls_mean` at `|I|=512` must not be mixed with full-occupancy `cls_mean`.
+Cycle `dead=0`, `repair_done=True`.
 
-Full-good gain vs no-rebind ≈0 on both occupancy and this bbox BW.
+Full-good gain vs no-rebind ≈0 on occupancy; on this 512-point bbox the three
+full-good strategies share `0.489362 ± 0.000000 (n=3)`.
 
 ## Discrepancy
 

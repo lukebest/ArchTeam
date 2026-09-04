@@ -107,6 +107,7 @@ def test_smoke_strides_include_factor3_doc_s():
 
 def test_signed_smoke_tables_include_factor3_doc_s():
     """Signed occupancy/t2_compare must carry XOR_fold6 netlist rows for 3×/9×512B."""
+    # Signed smoke fixture. Night occupancy/t2_compare live under results/night/.
     occ_path = _HERE / "results" / "occupancy.csv"
     cmp_path = _HERE / "results" / "t2_compare.csv"
     occ = list(csv.DictReader(occ_path.open()))
