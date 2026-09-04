@@ -14,7 +14,7 @@
 ## Night 扫描（2026-09-03）
 
 - SNS：night 签字已合入（PR #23）。占用沿用已签字 smoke。night BW 不签信封 0.85，不进周报绝对值、不开 T4。
-- AffineRebind：修复 PR #25（未合，正文 Do not merge）。只动 `sims/P-0106/M-5/`：签字 smoke 恢复；night 占用在 `results/night/`；pytest 自称 20 passed。已交评估审计。未签字，不进周报/T4，不签 0.85。SNS 未动。
+- AffineRebind：仿真称评估审计已通过路径修复（PR #25，修复清单无必须项）。smoke 36 行恢复，night 在 `results/night/`，pytest 20 passed。审计稿 `reviews/P-0106/M-5/t3_night_audit.md` **尚未入仓**（合入另走）。PR #25 仍 OPEN。未签入仓前不进周报/T4，不签 0.85。SNS 未动。
 
 ## 下周备案（未入仓）
 
