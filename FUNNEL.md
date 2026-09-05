@@ -4,6 +4,13 @@
 配额: 新问题 30 → 机制 150 → 过 T0 40 → 过 T1 12 → T2 8 → T3 3
 用量: 问题 30/30 · 机制 25/150 · T0 过 7/40 · T1 过 6/12 · T2 过 2/8 · T3 过 2/3
 
+## 2026-09-05 09:00 台账
+
+- 今日无派出、无退回。问题配额已满；下周一再推 P-0133–P-0140 yaml，不派建筑师。
+- Top 两张 T3 签字状态不变（SNS smoke+night；Affine smoke+night）。拍板项仍等人：T4 或停止 / 是否扩配额 / 下周是否切 VR·CIM。
+- 文献 PR #27 OPEN（docs insights only，不动 problems/mechanisms/FUNNEL 派活）。
+- 看板：无 open issue；无待验收交接。
+
 ## 周五 17:00 周报收口（2026-09-04）
 
 - Affine night：PR #25+#26 已合入 main；`t3_night_audit.md` 在仓，verdict 通过。占用沿用已签字 smoke；night BW 不签信封 0.85。
