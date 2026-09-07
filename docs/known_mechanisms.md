@@ -8,17 +8,17 @@ Last scan: 2026-09-08 (Asia/Shanghai 06:00 routine) — arXiv cs.AR new list for
 
 | Slug | Paper | One-line structure |
 |---|---|---|
-| `cim-timedomain-analog-softmax` | [2609.04266](insights/2609.04266.md) | 128-element analog softmax peripheral: shared falling ramp + comparator score-to-time + RC-decay exp sampling + in-circuit normalize; T via ramp slope and RC τ, not weak-inversion MOS |
-| `flexposit-fractional-bitserial-systolic` | [2609.04724](insights/2609.04724.md) | Unified bit-serial systolic: per-column rescale + SerialPosit decode + unified PEs + GPCU treating weight precision as a fractional ~4–8 bit knob under channel-wise regularity |
-| `tetrisq-phonon-barrier-qec-tiling` | [2609.05226](insights/2609.05226.md) | Planar-mesh tiling: permeable substrate phonon barriers on tile edges + spatial interleave of independent rotated-surface-code patches; no extra QEC round/decode time |
+| `cim-timedomain-analog-softmax` | [2609.04266](insights/2609.04266.md) | 128-way CIM attention softmax: shared falling ramp + comparator score→time + RC-decay exp sampling + in-circuit normalize; T set by SR and τ, not weak-inversion MOS |
+| `flexposit-fractional-bitserial-systolic` | [2609.04724](insights/2609.04724.md) | Bit-serial systolic LLM array with SerialPosit/per-column decode, unified PEs, GPCU fractional precision (~4–8b) under channel-wise scale regularity |
+| `tetrisq-phonon-barrier-qec-tiling` | [2609.05226](insights/2609.05226.md) | Planar-mesh qubit tiling with permeable substrate phonon barriers + interleaved rotated surface-code patches to break radiation spatial correlation |
 
 ## Rejected this scan (not indexed as mechanisms)
 
-Mon 2026-09-07 new/cross: Budgeting Bytes, MonoMoE, HCST, KV low-rank adaptation, Huawei τ note, DVFS scheduler, EOSQR, TreeFI, APEX-RBD, proton Tensil characterization, QuantumEvo; replacements skipped.
+Mon 2026-09-07 new/cross: Budgeting Bytes (roofline/measurement, no new microarch), MonoMoE (GPU software megakernel), HCST (software training under variation), KV low-rank attention adaptation (algorithm/adapter), Huawei τ thermal note (position/commentary), passive-cooling DVFS scheduler (software on Pi 5), EOSQR approx square-rooter (incremental approx arithmetic unit), TreeFI (statistical FI tool), APEX-RBD (mixed-precision DSE framework), proton irradiation characterization of Tensil (measurement, no new mechanism), QuantumEvo BDD ordering (LLM heuristic/tool). Replacements skipped (incl. 2609.04040 already selected 2026-09-05).
 
 ## Conference lists
 
-ISCA 2026 concluded; MICRO 2026 public accepted list not posted; HPCA 2027 notify Nov 6; ASPLOS 2027 Sep cycle deadline Sep 9 / notify Dec 21; no conference-only picks.
+ISCA 2026 program already concluded (Jun 27–Jul 1); no 24h list delta. MICRO 2026 (Athens, Oct 31–Nov 4): author notify Jul 7, camera-ready Sep 11 — public accepted-papers program still not posted. HPCA 2027 notify Nov 6, 2026. ASPLOS 2027 September cycle deadline Sep 9, notify Dec 21. No conference-only picks this run.
 
 ## 2026-09-05 additions
 
