@@ -2,7 +2,33 @@
 
 Novelty-check index for design-verification. Slugs may name mechanisms; problem clues elsewhere must not.
 
-Last scan: 2026-09-10 (Asia/Shanghai 06:00 routine) — arXiv cs.AR new list for Wed 2026-09-09.
+Last scan: 2026-09-11 (Asia/Shanghai 06:00 routine) — arXiv cs.AR new list for Thu 2026-09-10.
+
+## 2026-09-11 additions
+
+| Slug | Paper | One-line structure |
+|---|---|---|
+| `shift-accumulate-attention-pot-k` | [2609.09208](insights/2609.09208.md) | Signed PoT key cache; QK⊤/AV as shift-accumulate; fused CUDA; DS4A ISA gap |
+| `dssa-2048-fc-annealer` | [2609.09559](insights/2609.09559.md) | 28nm 2048-spin FC DSSA; flip-only differential updates; 16Mb SRAM; 16:1 RNG |
+| `unison-session-kv-nmem` | [2609.09643](insights/2609.09643.md) | Near-memory session KV scheduler; SPEAR eviction + TIDE idle DMA tiering |
+| `tri6-two-turn-routing` | [2609.09746](insights/2609.09746.md) | Degree-6 triangular mesh 1-VC / torus 2-VC+dateline; two forbidden turns |
+| `amend-gpu-pim-audit-sparse` | [2609.09823](insights/2609.09823.md) | History-margin sparse mask; GPU survivors ∥ PIM audit of omitted KV blocks |
+| `sage-semantic-geo-recovery` | [2609.10126](insights/2609.10126.md) | Class-H/M/L semantic replay eligibility + geographic checkpoint intervals |
+| `fhe-adaptive-hks-klss-fpga` | [2609.09423](insights/2609.09423.md) | U280 FHE accel; memory-efficient KLSS datapath; runtime HKS↔KLSS select |
+
+## Rejected this scan (not indexed as mechanisms)
+
+- 2609.09344 Academia×Industry AI-native silicon (position)
+- 2609.09519 HLSFactory-Agent (dataset/tool)
+- 2609.09526 HLS-Eval agentic benchmark (tool)
+- 2609.09800 HBFSim (simulation platform/tool)
+- 2609.10347 CertiFlash (FTL formal verification framework)
+- Cross: 2609.10515 PASCAL (shared-cache analytical model), AutoTrans (EDA assertion translation), chem/SP/security-bench cross-lists
+- Replacements skipped
+
+## Conference lists
+
+ISCA 2026 program already final — no 24h delta. MICRO 2026 public accepted-paper list still not published (camera-ready deadline 2026-09-11). HPCA 2027 notification 2026-11-06. ASPLOS 2027 Sep cycle notification ~2026-12-21. No conference-only picks this run.
 
 ## 2026-09-10 additions
 
