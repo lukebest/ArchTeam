@@ -1,0 +1,19 @@
+generality_score: 8
+同源:
+  - arXiv:2609.09208 p.1-3
+
+CONTEXT: |
+  对象是自回归解码注意力：每步读完整 key 缓存；注意力内更大 matmul 是 QK⊤，而既往 power-of-two 量化多只改写 softmax 后的 AV。
+  GPU 暴露 4-way int MAC，却无打包 shift-dot 原语；对数量化相对误差对指数位宽几乎不敏感，精度更吃 binade/尾数切分。
+
+SYMPTOM: |
+  - 1.1B Llama、RTX 4090：相对 FP16 SDPA，T=32k 注意力吞吐约 4.60×、KV 缓存约 2.5× 更小；8 存储位 WikiText PPL 7.881→7.896——端点可压，但瓶颈在 QK⊤ 全 key 重读。
+  - shift 数据路径约 1011 int ALU 操作，相对 MAC 内核约 409；sm_89 PTX 标量 vshl.add 模拟约 4.1× 普通 C shift-add 代价——缺打包 shift-dot。
+  - 对数量化相对误差：3/4/5 指数位 εS 均约 0.1302，多给指数位几乎买不到误差下降。
+  待证伪：在公开长上下文解码点上，QK⊤ key 流量相对 AV 可测主导，或无打包 shift-dot 时 shift 路径相对 MAC 代价不可接受，或增指数位不降相对误差。
+
+CONSTRAINT: |
+  难在：更大算是 QK⊤ 全 key 读，既往量化却常只碰 AV；硬件有 MAC 无打包 shift-dot，shift 路径按 ALU 计数爆炸；误差由 binade/尾数决定，多指数位不换误差。
+  禁止提出具体量化格式、shift-dot ISA 或注意力内核改写；只问「全 key 重读 + 无打包 shift + 指数位不降误差」是否同时承重失败。
+  证伪条件：若公开工作点上 AV 改写已覆盖主流量、shift 路径代价不高于 MAC 量级、或增指数位可显著降相对误差，则本问题不成立。
+  及格线：以注意力吞吐、KV 体积、PPL 端点对照，不以中间代理命中率代替。
