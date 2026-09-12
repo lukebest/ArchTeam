@@ -2,7 +2,28 @@
 
 Novelty-check index for design-verification. Slugs may name mechanisms; problem clues elsewhere must not.
 
-Last scan: 2026-09-11 (Asia/Shanghai 06:00 routine) — arXiv cs.AR new list for Thu 2026-09-10.
+Last scan: 2026-09-13 (Asia/Shanghai 06:00) — arXiv cs.AR new list for Fri 2026-09-11.
+
+## 2026-09-13 additions
+
+| Slug | Paper | One-line structure |
+|---|---|---|
+| `reach-hbm-inner-outer-ecc` | [2609.10861](insights/2609.10861.md) | Controller inner 32 B decide + exceptional long-span known-erasure; differential parity; co-designed endpoint |
+| `beacon-pathology-ai-plus-x` | [2609.11044](insights/2609.11044.md) | Systolic AI chiplet + flexible PE datapath/RF; aggregation, load-balance, Euclidean, binning, counters |
+| `cheri-d-reincarnate-objid` | [2609.11590](insights/2609.11590.md) | Reincarnate slots under new IDs (quarantine IDs); large-object ID modes; ObjID reverse-map/filter coherence |
+
+## Rejected this scan (not indexed as mechanisms)
+
+- New: 2609.10970 Fengshui (chiplet/accelerator co-design framework)
+- New: 2609.11288 Bio-inspired AIMC Part 2 (technical note / TLM demo, no new microarch claim this paper)
+- New: 2609.11392 PATTON (PIM runtime/system, no PU microarch changes)
+- New: 2609.11906 AccelForge (modeling/co-design framework)
+- Cross (not primary new): HermiCache, Entwine, PHAT, Grid-to-Chip power perspective, time-based memristive SNN readout
+- Replacements skipped: 2512.07312, 2609.07907, 2509.24425
+
+## Conference lists
+
+ISCA 2026 program page static (no 24h delta). MICRO 2026 public accepted-paper list still not found. HPCA 2027 / ASPLOS 2027 notification windows not producing new public accept lists in past 24h. No conference-only picks.
 
 ## 2026-09-11 additions
 
