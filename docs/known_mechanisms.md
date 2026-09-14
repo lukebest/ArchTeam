@@ -2,7 +2,25 @@
 
 Novelty-check index for design-verification. Slugs may name mechanisms; problem clues elsewhere must not.
 
-Last scan: 2026-09-13 (Asia/Shanghai 06:00) — arXiv cs.AR new list for Fri 2026-09-11.
+Last scan: 2026-09-15 (Asia/Shanghai 06:00) — arXiv cs.AR new list for Mon 2026-09-14.
+
+## 2026-09-15 additions
+
+| Slug | Paper | One-line structure |
+|---|---|---|
+| `vortex-systolic-vq-sparsity` | [2609.12208](insights/2609.12208.md) | Systolic-compatible VQ lookup/vector unit + dual prefill/decode flows; on-the-fly KV VQ; codebook-aligned contextual sparsity |
+
+## Rejected this scan (not indexed as mechanisms)
+
+- 2609.11938 Operator Profiler (hardware-attribution profiling pipeline / tool)
+- 2609.11939 Adaptive multi-exit TinyML on GAP9 (CNN early-exit software scheme on existing SoC; COINS; no new microarch)
+- Cross 2609.12075 Robion (VLA multi-GPU serving/management system)
+- Cross 2609.12923 Hopper SM-utilization dissection (measurement/analysis)
+- Replacements skipped: 2604.04750 DeepStack (DSE/model), 2609.06691 Gutenberg
+
+## Conference lists
+
+ISCA 2026 program final — no 24h delta; MICRO 2026 full public accepted list still not out; HPCA 2027 notify 2026-11-06; ASPLOS 2027 Sep cycle notify ~2026-12-21; no conference-only picks.
 
 ## 2026-09-13 additions
 
