@@ -2,7 +2,34 @@
 
 Novelty-check index for design-verification. Slugs may name mechanisms; problem clues elsewhere must not.
 
-Last scan: 2026-09-15 (Asia/Shanghai 06:00) — arXiv cs.AR new list for Mon 2026-09-14.
+Last scan: 2026-09-16 (Asia/Shanghai 06:00) — arXiv cs.AR new list for Tue 2026-09-15.
+
+## 2026-09-16 additions
+
+| Slug | Paper | One-line structure |
+|---|---|---|
+| `arborist-fmt-motion-accel` | [2609.13420](insights/2609.13420.md) | FMT*-family substrate: inter-tree toolbox, KD-tree NN, multi-bank parallel query, look-ahead engine + in-order commit |
+| `bss2-chiplet-unified-in` | [2609.13563](insights/2609.13563.md) | Routing-chiplet 2D mesh; spike + secured non-event multiplexed on wide parallel D2D; class-aware reliability |
+| `neuroflex-element-ann-snn` | [2609.14092](insights/2609.14092.md) | Dual ANN/SNN sparse PEs; lossless element-level mode assign; shared bitmap FiberCache; offline cost scheduler |
+
+## Rejected this scan (not indexed as mechanisms)
+
+- 2609.13153 DVFSLM (mobile SLM runtime DVFS governor / estimators — no new microarch)
+- 2609.13161 PDD (cross-datacenter PD disaggregation serving system)
+- 2609.13166 NPU Hardware Evaluation v1.0 (white-paper bench / evaluation)
+- 2609.13285 Grouped Value Attention (attention/KV algorithm + planned kernels; no new microarch)
+- 2609.13311 SIMT lockstep UVM methodology (verification tool/methodology)
+- 2609.14643 BigMoMo (mobile MoE speculative offload runtime)
+- 2609.14845 Accurate Models of AMD Matrix Cores (numerical HW models)
+- 2609.15311 FlashGPU-sim (GPU simulator)
+- 2609.15318 LLM BDD / FV Gherkin workflow (EDA/formal workflow)
+- 2609.15636 Trillion-Parameter MoE in a Box (HBF/DRAM provisioning DSE; no new microarch claim)
+- Cross-lists skipped (11): WISER, BOOST, in-sensor compression, TCP-SYN FPGA, NAQsim, MDL time-series, FastPair, event-driven GNN processor, memristive STDP synapse, DeepSeek-V4-Flash gfx90a eng, Cnuas twin
+- Replacements skipped (8)
+
+## Conference lists
+
+ISCA 2026 program final — no 24h delta. MICRO 2026 full public accepted-paper list still not published (author notifications earlier; camera-ready ~2026-09-11). HPCA 2026 program already public/static; HPCA 2027 notify ~2026-11-06. ASPLOS 2027 Sep cycle notify ~2026-12-21. No conference-only picks this run.
 
 ## 2026-09-15 additions
 
