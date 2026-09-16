@@ -2,7 +2,33 @@
 
 Novelty-check index for design-verification. Slugs may name mechanisms; problem clues elsewhere must not.
 
-Last scan: 2026-09-16 (Asia/Shanghai 06:00) — arXiv cs.AR new list for Tue 2026-09-15.
+Last scan: 2026-09-17 (Asia/Shanghai 06:00) — arXiv cs.AR new list for Wed 2026-09-16.
+
+## 2026-09-17 additions
+
+| Slug | Paper | One-line structure |
+|---|---|---|
+| `wmha-diffusion-vliw-dualdot` | [2609.16244](insights/2609.16244.md) | VLIW 4-engine sequencer (systolic + vector + dual DMA); weight-stationary 16×16 dual-dot (FP8/BF16); single-pass online-softmax attention |
+| `scalelut-parallel-lut-sr` | [2609.16508](insights/2609.16508.md) | Fully parallel configurable LUT SR: YUV + power-of-two kernels/rotation ensemble; deep pipeline / massively parallel lookup; zero-DSP FPGA |
+| `cgra-config-mac-trunc` | [2609.16600](insights/2609.16600.md) | Edge CGRA PE: same multiplier+adder as single-cycle ADD/MUL/MAC + 4-mode dynamic truncation readout |
+| `optiprime-he-mpc-dataflow` | [2609.16898](insights/2609.16898.md) | HE-MPC private inference: denser-output conv HE protocol + lightweight plaintext compression + reuse-centric intermediate-ciphertext dataflow |
+| `budgeted-express-mesh` | [2609.17057](insights/2609.17057.md) | Budgeted traffic-aware express links + committed top-K routing from delayed congestion/reservation + XY escape VC |
+
+## Rejected this scan (not indexed as mechanisms)
+
+- 2609.16003 DT-RAID (storage middleware / software-defined tiered RAID — no new microarch)
+- 2609.16085 INT8 portability measurement study
+- 2609.16358 EBL (FPGA harmonic-estimation framework / app mapping)
+- 2609.16363 FSNIC (SmartNIC IDS integrating P4 + existing LogicNets; integration, thin new microarch)
+- 2609.16367 FINNAS (FINN-guided NAS/pruning tool)
+- 2609.16729 SpecLens (LLM Verilog codegen / EDA)
+- 2609.16742 Carry-Through Checksum (ABFT algorithm on embedded GPU, not microarch)
+- Cross skipped: 2609.16787 Nested BSP/vN, 2609.17123 CFET thermal AI agent, 2609.17399 SCHERI
+- Replacements skipped: 2604.05012, 2609.13285, 2609.14845, 2511.06605
+
+## Conference lists
+
+ISCA 2026 program final — no 24h delta. MICRO 2026 full public accepted list still not published (some MICRO 2026 accepts appear on arXiv, e.g. OptiPrime, but that is not a conference-list delta). HPCA 2027 notify ~2026-11-06. ASPLOS 2027 Sep cycle notify ~2026-12-21. No conference-only picks.
 
 ## 2026-09-16 additions
 
