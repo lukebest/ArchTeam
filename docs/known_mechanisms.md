@@ -2,7 +2,32 @@
 
 Novelty-check index for design-verification. Slugs may name mechanisms; problem clues elsewhere must not.
 
-Last scan: 2026-09-17 (Asia/Shanghai 06:00) — arXiv cs.AR new list for Wed 2026-09-16.
+Last scan: 2026-09-18 (Asia/Shanghai 06:00) — arXiv cs.AR new list for Thu 2026-09-17.
+
+## 2026-09-18 additions
+
+| Slug | Paper | One-line structure |
+|---|---|---|
+| `reqap-mixedprec-swar-msb` | [2609.17555](insights/2609.17555.md) | Sensitivity mixed-precision + compile-time heterogeneous SWAR packing into fixed registers; MSB replicas in slack + majority vote |
+| `ward-vit-split-modes` | [2609.17556](insights/2609.17556.md) | Channel-wise dual isolated ViT subnets; FP/LP/HR/AD mode scheduling on FPGA accelerator; reliability-scoped continual learning |
+| `hbflex-full-hbf-kv` | [2609.18675](insights/2609.18675.md) | Full-HBF LLM mem: plane-aware KV place/schedule + windowed writeback + lifetime pack/deferred GC; base-die SRAM |
+
+## Rejected this scan (not indexed as mechanisms)
+
+- 2609.17569 Lyapunov functional-stability analysis (theory; no new microarch)
+- 2609.17730 FAME (FPGA approx-multiplier evaluation platform + retraining; tool)
+- 2609.17922 LoRD RTL-Trojan gate-level localization heuristics (detection method)
+- 2609.18022 VeriBugBench (RTL debug benchmark construction framework)
+- 2609.18662 Automated GPU ISA encoding synthesis (EDA/encoding DSE tool)
+- 2609.18792 HCL QoR study on fixed MXFP4 microarch (language comparison; no new microarch)
+- 2609.18846 Locus (elliptic-curve PADD hardware generation/DSE framework)
+- 2609.18946 Rect3D (3D-IC rectilinear floorplanning CAD)
+- Cross skipped: 2609.17562, 2609.17786, 2609.17903, 2609.18994, 2609.19111
+- Replacements skipped: 2607.08427, 2609.17057, 2604.19855, 2609.09990
+
+## Conference lists
+
+ISCA 2026 program page static — no 24h delta. MICRO 2026 full public accepted-paper list still not published. HPCA 2027 notify ~2026-11-06. ASPLOS 2027 Sep cycle notify ~2026-12-21. No conference-only picks.
 
 ## 2026-09-17 additions
 
