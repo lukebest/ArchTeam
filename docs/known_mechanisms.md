@@ -2,7 +2,29 @@
 
 Novelty-check index for design-verification. Slugs may name mechanisms; problem clues elsewhere must not.
 
-Last scan: 2026-09-18 (Asia/Shanghai 06:00) — arXiv cs.AR new list for Thu 2026-09-17.
+Last scan: 2026-09-20 (Asia/Shanghai 06:00) — arXiv cs.AR new list for Fri 2026-09-18 (09-19 routine failed; catch-up; no Sat/Sun new batch).
+
+## 2026-09-20 additions
+
+| Slug | Paper | One-line structure |
+|---|---|---|
+| `meshkv-noc-kv-fabric` | [2609.19207](insights/2609.19207.md) | Affine KV home striping + verified-dup multicast + credit-aligned prefetch/matmul/softmax overlap on lightweight NoC |
+| `mix-inverted-microscaling` | [2609.19683](insights/2609.19683.md) | Micro-inverted scaling (per-element exponents, shared mantissa) + MiX-MX dual-format; shifter-based PE |
+| `positmac-multispec-quire` | [2609.19859](insights/2609.19859.md) | Rebalanced Posit32/64 MAC pipeline; Booth-4×KS multiply; Multispeculative Adder for quire accumulate |
+
+## Rejected this scan (not indexed as mechanisms)
+
+- 2609.19169 SiliconBench (bench)
+- 2609.19189 CovR (verification/RL tool)
+- 2609.19206 Epic (ISC programming/compiler stack, no new microarch)
+- 2609.19998/19999 PFAL waveform evaluation
+- 2609.20315 FE parametric fault spectral detection (test method)
+- Cross skipped
+- Replacements skipped
+
+## Conference lists
+
+ISCA 2026 / HPCA / ASPLOS public pages checked — no fresh 24h program delta. MICRO 2026 full public accepted list still not published (MiX notes MICRO 2026 accept on arXiv, not a conference-list delta). No conference-only picks.
 
 ## 2026-09-18 additions
 
