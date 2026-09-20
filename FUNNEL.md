@@ -41,3 +41,13 @@ P-0103/M-4 CR-MRDR；P-0101/M-3；P-0103/M-1；P-0103/M-5。
 ## 已知方案确认（T0）
 
 P-0102/M-2、P-0102/M-4 EXACT_MATCH。
+
+## 2026-09-20 09:00 台账（上海）
+
+- 周日空转：今日无派出、无退回；不派建筑师。原因：人未拍板，且无新 T0–T3 工作。
+- 用量复核：问题 21/30 · 机制 0/150 · T0 过 0/40 · T1 过 0/12 · T2 过 0/8 · T3 过 0/3。
+- overnight 新入仓：P-0181–P-0183（tip `e7c684778e11104c4d096b1977102475f562e00f`），相对上一份台账新增；三张均在 `problems/`，`generality_score=8` 且含 `CONTEXT/SYMPTOM/CONSTRAINT`，未含机制。未派出，故无 owner/deadline handoff 字段；无 handoff 接收或退回。
+- 层级核验：Top 的 P-0105/M-4 SNS 与 P-0106/M-5 AffineRebind 均有 mechanism、reviews、models 产物；卡内 owner/author 分别为 Jim Keller、保守架构师，未见 deadline 字段；既有 T3 签字不变。
+- 文献 PR：#27–#36 均为 open + draft。
+- 人待拍板：T4/停、扩配额、是否派建筑师。
+- 判断：周日保持空转，无可执行的新派发动作。
