@@ -2,7 +2,25 @@
 
 Novelty-check index for design-verification. Slugs may name mechanisms; problem clues elsewhere must not.
 
-Last scan: 2026-09-20 (Asia/Shanghai 06:00) — arXiv cs.AR new list for Fri 2026-09-18 (09-19 routine failed; catch-up; no Sat/Sun new batch).
+Last scan: 2026-09-22 (Asia/Shanghai 06:18) — arXiv cs.AR new list for Mon 2026-09-21 (weekend Sat/Sun still no separate batch; prior content coverage through Fri 2026-09-18).
+
+## 2026-09-22 additions
+
+| Slug | Paper | One-line structure |
+|---|---|---|
+| `cardan-moe-hybrid-vq-lr-multengine` | [2609.21137](insights/2609.21137.md) | Hybrid VQ + shared low-rank expert weights; multi-engine STA dataflow overlaps DMA with expert-common/private phases |
+| `comet-cache-ec-rdma-tracking` | [2609.21774](insights/2609.21774.md) | FPGA NIC cache-based loss tracking for multi-path erasure-coded RDMA; state scales with inter-path jitter not end-to-end BDP |
+
+## Rejected this scan (not indexed as mechanisms)
+
+- 2609.21264 XDNA FlashAttention programming / IRON+MLIR-AIR case study (compiler/tools; no new microarch)
+- 2609.21697 Integrating ALS into approximate HLS (EDA/synthesis)
+- Cross skipped: 2609.21157 (agents+HLS chip design), 2609.19639 (quantum architecture blueprint)
+- Replacements skipped: 2512.10089 Chipstitch, 2601.01158 FLAMENCO, 2609.09800 HBFSim, 2609.11288 Bio-inspired AIMC Part 2, 2609.18022 VeriBugBench, 2609.18792 HCL MXFP4, 2609.19206 Epic, 2503.15770 metalens depth (non-AR primary content)
+
+## Conference lists
+
+ISCA 2026 / MICRO 2026 / HPCA 2026 / ASPLOS 2026 public program pages checked — no fresh 24h accepted-paper or program delta (ISCA 2026 already held Jun–Jul 2026; MICRO 2026 author notify Jul 7 / camera-ready ~Sep 11; HPCA/ASPLOS programs long-static). No conference-only picks.
 
 ## 2026-09-20 additions
 
