@@ -1,0 +1,26 @@
+generality_score: 8
+同源:
+  - arXiv:2609.22743 p.1-3
+
+CONTEXT: |
+  对象是弱内存（如 RC）核上的排序指令实现：实现常比内存模型更保守——在排序点用 drain 卡住退休，并对投机 load 做保守 squash/replay，从而压制本合法的并发执行并拉低吞吐。
+  常规微结构忽略 acquire/release 方向性：full fence 与 store-release 常靠退休前排空 older stores 强制，卡住提交；load-acquire 则可能在无效化后保守 squash/replay 投机 load。
+  Store 提交后仍留在 store queue，再转入 merge buffer（写缓冲）才进 cache：SQ→merge buffer→cache。目标设计中 merge buffer 按 cache line 索引，每条 cache line 至多一个条目。
+  因 store 全局可见推迟到 merge-buffer drain，full fence / store-release 的排序正确性直接耦合 drain：若需 po-older stores 先全局可见，退休延迟成为 merge-buffer 占用与 cache-miss 服务时间的函数。
+  常规 RC：store 侧卡住退休直到所需 po-older merge-buffer 条目排空；load 侧在 po-older full fence / load-acquire 仍活跃时，对匹配 snoop 的投机 load 做 hazard 跟踪，并把 squash/replay 推迟到该排序指令退休。
+
+SYMPTOM: |
+  - 弱内存实现常比模型更保守：排序点出现 drain 引起的退休停顿，并对投机 load 保守 squash/replay，压制合法执行、降低吞吐。
+  - 常规微结构忽略 acquire/release 方向性：full fence 与 store-release 靠退休前排空 older stores 卡住提交；load-acquire 可在无效化后保守 squash/replay 投机 load。
+  - Store 路径分 3 段：SQ→merge buffer→cache；merge buffer 按 cache line 索引，每 line 至多 1 个条目；全局可见推迟到 merge-buffer drain。
+  - 若正确性要求 po-older stores 先全局可见，退休延迟成为 merge-buffer 占用与 cache-miss 服务时间的函数。
+  - 表 1 常规 RC 三类动作：load-acquire 不要求 merge-buffer drain 但要求 hazardous-load squash；store-release 相反（要 drain、不要 squash）；full fence 两者皆要——对应投机窗口收缩、drain 引起的 store 退休停顿、以及不必要的 load squash/flush。
+  待证伪：在公开弱内存 / RC 工作点上，排序点 drain 可测拉长 store 退休延迟（随 merge-buffer 占用与 miss 服务时间上升），或 load-acquire / full fence 路径可测引发不必要的 speculative-load squash/replay，或相对内存模型允许的合法并发执行集合可测被压制并降低吞吐。
+
+CONSTRAINT: |
+  难在三件事绑在同一套退休与可见性路径上：方向性 acquire/release 被当成 full-fence 式强制；store 全局可见绑在 merge-buffer drain，退休延迟成占用与 miss 服务时间的函数；load 侧 hazard 跟踪把 squash/replay 推迟到排序指令退休，收缩投机窗口。
+  drain 延迟与 squash 率是端点约束，不是可被「平均 IPC」抹平的代理：不得以平均周期或仅无 fence 基线判过。
+  仅 fence 微基准 / 单一排序指令 reduced-bbox（只压 full fence、或只看 store 侧、或只看 load 侧）不等于全信封；全信封含 acquire、release、full fence 方向性组合，以及合法并发执行是否仍被保留。
+  禁止提出指令级排序元数据、退休谓词改写、可见性与 drain 解耦、投机 load 恢复策略改写或任何具体微结构机制；只问「方向性被抹平 + drain 绑退休 + 不必要 squash/replay」是否同时承重失败。
+  证伪条件：若公开工作点上常规 RC 已在保留合法并发执行的前提下使 drain 延迟与 squash 率不再主导吞吐损失、或 acquire/release 方向性已使 store 侧 drain 与 load 侧 squash 不再同时被过度触发，则本问题不成立。
+  及格线：以 RC 下保留合法并发执行时的吞吐对照全信封；drain 延迟与 squash 率是端点不是代理。仅 fence 微基准 reduced-bbox 不得冒充含 acquire/release 方向性的全信封。不以平均 IPC 或无同步基线代理代替。无解法提案。
