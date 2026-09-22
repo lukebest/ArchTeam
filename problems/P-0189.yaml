@@ -1,0 +1,28 @@
+generality_score: 8
+同源:
+  - arXiv:2609.22335 p.1-3
+
+CONTEXT: |
+  对象是边缘/单 GPU 上的 Vision-Language-Action（VLA）闭环推理：机器人控制常要求约 ≥50 Hz；吞吐不足时即使用 action chunking，窗口内仍无法响应新观测。
+  四款代表性 VLA 推理严重低利用 GPU：全模型中位 SM 吞吐仅峰值的约 18%–30%；即便最忙阶段，action 相位 Tensor Core 利用率仍低于约 3%。
+  视觉编码与 VLM prefill 偏高算强，Tensor Core 平均利用率约 37.4%；action expert 以 batch=1 运行且含大量低强度内核——两相位在资源维度本可互补，但朴素并发并未变成吞吐。
+  将两相位分到独立 CUDA stream：VLM 相位近乎零减速，但 action head 显著变慢——action chunk 发射速率约只有 action head 单独运行时的一半，尽管来自 VLM 的干扰可忽略且存储带宽仍有余量。
+  根因指向硬件 thread-block（CTA）分发器队头阻塞：VLM 巨大 grid 超出 GPU 空间容量，分发器几乎只用 VLM 的 CTA 占满各 SM；即便各 SM 在整个 VLM 执行期 CUDA Core 仍有充足余量，硬件调度仍把两相位串行化。
+  Action head 以数百个微内核为主，中位时长仅数 µs（即便经 TorchInductor/torch.compile 融合之后）；共驻 VLM 内核在 µs 粒度切换，使静态/提前调度、依赖采样窗口的在线剖析、以及上下文切换开销大于内核本身的抢占式调度都难以套用。
+
+SYMPTOM: |
+  - 机器人控制常要求约 ≥50 Hz；边缘/单 GPU 上 VLA 推理延迟未必满足闭环；吞吐不足时即使用 action chunking，窗口内仍无法响应新观测。
+  - 四款代表性 VLA：全模型中位 SM 吞吐仅峰值约 18%–30%；最忙阶段 action 相位 Tensor Core 利用率仍低于约 3%。
+  - 视觉编码 + VLM prefill：Tensor Core 平均利用率约 37.4%；action expert batch=1 且大量低强度内核——资源维度互补，但朴素并发未变成吞吐。
+  - 独立 CUDA stream 共跑：VLM 近乎零减速，action chunk 发射速率约只有 action-alone 的 1/2，尽管 VLM 干扰可忽略且存储带宽有余。
+  - CTA 分发器队头阻塞：VLM 巨大 grid 超出空间容量，分发器几乎只用 VLM CTA 占满各 SM；即便 CUDA Core 全程有余量，两相位仍被硬件调度串行化。
+  - Action head 数百微内核，中位时长仅数 µs（融合后仍如此）；共驻 VLM 在 µs 粒度切换，静态/在线剖析与抢占式调度难以套用。
+  待证伪：在公开 VLA 推理工作点上，全模型中位 SM 吞吐可测仅约 18%–30% 峰值，或共跑下 action chunk 发射速率可测约降为 action-alone 的 1/2（尽管带宽有余且 VLM 干扰可忽略），或闭环 Hz 可测低于约 50 Hz 控制需求。
+
+CONSTRAINT: |
+  难在三件事绑在同一 CTA 分发路径上：VLM 大 grid 占满 SM 的 CTA 槽造成队头阻塞；action 数百 µs 级微内核无法靠静态/在线剖析或抢占拯救；两相位资源互补在朴素多 stream 下换不成闭环吞吐。
+  共跑下的闭环 Hz / action-chunk 速率是及格线，不是可被「VLM 单独 SM%」抹平的代理：不得以 VLM-alone 利用率或平均 SM 吞吐判过。
+  单 stream 或 action-alone reduced-bbox（只看 VLM、或只看 action 头单独跑）不等于 VLM+action 共跑全信封；全信封含两相位共驻时的 chunk 发射速率与闭环 Hz。
+  禁止提出 CTA 准入策略改写、分发器侧资源记账、微内核抢占或在线剖析调度或任何具体分发器/运行时机制；只问「队头阻塞串行化 + µs 微内核难调度 + 共跑 chunk 速率腰斩」是否同时承重失败。
+  证伪条件：若公开工作点上独立 stream 共跑已使 action chunk 速率接近 action-alone 且闭环 Hz 稳定满足约 ≥50 Hz、或 VLM 大 grid 不再造成可测的 CTA 队头阻塞以致 CUDA Core 余量能被 action 相位吃到，则本问题不成立。
+  及格线：以共跑下闭环 Hz / action-chunk 速率对照全信封，不以 VLM-alone SM% 代理代替。单 stream 或 action-alone reduced-bbox 不得冒充 VLM+action 共跑全信封。无解法提案。
