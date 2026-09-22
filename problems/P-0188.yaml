@@ -1,0 +1,27 @@
+generality_score: 8
+同源:
+  - arXiv:2609.24847 p.1-3
+
+CONTEXT: |
+  对象是边缘/移动平台上的投机解码流水：内存带宽与片上容量受限，decode 可用并行度下降、算力易闲置；target 模型往往无法完整常驻片上，放大误推测 token 的数据搬运代价。
+  自回归 decode 每步 M=1 → GEMV，算术强度约 0.5 FLOPs/byte，本质内存受限，追加算力收益有限。Prefill 以大 M=S 做 GEMM，算强高、偏计算受限；投机解码的 target 验证以 M=γ+1 并行处理多 token，落在二者之间的中间算强区，并随投机长度 γ 与接受率滑动。
+  在 32-bit 权重、权重流量主导假设下，AI(M)=M/2 FLOPs/byte，算强随输入行数 M 线性上升、与 K/N 无关——验证工作点随 γ 滑动。
+  典型 draft–target 在接受率约 0.8–0.9、γ=4–8 时，每次 target 调用约产生 3–6 个接受 token，串行前向次数按同因子下降——但硬件仍须同时服务 draft GEMV、中等 M 的验证、以及 prefill GEMM。
+  将同一 kernel 分到更多 tile（示意 T=1,2,4,8,12）会抬峰值吞吐，但也常因复用下降、输入/权重复制使有效算强左移；已靠近 ridge 的验证类 kernel 可能被推回内存受限区，限制可扩展性。
+
+SYMPTOM: |
+  - 边缘/移动：带宽与片上容量受限，decode 并行度下降、算力闲置；target 往往无法完整常驻片上，放大误推测 token 数据搬运代价。
+  - AR decode 每步 M=1 → GEMV，算术强度约 0.5 FLOPs/byte，内存受限，追加算力收益有限。
+  - Prefill 大 M=S GEMM 高算强、计算受限；target 验证 M=γ+1 落在中间算强区，随 γ 与接受率滑动。
+  - 32-bit 权重主导假设下 AI(M)=M/2 FLOPs/byte，随 M 线性上升、与 K/N 无关。
+  - 接受率约 0.8–0.9、γ=4–8：每次 target 调用约产生 3–6 个接受 token，串行前向按同因子下降——硬件仍须服务 draft GEMV、中等 M 验证与 prefill GEMM。
+  - 同一 kernel 分到更多 tile（示意 T=1,2,4,8,12）抬峰值吞吐，但复用下降/输入权重复制使有效算强左移；靠近 ridge 的验证 kernel 可被推回内存受限区。
+  待证伪：在公开边缘投机解码工作点上，decode 端 AI 可测落在约 0.5 FLOPs/byte 的内存受限区，或验证阶段工作点随 γ 可测滑过中间算强区，或增大 T（示意至 8–12）可测使靠近 ridge 的验证有效算强左移并限制端到端 tokens/s 扩展。
+
+CONSTRAINT: |
+  难在三件事绑在同一套边缘加速路径上：draft GEMV（约 0.5 FLOPs/byte）、随 γ 滑动的中等 M 验证、以及大 M prefill GEMM 必须同机服务；扩 T 抬峰值却常把有效算强左移；target 无法全常驻放大误推测搬运。
+  端到端 tokens/s（prefill+draft+verify）是及格线，不是可被「某一 M 的峰值吞吐」抹平的代理：不得以单 kernel 峰值或固定 M 的 roofline 位置判过。
+  T=1 或 γ 固定 reduced-bbox（只看某一 tile 数、或只看某一投机长度）不等于 γ 变化全信封；全信封含 γ 与接受率滑动下的验证工作点，以及 T 增大时有效算强是否被推回内存界。
+  禁止提出 tile 数据通路模式切换、动态参与 tile 数/划分/通信原语改写或任何具体加速器映射机制；只问「三相跨算强 + 扩 T 左移有效算强 + 片上装不下 target」是否同时承重失败。
+  证伪条件：若公开工作点上固定数据通路/固定 T 已能在 γ 变化下同时吃满 draft、验证与 prefill 且端到端 tokens/s 不再受验证被推回内存界主导，或 target 常驻不再放大误推测搬运到可测程度，则本问题不成立。
+  及格线：以贯穿 prefill+draft+verify 的端到端 tokens/s 对照全信封，不以单一 M 峰值代理代替。T=1 或 γ 固定 reduced-bbox 不得冒充 γ 变化全信封。无解法提案。
