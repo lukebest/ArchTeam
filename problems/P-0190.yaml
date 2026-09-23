@@ -1,0 +1,29 @@
+# 中文题目: Agentic 暂停会话冷 KV 先溢出 HBM，热集仅约 3% 容量却扛约 98% 读流量，恢复时重算或慢互连回迁伤 TBT
+generality_score: 8
+同源:
+  - arXiv:2609.25782 p.1-3
+  - P-0187
+  - P-0180
+  - P-0152
+
+CONTEXT: |
+  Agentic 多轮会话在工具调用与用户回合之间留下 KV idle，但恢复时仍需保留整段会话 KV。有限 GPU 内存迫使 inactive KV 换出；恢复要么重算上下文，要么经慢互连迁回。紧 TBT SLO 要求 active decode KV 常驻 HBM，而 active read footprint 随 batch 增长但在 HBM 容量内仍相对较小；更大的 decode batch 还会降低 per-request throughput。
+  HBF 每 stack 读带宽约 1638 GB/s、容量约 512 GB（HBM4 约 48–64 GB），密度更高但读写能耗、耐久度与页粒度限制其承载全部 KV 流量。相对 HBM，HBF 延迟更高、读能耗/bit 高很多、写耐久度更低；T_life=C·N_PE/(R_W·WAF)，较高写入率会缩短寿命。Flash 读取按页（约几十 KB）计费，sub-page 小随机读仍需付完整页代价。
+  Agentic KV 呈双峰：当前 decode batch 是每步读取的小 hot set，暂停会话是只在 resume 时读取的大 cold pool。Na=48 的工作负载中，hot set 约占 resident capacity 的 3%，却承担约 98% 的 read traffic；cold pool 随 agent 并发增长，并在达到生产 session 目标前常先溢出 HBM。
+  评测压力包括 Qwen3-Coder-30B-A3B 约 56.8 GiB BF16 weights、约 96 KiB KV/token、峰值 context/session 约 16.7k token 对应约 1.53 GiB KV、resident agent 稳态约 0.82 GiB；idle gap 中位数约 8 s、均值约 23 s。该 trace 的纯 HBM 约在 165 sessions 饱和；可服务 sessions 同时受 cold-tier capacity 与 resume latency 制约，host DRAM alone 不足。
+
+SYMPTOM: |
+  - 工具/用户回合间 idle gap 中位数约 8 s、均值约 23 s；暂停 KV 仍需在整段 session 恢复时可用。
+  - Na=48 时，hot set 约占 resident capacity 的 3%，却承担约 98% 的 read traffic；cold pool 占容量主导但只占约 2% reads。
+  - Qwen3-Coder-30B-A3B：BF16 weights 约 56.8 GiB，约 96 KiB KV/token；峰值 context/session 约 16.7k token、约 1.53 GiB KV，resident agent 稳态约 0.82 GiB。
+  - 纯 HBM 在该 trace 上约 165 sessions 饱和；cold-tier capacity 与 resume latency 共同决定 servable sessions，host DRAM alone 不足。
+  - HBF 每 stack 读带宽约 1638 GB/s、容量约 512 GB，但较高延迟、较高读能耗/bit、较低写耐久度与几十 KB 页粒度使小随机 resume 读不能等同 HBM 读路径。
+  - active decode KV 必须留在 HBM 以守住 TBT SLO；inactive KV 的换出/恢复在重算或慢互连迁回之间形成 SLO 风险。
+  待证伪：在公开 agentic 多轮工作点上，cold pool 是否确实先于生产 session 目标溢出 HBM，且 resume latency、active decode KV residency/read traffic 与 TBT SLO 的联合端点可测恶化；若仅观察容量或平均读带宽而未观察恢复端点，则不足以证伪或证实。
+
+CONSTRAINT: |
+  难在热/冷 KV 的时间尺度相反：hot set 约 3% 容量却扛约 98% 读流量，必须保护 active decode 的 TBT SLO；cold pool 随并发扩张并先撞 HBM 容量，而 resume 又受 HBF 页粒度、能耗、延迟与写耐久度约束。容量、每步热读与恢复尾延迟不能压成一个数。
+  TBT SLO、resume latency、servable sessions、active decode KV residency 与实际 read traffic 是 endpoints，不是可由原始容量、平均带宽或平均 idle gap 替代的 proxies；endpoints ≠ proxies。
+  只看 HBM 是否装得下或只看 hot read 的 reduced-bbox ≠ full envelope；full envelope 必须同时覆盖 cold capacity overflow、resume 路径、TBT SLO、并发 session 数与页粒度带来的实际读代价。reduced-bbox ≠ full envelope。
+  及格判定若采用 0.85，0.85 是 pass bar，不是 measured mean；不得把平均值达到 0.85 当成所有 session、resume 与 TBT 端点都过线。证伪条件是：在同一公开工作点上，cold pool 未先溢出 HBM，且 resume latency、servable sessions、TBT SLO 与 active read 端点均不构成联合瓶颈；或这些端点仅靠容量/平均带宽代理即可稳定预测。
+  本卡不并入 P-0187、P-0180、P-0152：它只问 agentic idle/resume 的双峰 hot~3%/98% read 与 cold capacity overflow；长上下文稠密全历史注意力、plane imbalance 与写寿命端点仍各属原卡。无解法提案，不提出新的存储层级、KV 搬移、预取或注意力机制。

@@ -1,0 +1,24 @@
+# 中文题目: 近阈脉动阵列为最慢 MAC 钉死全局时钟，约 80% 操作单周期完成却浪费正 slack，尾部约 15–20% 定周期
+generality_score: 8
+同源:
+  - arXiv:2609.26644 p.1-3
+
+CONTEXT: |
+  近阈值计算可降能耗，但 delay 对工艺变化与 data activity 极敏感；设计者被迫在激进时钟（频繁 timing violations）与保守全局时钟之间选择。固定频率设计按最慢可能 MAC 钉住一个 global clock，许多操作提前完成，正 slack=T_clk−D 被系统性浪费。
+  评测使用 500 个随机 8×8 activation tiles，weights preloaded、activations cycle-streamed，并结合 cross-layer STA 与 systolic-array simulation，得到超过 500,000 个 slack samples。RCF=D_t/T_clk 的 histogram 有约 20%、45%、65%、120% 四个峰；约 80% 的 MAC 位于 1.0 boundary 以下并在单周期内完成，主要峰 RCF≈65% 表示约 35% cycle unused，而约 15–20% 的 deadline-tail 决定 fixed-frequency global period。
+  迟到检测会引入昂贵 pipeline replay，不适合 rigid deep systolic dataflow；下游 MAC bypass 若累积误差又会伤害 accuracy。既有路径主要是 reactive 或 input-insensitive，因而无法直接解释多数周期已存在的 positive slack。
+
+SYMPTOM: |
+  - 500 个随机 8×8 activation tiles、超过 500,000 个 slack samples 的交叉层 STA/脉动仿真显示，RCF histogram 有约 20%、45%、65%、120% 四个峰。
+  - 约 80% 的 MAC 在 RCF<1.0 boundary 下单周期完成，却仍受同一个最慢 MAC 的 global clock 约束。
+  - 主要峰 RCF≈65%，意味着约 35% cycle unused；只有约 15–20% 的 tail past deadline 设定 fixed-frequency period。
+  - 近阈值工作点在能耗与 delay variation 之间拉扯：激进 clock 带来频繁 timing violations，保守 clock 又保留大量 positive slack 浪费。
+  - 迟到检测的 pipeline replay 成本与 rigid deep systolic dataflow 不相容；下游旁路的误差累积会伤害 accuracy，因此现有 reactive/input-insensitive 路径不能把已存在的正 slack稳定转成端到端收益。
+  待证伪：在公开近阈值脉动阵列工作点上，RCF 的多峰与约 80% 单周期完成、约 15–20% deadline tail 是否同时成立，并且 global-clock 选择对 timing violations、energy、accuracy 与端到端吞吐的影响仍由尾部而非平均 slack 决定；若只测平均 RCF 或单层微基准，则不足以证伪。
+
+CONSTRAINT: |
+  难在 slack 不是单一平均延迟问题：约 80% 的操作有正 slack，但约 15–20% 的 tail 仍钉住全局周期；近阈值的工艺变化与 data activity 又会把激进时钟推向 timing violations。刚性深层脉动数据流同时限制迟到处理与误差容忍。
+  timing-violation rate、energy、accuracy、端到端吞吐与 deadline-tail 是真实 endpoints，不是可由平均 RCF、平均 slack 或单层 MAC 完成率替代的 proxies；endpoints ≠ proxies。
+  只看 RCF histogram、单层阵列或约 80% 单周期完成的 reduced-bbox ≠ full envelope；full envelope 必须覆盖 cross-layer、全阵列时钟、tail violations、energy 与 accuracy。reduced-bbox ≠ full envelope。
+  及格判定若采用 0.85，0.85 是 pass bar，不是 measured mean；不得把平均 slack 或平均 RCF 达到 0.85 当成 timing、energy、accuracy 与端到端端点均过线。证伪条件是：公开工作点上 global clock 不再被约 15–20% tail 主导，且激进与保守时钟都能在 cross-layer/full-array 端点上同时满足 timing、energy、accuracy 与吞吐约束；或平均 RCF 已足以无代理地预测这些端点。
+  同源仅列 arXiv:2609.26644 p.1-3；目录中虽有脉动/量化/稀疏卡，但未找到同一 timing-slack/RCF 问题，故不并入其他 P-id。无解法提案，不提出迟到检测、旁路、时钟调度或其他具体硬件/数据流机制。
