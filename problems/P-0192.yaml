@@ -1,0 +1,31 @@
+# 中文题目: 长 prefix KV 缓存外扩到 SSD/CXL：块接口经主机 DRAM 中转与 LLC 争用使 TTFT 慢约 1.8–3×，引擎与设备互不知下一步
+generality_score: 8
+同源:
+  - arXiv:2609.26828 p.1-3
+  - P-0190
+  - P-0187
+  - P-0180
+
+CONTEXT: |
+  RAG、多轮对话与 agent 反复复用系统提示、检索文档和历史，形成数万–数十万 token 的长 prefix；prefix caching 需要从 GPU 内存扩展到主机与存储，但主机 DRAM 受内存通道与 DIMM 容量约束，难以常驻大容量 prefix 缓存。
+  用 NAND 后备 NVMe SSD 扩容时，块设备 I/O 线程与推理线程争用同一 LLC；每个 KV chunk 还要先经主机 DRAM 中转再送 GPU。即便介质换成 DRAM 的 ramdisk / brd 块设备，相对直接访问本地 DRAM 仍约 1.8× 更慢；SSD 相对 DRAM 的减速中，NAND 延迟占一半以上，其余来自 CPU 缓存争用与主机 DRAM staging。
+  主机侧预取会再次占用本已稀缺的 DRAM；GDS 仍先进入 VRAM staging，再经串行 reshape/copy 才进入最终 KV 布局。通用 CXL-SSD 在 prefix caching 下仍约比本地 DRAM 慢 3× 且不优于 NVMe；设备通用 next-n 预取几乎不改平均 TTFT，却产生无关 NAND I/O。
+  服务引擎知道将消费哪些 chunk，设备知道数据位置与搬运状态，但两者没有共享语义：设备只收到地址而非 chunk，引擎往往到搬运完成后才得知进度。CXL.mem 路径上片上 DRAM 命中约 ~100 ns，未命中经 FTL 取 NAND 为数十 µs，容量扩展与命中/未命中时延鸿沟并存。表征设定为 Qwen3-4B + vLLM/LMCache、128k prefix、chunk_size=32、每 GPU 32 GB 系统 RAM。
+
+SYMPTOM: |
+  - Qwen3-4B + vLLM/LMCache 的 128k prefix、chunk_size=32 工作点需要把 prefix KV 从 GPU 内存扩展到主机与存储；每 GPU 配置 32 GB 系统 RAM，仍面对长 prefix 的容量压力。
+  - NVMe 块设备路径中，I/O 线程与推理线程争用同一 LLC；仅 L3 隔离即可使 P99 TTFT 改善约 44%，说明接口侧缓存争用是独立显著开销。
+  - 每个 KV chunk 经主机 DRAM 中转；即便 ramdisk / brd 介质是 DRAM，相对直接访问本地 DRAM 仍约 1.8× 更慢，接口与 staging 成本独立于 NAND。
+  - SSD 相对 DRAM 的减速中，NAND 延迟占一半以上，另有 CPU 缓存争用与主机 DRAM staging；主机预取还会重新消耗稀缺 DRAM。
+  - 通用 CXL-SSD 仍约比本地 DRAM 慢 3× 且不优于 NVMe；通用 next-n 预取几乎不改平均 TTFT，却产生无关 NAND I/O。
+  - GDS 仍有 VRAM staging 以及串行 reshape/copy；引擎掌握下一批 chunk，设备掌握地址与进度，但设备只见地址，引擎常在传输完成后才获知进度。
+  - 端点包括 P99 TTFT、mean TTFT、NAND I/O amplification 与 host DRAM footprint；片上 DRAM 命中约 ~100 ns、经 FTL 的 NAND 未命中为数十 µs，命中与未命中不可混为同一路径。
+  待证伪：在公开长 prefix KV 工作点上，若块接口的 LLC 争用、主机 DRAM staging、NAND 延迟与引擎–设备语义缺口均不再对 P99 TTFT、mean TTFT、NAND I/O amplification 或 host DRAM footprint 形成联合影响，或这些端点仅由容量与平均介质延迟即可稳定预测，则本问题不足以成立。
+
+CONSTRAINT: |
+  难在长 prefix 的容量扩展与访问路径同时受限：块接口把每个 KV chunk 牵引到主机 DRAM，I/O 与推理争用 LLC，NAND 延迟又与 CPU 缓存争用、DRAM staging 叠加；预取重新占用稀缺 DRAM，设备只见地址而引擎在传输后才见进度，容量、路径和语义不能压成一个平均延迟。
+  P99 TTFT、mean TTFT、NAND I/O amplification 与 host DRAM footprint 是 endpoints，不是可由平均 NAND 延迟、原始容量或平均 TTFT 替代的 proxies；endpoints ≠ proxies。
+  只看 L3 隔离、ramdisk，或单一 CXL-SSD/本地 DRAM 读延迟的 reduced-bbox ≠ full envelope；full envelope 必须同时覆盖 P99 TTFT、mean TTFT、NAND I/O amplification、host DRAM footprint、LLC 争用、DRAM/VRAM staging 与引擎–设备进度语义。reduced-bbox ≠ full envelope。
+  及格判定若采用 0.85，0.85 是 pass bar，不是 measured mean；不得把平均 TTFT 或某一介质的 0.85 当成所有 prefix reuse、I/O amplification、DRAM footprint 与尾延迟端点都过线。证伪条件是：同一公开工作点上，块接口路径相对本地 DRAM 不再造成可测端点差异，或预取/平均延迟足以无代理地预测完整端点，且引擎–设备是否共享 chunk 语义不再改变下一步搬运与完成进度。
+  同源但不并入 P-0190、P-0187、P-0180：P-0190 问 agentic 暂停/恢复的 cold KV 溢出 HBM 与 HBF 读写张力；P-0187 问百万 token 长上下文的 HBF 容量、稠密全历史吞吐与 plane 并行；P-0180 问固定封装下细粒度 KV 与 HBF plane 并行、编程和写放大。本卡只问长 prefix reuse 的存储层路径：LLC contention、host DRAM bounce，以及引擎与设备互不知下一步。
+  无解法提案，不提出新的存储层级、KV 搬移/缓存策略、主机预取、GDS/VRAM staging、LLC 隔离、设备 next-n 预取、引擎–设备语义协同或其他具体接口/调度机制。

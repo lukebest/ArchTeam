@@ -1,0 +1,30 @@
+# 中文题目: 连续视觉传感到处理串行交接钉死单帧 P99，XR <50 ms / 自动驾驶 <100 ms 在 Slack/Balanced/Overload 三区各有瓶颈
+generality_score: 8
+同源:
+  - arXiv:2609.27706 p.1-3
+  - P-0189
+  - P-0169
+
+CONTEXT: |
+  连续视觉在自动驾驶与 AR·VR·XR 场景要求严格端到端时延：自动驾驶常需 <100 ms，XR 常需 <50 ms；移动端能量预算紧，高分辨率高帧率传感器进一步加压。
+  现代 CV SoC 可在不同帧上流水前端（传感器+ISP）与后端（CPU/NPU），但单帧 sense-to-task 时延仍受传感到处理的串行交接约束，捕获与处理整体仍呈串行主导。
+  全像素域投机需要整帧像素合成与额外算力，误预测会在真实帧上重跑；为省电关闭前端时又出现无新鲜传感器数据的空窗。仅用 ISP 运动向量外推感知结果时，关键帧仍付满后端时延，丢帧时外推结果可能延迟或中断。现成 ISP 已在 8×8 或 16×16 像素块粒度生成运动向量，但基线流水线并未把它用于帧到达前的处理原语；这是观测事实，不是解法。
+  尾时延定义为有界的只保留最新、丢弃最旧、队列深度 1、单处理单元设定下的 P99 sense-to-task 完成时间。Slack 工况以前端为主，瓶颈在曝光、读出、MIPI CSI 与 ISP；Balanced 工况后端完成时刻紧贴下一帧到达；Overload 工况后端远超帧间隔，频繁覆盖队列中的帧并造成丢帧。
+
+SYMPTOM: |
+  - 自动驾驶端到端时延目标常需 <100 ms，XR 常需 <50 ms；移动端同时受能量、高分辨率与高帧率约束。
+  - 前端传感器+ISP 与后端 CPU/NPU 虽可跨帧流水，单帧 sense-to-task 仍被传感→处理串行交接钉住，整体捕获到处理不等于可独立摊销的并行流水。
+  - 全像素域投机要付整帧合成与额外算力，误预测要在真实帧上重跑；关闭前端省电时，窗口内又没有新鲜传感器数据。
+  - 仅用 ISP 运动向量外推时，关键帧仍付满后端时延，丢帧时外推结果可能延迟或中断。
+  - 现成 ISP 已生成 8×8 或 16×16 像素块运动向量，但基线在帧到达前并未使用该信号；前端已有信号与后端完成之间存在时序断口。
+  - 尾时延工作点固定为队列深度 1、只保留最新、单处理单元，并以 P99 sense-to-task 衡量；Slack 由曝光/读出/MIPI CSI/ISP 主导，Balanced 中后端完成贴近下一帧到达，Overload 中频繁丢帧。
+  - 端点包括 Slack/Balanced/Overload 各工况的 P99 sense-to-task latency、energy/frame、drop rate 与 accuracy；高精度目标检测 30 FPS 的移动负载可进入 Overload。
+  待证伪：在公开连续视觉工作点上，若三种工况的 P99 sense-to-task、energy/frame、drop rate 与 accuracy 均不再受串行交接和帧到达边界联合约束，且高分辨率高帧率负载下不出现目标端点的可测恶化，则本问题不足以成立。
+
+CONSTRAINT: |
+  难在同一单帧边界上同时承受严格 P99、移动能量预算与高分辨率高帧率输入：Slack 时前端采集链路占主导，Balanced 时后端完成贴住下一帧，Overload 时后端积压造成频繁丢帧；前端空窗、关键帧后端成本和丢帧后的时序中断不能压成平均帧率。
+  各工况的 P99 sense-to-task latency、energy/frame、drop rate 与 accuracy 是 endpoints，不是可由平均端到端 latency、单独前端耗时、单独后端耗时或平均帧率替代的 proxies；endpoints ≠ proxies。
+  只测前端 Slack、只测后端 Balanced，或在无丢帧的 reduced-bbox 上观察平均 latency，均不等于 Slack/Balanced/Overload 的 full envelope；full envelope 必须覆盖三种工况、队列深度 1、只保留最新、单处理单元以及 sense-to-task P99、能量、丢帧和准确率。reduced-bbox ≠ full envelope。
+  及格判定若采用 0.85，0.85 是 pass bar，不是 measured mean；不得把平均帧率或某一工况达到 0.85 当成三种工况的 P99、energy/frame、drop rate 与 accuracy 都过线。证伪条件是：公开工作点上单帧串行交接不再主导三种工况的联合端点，Overload 不再出现频繁丢帧，且单独前端/后端或平均帧率已足以无代理地预测完整 sense-to-task 信封。
+  同源但不并入 P-0189、P-0169：P-0189 问 VLA 的 CTA 队头阻塞、微内核共跑与闭环 Hz；P-0169 问安全关键机器人/飞行器的采样式运动规划与近邻搜索实时性。本卡只问连续视觉的传感到处理串行交接，以及 Slack/Balanced/Overload 三工况下的单帧 P99、能量、丢帧和准确率。
+  无解法提案，不提出投机、整帧外推、运动向量复用、前端门控或其他具体传感器/ISP/流水线机制。
