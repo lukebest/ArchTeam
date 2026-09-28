@@ -1,0 +1,30 @@
+# 中文题目: DRAM 内 bit-serial 体计算要竖排操作数，与系统水平布局冲突，格式转换使性能降约 3.9×、能效降约 3.7×
+generality_score: 8
+同源:
+  - arXiv:2609.30998 p.1-3
+
+CONTEXT: |
+  对象是在商用 DRAM 阵列内做 bit-serial 体计算：计算由 mat 内 sense amplifier 按行驱动，一次对整行的同一比特位做运算，因此操作数自然以竖直方式存放（M 个元素 × N 比特跨 N 行）。
+  主机系统的原生布局是水平的：一个 N-bit 字连续存在一行的多列上，这保住了 cache line 抽象、行缓冲局部性与传输吞吐。64 B cache line 经 64 路 DQ、每拍 64-bit、8-beat burst 传输；×16 chip 每拍收 16-bit，在 prefetch buffer 内累到 128 bit 再写入 mats，水平 ABI 与片内比特放置强绑定。
+  常规地址交错把一个 N-bit 字的各比特沿 rank→chip→bank→subarray→mat 打散。层次规模：rank 8–16 chip；chip 8–16 bank；bank 约 64–128 subarray；subarray 约 16–32 mat；mat 约 512–1024 行、列宽约 2–8 kB。
+  阵列只能按行工作，没有原生的列向互连在行间传播中间值。三行同时激活可在 bitline 上得到多数逻辑，但会破坏性改写参与行的内容。
+
+SYMPTOM: |
+  - 水平布局与竖直布局不兼容，运行时必须反复做格式转换；相对无转置要求的理想基线，平均性能降约 3.9×、能效降约 3.7×。
+  - 竖直存放的对象跨多条 cache line 成为一个 slice：CPU 访问或逐出其中单个元素会触发整 slice 写回，放大 cache 流量与写回压力，并把体计算正确性与 CPU cache 行为缠在一起。
+  - 内存中同时存在水平与竖直两种视图，应用必须区分对象类别并显式协调转换，形成格式管理成本。
+  - 操作数比特经常规交错后不在同一 mat，体计算所需的比特局部性出现缺口；而一字多列的水平摆放下，进位等跨比特依赖在无列向互连的阵列上难以完成。
+  - 跨 subarray 搬移整行的延迟量级约 3×tRAS + 2×tRP + 2×tRBM，标准命令集没有列粒度的跨 subarray 搬移，中间值的搬运本身是一等延迟成本。
+  - 多数逻辑的破坏性激活迫使阵列预留数据行、常数行与计算行，计算能力与可用存储容量互相挤占。
+  - 端点包括端到端应用性能与能效（含格式转换、cache 写回与数据搬移）、主机侧 cache 流量与写回量、可用 DRAM 容量，以及对现有 cache line 抽象与内存控制器接口的兼容性。
+  待证伪：在公开商用 DRAM 规模参数与标准 64 B burst 接口下，若 bit-serial 体计算在不做布局转换、不放大 cache 写回、不牺牲存储容量的前提下即可接近理想基线的性能与能效（差距远小于 3.9×/3.7×），则本问题不足以成立。
+
+CONSTRAINT: |
+  难在同一块 DRAM 必须同时服务两个互斥的比特放置需求：主机侧 cache line、burst 与 prefetch buffer 要求一个字的比特水平连续并按交错分散到各 chip；体计算要求同一操作数的全部比特在同一 mat 内竖直对齐，且中间值要在无列向互连的行之间流动。改其中一侧就会破坏另一侧的吞吐、局部性或接口兼容性，而破坏性多数逻辑又把一部分行从存储中划走。
+  端到端性能与能效（含转换、写回、搬移）、cache 流量、可用容量与接口兼容性是 endpoints；单次体运算的吞吐、只计阵列内计算不计转换的加速比、或峰值行并行度都是 proxies，endpoints ≠ proxies。
+  只在单个 mat/subarray、只用已竖排好的数据、或忽略主机 cache 交互的实验属于 reduced-bbox，不等于覆盖 rank/chip/bank/subarray/mat 全层次、标准 64 B burst、主机 cache 共存的 full envelope；reduced-bbox ≠ full envelope。
+  及格判定若采用 0.85，0.85 是 pass bar，不是 measured mean；不得用平均加速比过线冒充每类负载的端到端性能与能效都过线。
+  若涉及地址映射改写：经典高低位 XOR-fold、BIOS bit-mux、Intel DRAM map 是已知对照，不得作为新机制；任何冻结高位映射须证明 S=512B 发出窗口内 unique DMC 不塌到 1，且全程只用一套 DMC 定义，min/mean ≥ 0.85 为约束。
+  证伪条件同 SYMPTOM 末行。
+  不与 P-0141/P-0142（模拟 CIM 的 softmax）或 P-0150（PIM 上的 ANNS 访存形态）合并：本卡只问 DRAM 内 bit-serial 体计算的竖直/水平布局冲突及其转换、写回、搬移与容量代价。
+  无解法提案，不提出具体布局方案、转置单元、新 DRAM 命令、地址映射、行分区策略或阵列互连改造。
