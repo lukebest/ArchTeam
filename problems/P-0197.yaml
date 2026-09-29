@@ -1,0 +1,27 @@
+# 中文题目: 解释器 threaded 分发的间接分支足迹巨大，CPython 间接 MPKI 达 SPEC CPU 2026 均值 15–25×，扩预测器与 JIT 收益都很小
+generality_score: 8
+同源:
+  - arXiv:2609.34263 p.1-3
+
+CONTEXT: |
+  解释器工作负载的间接分支足迹很大，需要很大的间接分支预测器容量。现代解释器普遍采用 threaded dispatch：每条字节码 handler 以一条间接分支结束，目标取决于下一条字节码。
+  单一程序可能使用许多不同字节码，分发间接分支的目标集合大，易在有限容量预测器中发生别名冲突。字节码以连续数组存放；对非控制转移字节码，下一条分发目标在静态上可确定——但硬件前端默认不利用这一语言层结构。
+  对照平台：带 3072-entry ITTAGE 风格间接预测器的 Raptor Cove；gem5 中可比 16 KB（3392-entry）ITTAGE 扩到 64 KB 的扩容实验；实验性 CPython 3.13 JIT。
+
+SYMPTOM: |
+  - 在 3072-entry ITTAGE 风格间接预测器的 Raptor Cove 上，CPython 服务端间接分支 MPKI 达 SPEC CPU 2026 intspeed / intrate 均值的 15.2× 与 25.5×。
+  - 实验性 CPython 3.13 JIT：间接分支条数降 10.3%，但剩余误预测率升 8.9%，间接 MPKI 仅降 1.5%。
+  - gem5 中把可比 16 KB（3392-entry）ITTAGE 扩到 64 KB，CPython 负载调和平均 IPC 仅 +5.1%（最高 +11.2%），纯扩容收益有限。
+  - 分发类间接分支占基线间接误预测的 80.9%，是主导贡献者。
+  - threaded dispatch 使每条 handler 都以间接分支收尾，目标集合随字节码种类膨胀，有限容量预测器中别名冲突加剧。
+  - 非控制转移字节码的下一条分发目标在静态上可确定，但硬件前端默认不利用该语言层结构，静态可知性与硬件可见性之间存在断口。
+  - 端点包括间接分支 MPKI、间接误预测率、IPC，以及分发类分支在间接误预测中的占比。
+  待证伪：在公开解释器（含 CPython 服务端）与可比 ITTAGE 规格下，若间接 MPKI 可降至接近 SPEC CPU 2026 整数均值而不依赖 4× 以上预测器扩容或改变语言层语义，且分发类分支不再主导间接误预测，则本问题不足以成立。
+
+CONSTRAINT: |
+  难在解释器的控制流形态与通用间接预测器假设错位：threaded dispatch 把几乎每条字节码都变成一次间接分支，目标集合大且别名严重；语言层对非控制转移字节码的下一目标静态可知，但硬件前端看不到这一结构。单纯扩预测器容量或靠实验性 JIT 减分支条数，都未能显著压低间接 MPKI。
+  间接 MPKI、误预测率、IPC 与分发类占比是 endpoints；预测器条目数、表占用率或只计非分发分支的 MPKI 都是 proxies，endpoints ≠ proxies。
+  只在合成微基准、只用极少字节码种类、或忽略分发类分支的实验属于 reduced-bbox，不等于覆盖 CPython 服务端、SPEC 对照、ITTAGE 扩容与 JIT 对照的 full envelope；reduced-bbox ≠ full envelope。
+  及格判定若采用 0.85，0.85 是 pass bar，不是 measured mean；不得用平均 IPC 提升过线冒充间接 MPKI 与分发类误预测都过线。
+  无同源需合并的已有卡。
+  无解法提案，不提出具体预测器结构、前端提示、字节码特化、JIT 策略或任何微架构改动。
