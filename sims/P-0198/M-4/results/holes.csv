@@ -1,0 +1,55 @@
+trial,class,arm,bucket,hole_asym,hole_dual,dual_busy_cycles,deflect,note
+0,uniform_read,deflect-off,asymmetric/mixed,0,0,36,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+0,uniform_read,AODI-on,asymmetric/mixed,26,0,79,26,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+0,uniform_write,deflect-off,asymmetric/mixed,0,0,36,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+0,uniform_write,AODI-on,asymmetric/mixed,26,0,79,26,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+0,broadcast,deflect-off,asymmetric/mixed,0,0,0,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+0,broadcast,AODI-on,asymmetric/mixed,0,0,0,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+0,gather,deflect-off,asymmetric/mixed,0,0,0,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+0,gather,AODI-on,asymmetric/mixed,43,0,73,43,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+0,reduce,deflect-off,asymmetric/mixed,0,0,0,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+0,reduce,AODI-on,asymmetric/mixed,43,0,73,43,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+0,allgather,deflect-off,asymmetric/mixed,0,0,16,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+0,allgather,AODI-on,asymmetric/mixed,24,0,45,24,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+0,allreduce,deflect-off,asymmetric/mixed,0,0,39,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+0,allreduce,AODI-on,asymmetric/mixed,17,0,81,17,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+0,alltoall,deflect-off,dual-busy,0,0,30,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+0,alltoall,AODI-on,dual-busy,12,0,74,12,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+0,dual-busy-sat,deflect-off,dual-busy,0,0,288,0,FORCED dual-busy-sat; expected gain≈0; hole_dual≡0
+0,dual-busy-sat,AODI-on,dual-busy,0,0,288,0,FORCED dual-busy-sat; expected gain≈0; hole_dual≡0
+1,uniform_read,deflect-off,asymmetric/mixed,0,0,43,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+1,uniform_read,AODI-on,asymmetric/mixed,16,0,71,16,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+1,uniform_write,deflect-off,asymmetric/mixed,0,0,43,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+1,uniform_write,AODI-on,asymmetric/mixed,16,0,71,16,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+1,broadcast,deflect-off,asymmetric/mixed,0,0,0,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+1,broadcast,AODI-on,asymmetric/mixed,0,0,0,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+1,gather,deflect-off,asymmetric/mixed,0,0,0,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+1,gather,AODI-on,asymmetric/mixed,43,0,73,43,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+1,reduce,deflect-off,asymmetric/mixed,0,0,0,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+1,reduce,AODI-on,asymmetric/mixed,43,0,73,43,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+1,allgather,deflect-off,asymmetric/mixed,0,0,16,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+1,allgather,AODI-on,asymmetric/mixed,24,0,45,24,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+1,allreduce,deflect-off,asymmetric/mixed,0,0,39,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+1,allreduce,AODI-on,asymmetric/mixed,17,0,81,17,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+1,alltoall,deflect-off,dual-busy,0,0,34,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+1,alltoall,AODI-on,dual-busy,14,0,56,14,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+1,dual-busy-sat,deflect-off,dual-busy,0,0,288,0,FORCED dual-busy-sat; expected gain≈0; hole_dual≡0
+1,dual-busy-sat,AODI-on,dual-busy,0,0,288,0,FORCED dual-busy-sat; expected gain≈0; hole_dual≡0
+2,uniform_read,deflect-off,asymmetric/mixed,0,0,38,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+2,uniform_read,AODI-on,asymmetric/mixed,19,0,62,19,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+2,uniform_write,deflect-off,asymmetric/mixed,0,0,38,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+2,uniform_write,AODI-on,asymmetric/mixed,19,0,62,19,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+2,broadcast,deflect-off,asymmetric/mixed,0,0,0,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+2,broadcast,AODI-on,asymmetric/mixed,0,0,0,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+2,gather,deflect-off,asymmetric/mixed,0,0,0,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+2,gather,AODI-on,asymmetric/mixed,43,0,73,43,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+2,reduce,deflect-off,asymmetric/mixed,0,0,0,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+2,reduce,AODI-on,asymmetric/mixed,43,0,73,43,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+2,allgather,deflect-off,asymmetric/mixed,0,0,16,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+2,allgather,AODI-on,asymmetric/mixed,24,0,45,24,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+2,allreduce,deflect-off,asymmetric/mixed,0,0,39,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+2,allreduce,AODI-on,asymmetric/mixed,17,0,81,17,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+2,alltoall,deflect-off,dual-busy,0,0,36,0,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+2,alltoall,AODI-on,dual-busy,15,0,64,15,dual-busy hole≡0; never fold alltoall into 0.50-0.85x
+2,dual-busy-sat,deflect-off,dual-busy,0,0,288,0,FORCED dual-busy-sat; expected gain≈0; hole_dual≡0
+2,dual-busy-sat,AODI-on,dual-busy,0,0,288,0,FORCED dual-busy-sat; expected gain≈0; hole_dual≡0
