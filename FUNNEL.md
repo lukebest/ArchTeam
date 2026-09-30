@@ -4,6 +4,10 @@
 配额: 新问题 30 → 机制 150 → 过 T0 40 → 过 T1 12 → T2 8 → T3 3
 用量: 问题 4/30 · 机制 0/150 · T0 过 0/40 · T1 过 0/12 · T2 过 0/8 · T3 过 0/3
 
+## 2026-09-30 Jim T1
+
+P-0198 Jim T1（本 PR 着陆四人格 + 主持综合；#47–#50 由本 PR 取代）：M-1 CBC PASS → Tier 2 / #eval（4/4 有条件，无致命）。M-2 CSR / M-4 AODI / M-5 CRRF FAIL → 退回 Jim Keller（Archi 致命：latch→FIFO；第三 highway 槽 / 双忙无洞；SYNC 偏斜 + 无 epoch 排空）。卡仍未入 main，机制层用量不记，问题仍 4/30。
+
 ## 2026-09-30 保守 T0
 
 保守架构师 P-0198 T0（PR #45 卡与评审未入 main，机制层用量不记，问题仍 4/30）：0 张进 #review / 0→T1。REJECT M-6（FUNCTIONAL_EQUIVALENT slotted-ring/TDM）、M-8 FAIL、M-9 FAIL、M-10 FUNCTIONAL_EQUIVALENT。KNOWN_CONFIRM M-7（textbook shortest CW/CCW）— 冻作基线，不进 T1。Jim T1 仍为 M-1/M-2/M-4/M-5。
