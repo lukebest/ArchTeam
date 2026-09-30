@@ -26,3 +26,8 @@ def load_sns_t2():
 
 def load_affine_t2():
     return load_model("models/P-0106/M-5/model.py", "t2_p0106_m5")
+
+
+def load_csr_t2():
+    """P-0198/M-2 T2 is draft PR #66; missing on main is expected."""
+    return load_model("models/P-0198/M-2/model.py", "t2_p0198_m2")
