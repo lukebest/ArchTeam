@@ -4,6 +4,10 @@
 配额: 新问题 30 → 机制 150 → 过 T0 40 → 过 T1 12 → T2 8 → T3 3
 用量: 问题 16/30 · 机制 0/150 · T0 过 0/40 · T1 过 0/12 · T2 过 0/8 · T3 过 1/3
 
+## 2026-09-30 评估审计 T3 night 确认通过
+
+评估审计 T3 night 确认通过 P-0198/M-5 CRRF（仿真 tip `b0b4cf9` / PR #73；night 审计 PR #76；先日 smoke 审计 PR #75 / tip `da294cb`；SEED=20260903；pytest 25）。仍 T3 PASS / 存活，不是 T4。Snp 15:1 仍 KILL（加严）：snp_path 17.0533 / mixed 32.5873 vs T2 1.5625（不贴作 pass）。flag_gt_30pct=2（仅两行 H-SNP-LAT 15:1）。其它钉 max |rel| 0.113；T_drain 75；f_steady 0.7727；C_dat_eff 1.000/1.488/1.585/1.633；H-COMMIT 0/12；HARD-1 49>27；gather 0.551×3。card-claim 未签；oracle_used=False 108/108；smoke `results/` / #75 未动。不开 T4。M-1 CBC / M-2 CSR / M-4 AODI 仍死。问题仍 16/30。T3 过仍 1/3。
+
 ## 2026-09-30 评估审计 T3 PASS
 
 评估审计 T3 PASS P-0198/M-5 CRRF（仿真 tip `da294cb` / PR #73；审计 PR #75；T2 比照模型/签字 PR #63；SEED=20260903；pytest 25；未入 main）。存活，不是 T4。T_drain 75 vs 77；f_steady gather7:1 0.709 vs 0.8666；C_dat_eff 1.000/1.4185/1.5072/1.5515（无 >30% flag）。H-COMMIT 0/12；gather T/off 0.5833×3；HARD-1 24>14 True。Snp 15:1 KILL：snp_path 11.6667 / mixed 23.2222 vs T2 1.5625（flag 2/16，不把 T2 贴到 T3）；mixed 窗 3:1/7:1 亦 KILL；completions 未丢。oracle_used=False；card-claim 未签（0.583 不是 card-claim 签字）。合入 FUNNEL 作 T3 存活；不开 T4。M-1 CBC / M-2 CSR / M-4 AODI 仍死。问题仍 16/30。T3 过 0→1。
@@ -196,7 +200,7 @@ P-0198 无缓冲环 NoC 上 LLM 点对点/集合通信 makespan（tests/soc_sim�
 
 ## 本周占用（已派、卡未落地）
 
-P-0198：Jim T1 已裁（M-1 CBC T3 REJECT 死，审计 PR #64；M-2 CSR T3 REJECT 死，审计 PR #74 / 仿真 PR #72；M-4 AODI T3 REJECT 死，审计 PR #71 / 仿真 PR #70；M-5 CRRF T3 PASS / 存活，审计 PR #75 / 仿真 tip `da294cb` #73，等人定 T4、不开 T4；卡、模型与仿真未入 main）；保守批已 0→T1（T0：M-7 KNOWN_CONFIRM 冻基线）。机制仍 0/150。
+P-0198：Jim T1 已裁（M-1 CBC T3 REJECT 死，审计 PR #64；M-2 CSR T3 REJECT 死，审计 PR #74 / 仿真 PR #72；M-4 AODI T3 REJECT 死，审计 PR #71 / 仿真 PR #70；M-5 CRRF T3 PASS / 存活，night 确认通过 审计 PR #76 / 仿真 tip `b0b4cf9` #73（smoke #75 / `da294cb`），等人定 T4、不开 T4；卡、模型与仿真未入 main）；保守批已 0→T1（T0：M-7 KNOWN_CONFIRM 冻基线）。机制仍 0/150。
 
 ## 本周已入仓备案（未派建筑师）
 
@@ -208,9 +212,9 @@ P-0159、P-0164–P-0194。
 
 ## Top（已签 T3；等人定 T4）
 
-- P-0105/M-4 SNS：smoke+night 通过。占用 `rel_err=0`。BW 未签 0.85。
-- P-0106/M-5 AffineRebind：smoke+night 通过。占用 `rel_err=0`。BW 未签 0.85。
-- 21–29 晚 T3 night 复扫已完成：无数字 delta、未开 PR；占用 rel_err=0 不变；BW 仍不签 0.85；签字不变。
+- P-0105/M-4 SNS：smoke+night 通过。占用 `rel_err=0`。BW 未签 0.85。30 晚 vs main tip `c5f5b74` bit-identical；无数字 delta、未开 PR。
+- P-0106/M-5 AffineRebind：smoke+night 通过。占用 `rel_err=0`。BW 未签 0.85。30 晚 vs main tip `c5f5b74` bit-identical；无数字 delta、未开 PR。
+- 21–30 晚 T3 night 复扫：21–29 无数字 delta、未开 PR；30 晚相对 main tip `c5f5b74` bit-identical、无数字 delta、未开 PR；占用 rel_err=0 不变；BW 仍不签 0.85；签字不变。
 
 ## 拍板仍等人
 
@@ -220,7 +224,7 @@ T4/停 · 扩配额 · 其余备案是否派建筑师。P-0198 已派出。P-019
 
 | ID | 类别 | 结果 |
 |---|---|---|
-| P-0198/M-5 CRRF | T3 PASS / 存活 | 评估审计通过（审计 PR #75 / 仿真 tip `da294cb` #73；T2 比照 #63；SEED=20260903；pytest 25）。T_drain 75 vs 77；f_steady gather7:1 0.709 vs 0.8666；C_dat_eff 1.000/1.4185/1.5072/1.5515（无 >30% flag）。H-COMMIT 0/12；gather T/off 0.5833×3；HARD-1 24>14 True。Snp 15:1 KILL：snp_path 11.6667 / mixed 23.2222 vs T2 1.5625（flag 2/16，不贴 T2）；mixed 3:1/7:1 亦 KILL；completions 未丢。oracle_used=False；card-claim 未签（勿把 0.583 当 card-claim 签字）。不开 T4。等人定 T4。 |
+| P-0198/M-5 CRRF | T3 PASS / 存活 | 评估审计通过（smoke 审计 PR #75 / 仿真 tip `da294cb` #73；night 确认通过 审计 PR #76 / tip `b0b4cf9`；T2 比照 #63；SEED=20260903；pytest 25）。T_drain 75 vs 77；f_steady gather7:1 0.709 vs 0.8666；C_dat_eff 1.000/1.4185/1.5072/1.5515（无 >30% flag）。H-COMMIT 0/12；gather T/off 0.5833×3；HARD-1 24>14 True。Snp 15:1 KILL：snp_path 11.6667 / mixed 23.2222 vs T2 1.5625（flag 2/16，不贴 T2）；mixed 3:1/7:1 亦 KILL；completions 未丢。oracle_used=False；card-claim 未签（勿把 0.583 当 card-claim 签字）。Night：Snp 15:1 仍 KILL（加严 17.0533 / 32.5873 vs T2 1.5625，不贴作 pass）；card-claim 未签；smoke/#75 未动。不开 T4。等人定 T4。 |
 
 ## T3 淘汰（本周）
 
