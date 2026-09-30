@@ -26,3 +26,13 @@ def load_sns_t2():
 
 def load_affine_t2():
     return load_model("models/P-0106/M-5/model.py", "t2_p0106_m5")
+
+
+def load_aodi_t2():
+    """Load T2 AODI model if it has landed on this tree.
+
+    P-0198/M-4 T2 still lives on draft PR #65 (`cursor/p-0198-m-4-aodi-t2-d38b`)
+    and is not on main. Callers must tolerate FileNotFoundError and fall back
+    to the signed director/audit pins in the T3 sim — do not copy T2 files here.
+    """
+    return load_model("models/P-0198/M-4/model.py", "t2_p0198_m4")
