@@ -226,32 +226,36 @@ class BubbleFSM:
 
 
 def fsm_tick(fsm: BubbleFSM, mandatory: bool, saw_bubble: bool, emitted: bool) -> None:
-    """One ring-tick of IDLE/WATCH/EMIT/HOLD. Aligned with the highway cycle."""
-    if not mandatory:
-        fsm.state = "IDLE"
+    """One ring-tick of IDLE/WATCH/EMIT/HOLD. Aligned with the highway cycle.
+
+    W counts cycles since a bubble was seen (card: 过去 W 周期未见气泡), not
+    consecutive duty-on ticks. Duty only gates EMIT; a 1-cycle SRAM lookup
+    must not wipe the window.
+    """
+    if saw_bubble:
         fsm.watch = 0
+        if mandatory:
+            fsm.state = "WATCH"
+        else:
+            fsm.state = "IDLE"
+        return
+    fsm.watch += 1
+    if not mandatory:
+        if fsm.state == "EMIT" and not emitted:
+            fsm.state = "IDLE"
+        elif fsm.state != "HOLD":
+            fsm.state = "IDLE"
         return
     if fsm.state == "IDLE":
         fsm.state = "WATCH"
-        fsm.watch = 0
-    if saw_bubble:
-        fsm.watch = 0
-        if fsm.state in ("EMIT", "HOLD"):
-            fsm.state = "WATCH"
-        return
-    if fsm.state == "WATCH":
-        fsm.watch += 1
-        if fsm.watch >= W_EMIT:
-            fsm.state = "EMIT"
+    if fsm.state == "WATCH" and fsm.watch >= W_EMIT:
+        fsm.state = "EMIT"
     elif fsm.state == "EMIT":
         if emitted:
             fsm.state = "HOLD"
             fsm.watch = 0
-    elif fsm.state == "HOLD":
-        fsm.watch += 1
-        if fsm.watch >= W_EMIT:
-            fsm.state = "WATCH"
-            fsm.watch = 0
+    elif fsm.state == "HOLD" and fsm.watch >= W_EMIT:
+        fsm.state = "WATCH"
 
 
 def dir_of(src: int, dst: int, n: int) -> str:
@@ -588,10 +592,8 @@ class Fabric:
             txn = self._pop_ready(node, chi, direction, "p2p")
             assert txn is not None
             return self._inject(node, txn, slot, sampling), False
-        # Same-cycle emit: WATCH reaching W this tick, or already EMIT.
-        emit_ready = fsm.state == "EMIT" or (
-            fsm.state == "WATCH" and fsm.watch + 1 >= W_EMIT
-        )
+        # Same-cycle emit: W cycles since last bubble (watch is pre-tick).
+        emit_ready = fsm.state == "EMIT" or (fsm.watch + 1 >= W_EMIT)
         if (self.cfg.calendar_on and mandatory and emit_ready
                 and slot.kind == "empty"):
             if sampling:

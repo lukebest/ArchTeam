@@ -1,0 +1,7 @@
+trial,seed,arm,d_A,t3_p_inj_B_solo,t3_p_inj_B_dual,t3_pinj_ratio,t3_makespan_B_solo,t3_makespan_B_dual,t3_ms_ratio,t2_T_B_dual_over_solo,rel_err_pinj_ratio,flag_gt_30pct,fail_T,t2_fail_T,card_claim,note
+0,20260903,d_A=1/4,0.25,0.496124,0.581818,0.852713,17,44,2.588235,1.3333333333333333,0.3604651162790697,True,True,True,NOT measured,Sys <10%; T2 signed fail_T at 1.3333/2.0000
+0,20260903,d_A=1/2,0.5,0.496124,0.581818,0.852713,17,44,2.588235,2.0,0.5736434108527131,True,True,True,NOT measured,Sys <10%; T2 signed fail_T at 1.3333/2.0000
+1,20260904,d_A=1/4,0.25,0.507937,0.780488,0.650794,13,43,3.307692,1.3333333333333333,0.511904761904762,True,True,True,NOT measured,Sys <10%; T2 signed fail_T at 1.3333/2.0000
+1,20260904,d_A=1/2,0.5,0.507937,0.780488,0.650794,13,43,3.307692,2.0,0.6746031746031746,True,True,True,NOT measured,Sys <10%; T2 signed fail_T at 1.3333/2.0000
+2,20260905,d_A=1/4,0.25,0.533333,0.695652,0.766667,15,45,3.000000,1.3333333333333333,0.42499999999999993,True,True,True,NOT measured,Sys <10%; T2 signed fail_T at 1.3333/2.0000
+2,20260905,d_A=1/2,0.5,0.533333,0.695652,0.766667,15,45,3.000000,2.0,0.6166666666666667,True,True,True,NOT measured,Sys <10%; T2 signed fail_T at 1.3333/2.0000

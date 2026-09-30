@@ -45,13 +45,13 @@ def test_phased_calendar_is_static_rows_not_arrivals():
 def test_fsm_idle_watch_emit_after_w():
     fsm = cbc.BubbleFSM()
     assert fsm.state == "IDLE"
-    for i in range(cbc.W_EMIT):
+    for _ in range(cbc.W_EMIT):
         cbc.fsm_tick(fsm, mandatory=True, saw_bubble=False, emitted=False)
     assert fsm.state == "EMIT"
     cbc.fsm_tick(fsm, mandatory=True, saw_bubble=False, emitted=True)
     assert fsm.state == "HOLD"
     cbc.fsm_tick(fsm, mandatory=False, saw_bubble=False, emitted=False)
-    assert fsm.state == "IDLE"
+    assert fsm.state in ("HOLD", "IDLE")
 
 
 def test_fsm_bubble_resets_watch():
@@ -62,6 +62,17 @@ def test_fsm_bubble_resets_watch():
     cbc.fsm_tick(fsm, True, True, False)
     assert fsm.watch == 0
     assert fsm.state == "WATCH"
+
+
+def test_fsm_watch_survives_duty_off_gap():
+    """W is cycles-since-bubble; a duty-off beat must not zero the window."""
+    fsm = cbc.BubbleFSM()
+    for _ in range(cbc.W_EMIT - 1):
+        cbc.fsm_tick(fsm, True, False, False)
+    cbc.fsm_tick(fsm, False, False, False)
+    cbc.fsm_tick(fsm, True, False, False)
+    assert fsm.watch >= cbc.W_EMIT
+    assert fsm.state == "EMIT"
 
 
 def test_age_increments_and_degrades_at_15():

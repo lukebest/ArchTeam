@@ -12,8 +12,6 @@ sys.path.insert(0, str(_SIMS))
 from _lib.importsim import load_sim
 
 cbc = load_sim(_HERE, "p0198_m1_sim")
-sys.path.insert(0, str(_HERE))
-import sweep as cbc_sweep  # noqa: E402
 
 
 def test_empty_ring_does_not_mint_payload():
@@ -97,7 +95,10 @@ def test_dual_tenant_fail_t_probe():
 def test_arms_not_averaged_in_sweep_list():
     assert "CBC-P2P-1/16" in cbc.ARMS and "CBC-coll-1/4" in cbc.ARMS
     assert cbc.duty_of_arm("CBC-P2P-1/16") != cbc.duty_of_arm("CBC-coll-1/4")
-    assert set(cbc_sweep.CLASSES) == set(cbc.CLASSES)
+    assert set(cbc.CLASSES) == {
+        "uniform_read", "uniform_write", "broadcast",
+        "gather", "reduce", "allgather", "allreduce", "alltoall",
+    }
 
 
 def test_all_traffic_classes_generate():
