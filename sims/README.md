@@ -1,7 +1,8 @@
 # sims/ — Tier 3 cycle-level simulators
 
-Tonight only two cards that passed T2 audit: **P-0105/M-4 SNS** and **P-0106/M-5 AffineRebind**.
+Cards that passed T2 audit and have a T3 tree: **P-0105/M-4 SNS**, **P-0106/M-5 AffineRebind**, and **P-0198/M-1 CBC**.
 Eliminated cards are not here. Mechanism cards and T2 models are frozen (read-only).
+P-0198/M-1 T2 files are still on draft PR #54 (not on main); the CBC sim compares against signed audit numbers and does not land `models/P-0198/`.
 
 `reviews/*/t2_audit.md` was not in-tree at implementation time. Frozen inputs used:
 T2 `models/<P>/<M>/spec.md` + `model.py`, T1 `Dr.Sim.md` (must-verify list), mechanism cards, problem YAML.
@@ -21,10 +22,12 @@ From repo root, after `pip install -r sims/requirements.txt`:
 # smoke (small N, writes tables + T2 overlay plot; minutes)
 python3 sims/P-0105/M-4/sweep.py --mode smoke --seed 20260903 --n-trials 3 --out sims/P-0105/M-4/results
 python3 sims/P-0106/M-5/sweep.py --mode smoke --seed 20260903 --n-trials 3 --out sims/P-0106/M-5/results
+python3 sims/P-0198/M-1/sweep.py --mode smoke --seed 20260903
 
 # night (capacity / ports / policy variants)
 python3 sims/P-0105/M-4/sweep.py --mode night --seed 20260903 --n-trials 5 --out sims/P-0105/M-4/results
 python3 sims/P-0106/M-5/sweep.py --mode night --seed 20260903 --n-trials 5 --out sims/P-0106/M-5/results
+python3 sims/P-0198/M-1/sweep.py --mode night --seed 20260903
 ```
 
 One-liner tests:
@@ -43,3 +46,4 @@ Absolute GB/s are not printed (μ_d UNKNOWN). 0.85 is the problem pass line, not
 |------|----------------|-----------------------------------|
 | SNS | 12b shear, 256×8 ROM, XOR, fold384, bitmap+PE | DRAM tRCD/tCL/tFAW/…, cores, HA, refresh |
 | AffineRebind | CSR 1R, XOR_fold6, `mod n`, kth-one, α search, REPAIR-before-RUN | same DRAM bbox, cores, HA, refresh |
+| CBC | Bubble FSM×node×dir×4 CHI rings, 64×8 calendar+phase, tag/age, steal/raw/fail | hop lat, flit=txn, RBRG, HBM, coherence, clock |
