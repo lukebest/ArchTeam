@@ -1,0 +1,28 @@
+# 中文题目: 若生产集合相双忙占主导，不对称占用窗不足以解释崩塌，单侧空闲前提不承重
+generality_score: 8
+同源:
+  - P-0198
+  - github:lukebest/bufferless-ring-noc tests/soc_sim
+  - 扩展自 P-0198/M-4 基础
+  - 同源但不并入 P-0198 及其他 sibling expansion cards
+
+CONTEXT: |
+  父信封为 bufferless-ring-noc tests/soc_sim 的 DV200：最多 12 top + 2 bottom，CHI 四通道各自成环，环间经 RBRG；每方向每拍单槽，无片上 flit 队列。
+  本卡只检验一个可观测前提：生产或公开 LLM 运行时中，双向占用是否长期不对称，且双忙相不是 makespan 的主导相。对每通道每拍统计单侧空闲比例 f_asym 与双侧忙比例 f_dual，并覆盖点对点读写、gather、reduce、allreduce、allgather、alltoall，而不以均匀读代理全部集合。
+  目标是判定不对称窗口是否足够覆盖问题，而不是评价任何具体的窗口利用方式。
+
+SYMPTOM: |
+  - 具体对照基线为 12+2、512 B、读 outstanding 512 / 写 256：均匀读峰值后降至约 2.8–3.4 TB/s，makespan 约 4403.2 ns；集合多类 collapsed=true，广播约 117.76 B/ns 未崩。
+  - 在已坍塌集合相中，若 f_dual≥0.5 且 f_asym<0.3，则双忙主导而非不对称窗口主导；若全集流量的 f_asym<0.2，则仅由均匀读推断集合窗口失效。
+  - 即使选取 f_asym 最高分位桶，若双忙桶仍贡献≥50% 的 makespan，或注入失败与完成时间仍主要来自双忙桶，则不对称窗口不能解释主要症状。
+  - 端点包括分流量类 f_dual、f_asym、双忙桶 makespan 贡献、inject-fail 占比、完成数、makespan 与 collapsed；所有比例需保留分位和时间范围。
+
+  待证伪：若已坍塌集合相中 f_asym 主导且双忙桶 makespan 贡献 <50%，则「生产以双忙为主、单侧空闲前提不承重」不成立；若 f_dual≥0.5 且双忙桶贡献≥50%，则本问题成立。
+
+CONSTRAINT: |
+  trace 必须含集合双忙相，评估仍固定为 DV200 / tests/soc_sim；不得只用均匀读作为全集代理，也不得把窗口统计写成具体实现方案。
+  f_dual、f_asym、分桶 makespan 贡献、完成数、makespan 与 collapsed 是 endpoints；单一平均利用率或单流量加速比是 proxies，endpoints ≠ proxies。
+  只测均匀读、只测低负载、只看不对称桶，或缺少集合双忙分桶的实验属于 reduced-bbox，不等于全流量 DV200 full envelope；reduced-bbox ≠ full envelope。
+  若采用 0.85，0.85 is pass bar, not measured mean；不得把窗口桶的 pass bar 当成 measured mean。
+  同源但不并入 P-0198 及其他 sibling expansion cards；  证伪条件同 SYMPTOM 判定。
+  无解法提案。

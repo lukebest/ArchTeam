@@ -1,0 +1,29 @@
+# 中文题目: 若数据高载与一致性低载并非生产常态，或一致性无法承受地板停顿，时分共享前提失效
+generality_score: 8
+同源:
+  - P-0198
+  - github:lukebest/bufferless-ring-noc tests/soc_sim
+  - 扩展自 P-0198/M-5 基础
+  - 同源但不并入 P-0198 及其他 sibling expansion cards
+
+CONTEXT: |
+  父信封为 bufferless-ring-noc tests/soc_sim 的 DV200：最多 12 top + 2 bottom，CHI 的 Req/Rsp/Snp/Dat 各自成环，环间经 RBRG；无缓冲、每方向每拍单槽。生产假设是集合或搬运相数据类高载而一致性探测类低载，并且一致性路径能承受周期性地板停顿。
+  本卡只检验这两个前提在公开或生产运行时 trace 中是否同时成立：定义 p_skew 为数据类利用率高且一致性待处理量低的时间比例；另记录集合相与一致性突发同相重叠比例，以及等价地板停顿下的一致性端点。tests/soc_sim 结果与真实 trace 分开报告。
+  目标是判定“闲类通道可用且被借类可承受”是否为普遍运行时事实，不评价任何具体重绑定结构。
+
+SYMPTOM: |
+  - 源对照基线为 12+2、512 B、读 outstanding 512 / 写 256：均匀读峰值后降至约 2.8–3.4 TB/s，makespan 约 4403.2 ns；集合数据类易 collapsed，但基线未记录同时刻一致性 pending。
+  - 若公开/生产混合 trace 的 p_skew<0.4，则超过 60% 时间不存在可借的低载一致性窗口；若 p_skew≥0.6，才足以作为相反方向的可检验条件。
+  - 集合重相与一致性突发重叠比例≥30%，且两类利用率均高时，借用窗口与一致性压力同相；若该比例<15%，则同相性较弱，需分位报告而非平均。
+  - 在等价一致性停顿占空比 1/8 或 1/16 下，若一致性 makespan 超过 1.4 倍，或完成数下降≥10%，则“被借类可吞下地板停顿”前提不成立；若仍≤1.2 倍且完成数不降，才是相反的可检验结果。
+  - 端点包括 p_skew、同相双忙比例、一致性 makespan、完成数、数据类 makespan、跨租户尾延迟与 collapsed，均须按流量类列出。
+
+  待证伪：若公开/生产混合 trace 上 p_skew≥0.6、同相重叠 <15%，且等价地板停顿下一致性 makespan ≤1.2× 且完成数不降，则时分共享前提承重，本问题不成立；若 p_skew<0.4 或一致性无法承受地板，则前提失效。
+
+CONSTRAINT: |
+  trace 必须包含一致性流量，评估仍固定为 DV200 / tests/soc_sim；停顿占空比只作为测量维度，不得写成设计方案。不得关闭一致性路径来制造低载窗口。
+  p_skew、同相双忙比例、一致性 makespan、完成数、数据类 makespan、尾延迟与 collapsed 是 endpoints；数据类峰值带宽或单租户平均值是 proxies，endpoints ≠ proxies。
+  只测数据类、只测均匀读、只测单租户，或不含 1/8 与 1/16 停顿对照的实验属于 reduced-bbox，不等于含一致性流量与混合 trace 的 full envelope；reduced-bbox ≠ full envelope。
+  若采用 0.85，0.85 is pass bar, not measured mean；不得把 p_skew 的 pass bar 或单类 measured mean 当成系统平均。
+  同源但不并入 P-0198 及其他 sibling expansion cards；  证伪条件同 SYMPTOM 判定。
+  无解法提案。

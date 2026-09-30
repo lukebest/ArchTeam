@@ -1,0 +1,29 @@
+# 中文题目: 数据类争用缓解后，排空同步税、探测阻塞、控制占用与跨租户耦合仍限制全机完成时间
+generality_score: 8
+同源:
+  - P-0198
+  - github:lukebest/bufferless-ring-noc tests/soc_sim
+  - 扩展自 P-0198/M-5 纵向
+  - 同源但不并入 P-0198 及其他 sibling expansion cards
+
+CONTEXT: |
+  评估信封钉死 bufferless-ring-noc tests/soc_sim：DV200 最多 12 top + 2 bottom，CHI 的 Req/Rsp/Snp/Dat 静态各绑一环，环间经 RBRG；每物理环每方向每拍仍只有一个槽，无缓冲吸收突发。
+  本卡只研究数据类槽争用已不再主导的条件。多类流量在不同物理环上分时共享有限时隙，世代切换含在途排空与提交同步；一致性探测类、控制类与数据类仍共同影响全机完成时间。duty 扫描覆盖 3:1、7:1、15:1，并保留单租户与多租户分列。
+  目标是观察排空/同步、探测阻塞、控制占用和租户间尾延迟的端到端影响，不把数据类的局部均值当成全机结果。
+
+SYMPTOM: |
+  - 公开基线为 12+2、512 B、读 outstanding 512 / 写 256：均匀读 makespan 约 4403.2 ns，峰值后 goodput 降至约 2.8–3.4 TB/s；多类集合 collapsed=true。
+  - 在 3:1、7:1、15:1 duty 扫描中，每次世代切换若含≥1–2 个环周的排空与同步，且排空窗占运行时间≥15%，或有效容量 R_eff≤1+0.5·duty_dat，则名义数据容量的至少一半被切换税吞掉。
+  - 一致性探测类若在数据世代中 stall，使目录/原子/栅栏完成时间恶化≥10%，或完成数相对关闭态下降≥10%，则局部数据收益无法代表系统完成时间。
+  - 控制类有效注入机会下降≥10%，或无关租户的一致性尾延迟恶化≥10%，均说明全织物零和仍在端到端路径上。
+  - 端点按 Dat/Snp/Req、租户与流量类分别报告 makespan、完成数、排空窗占比、失配重定向占比与尾延迟。
+
+  待证伪：在数据类争用已缓解的前提下，若排空窗占比、探测阻塞、控制占用与跨租户尾延迟均不再主导全机分通道 makespan，则本问题不成立。
+
+CONSTRAINT: |
+  硬件信封固定为每物理环每方向每拍单槽；时间复用不等于永久第二 Dat 端口。不得把剩余症状改写为数据 duty 尚未达到某个值，也不得用稳态失配重定向≈0掩盖其他通道的完成时间。
+  Dat/Snp/Req 的 makespan、完成数、排空窗占比、控制注入机会与跨租户尾延迟是 endpoints；Dat 单类平均吞吐或单租户局部均值是 proxies，endpoints ≠ proxies。
+  只测 Dat、关闭一致性流量、只测单租户，或忽略世代切换与控制环的实验属于 reduced-bbox，不等于 DV200 多环多租户 full envelope；reduced-bbox ≠ full envelope。
+  若采用 0.85，0.85 is pass bar, not measured mean；不得用 Dat 单类 measured mean 代替全通道端到端 pass bar。
+  同源但不并入 P-0198 及其他 sibling expansion cards；  证伪条件同 SYMPTOM 末行。不得用 Dat 局部均值冒充全机端点。
+  无解法提案。

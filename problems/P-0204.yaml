@@ -1,0 +1,28 @@
+# 中文题目: 注入前成员与就绪信息的可得性若已存在，桥上有限会合占槽不再是普遍约束
+generality_score: 8
+同源:
+  - P-0198
+  - github:lukebest/bufferless-ring-noc tests/soc_sim
+  - 扩展自 P-0198/M-2 基础
+  - 同源但不并入 P-0198 及其他 sibling expansion cards
+
+CONTEXT: |
+  父信封把 LLM 点对点搬运与集合通信放在同一无缓冲多环织物上：DV200 最多 12 top + 2 bottom，CHI 的 Req/Rsp/Snp/Dat 各自成环，环间经 RBRG；每方向每拍只有一个 highway 槽，无片上 flit 队列。
+  本卡攻击的是两个可观测前提，而不是某个实现名称：首拍 Dat 载荷注入前，成员集合与就绪位是否已经可从生产或公开运行时获得；以及会合信息是否必须沿共享数据路径传播并占用其槽位。端点侧、控制侧与共享数据路径只作为信息位置的测量维度。
+  目标是判断这些前提是否覆盖真实运行时，而不是评价任何具体控制结构。公开或生产 trace 必须和 tests/soc_sim 的流量结果分开记录。
+
+SYMPTOM: |
+  - 源对照基线为 12+2、512 B、读 outstanding 512 / 写 256：均匀读峰值后降至约 2.8–3.4 TB/s，均匀读 makespan 约 4403.2 ns；多类集合 collapsed=true，广播峰值约 117.76 B/ns 未崩。
+  - 在公开或生产集合 trace 中，首拍载荷前已具备成员掩码与就绪位的比例记为 p_ready；若 p_ready≥0.7，则“注入前完全不可得”的前提与实际 trace 不符，若 p_ready<0.5 才仍有待验证空间。
+  - 若信息位置对照显示共享数据路径不承载会合信息时，集合 makespan 与 collapsed 状态同时不再由扇入争用主导，则桥上占槽前提的外推范围受限；该结论需分流量类报告，不能与均匀读平均。
+  - 端点包括 p_ready、集合 makespan、collapsed、环上占槽比例与完成事务数；至少覆盖 12 top + 2 bottom 和全集合类别。
+
+  待证伪：若公开/生产集合 trace 上 p_ready 持续 <0.5，且信息位置对照后集合 makespan/collapsed 仍由扇入争用主导，则「注入前信息已可得」攻击不成立（父前提仍承重）；反之若 p_ready≥0.7 或分信息后争用消失，则本问题成立。
+
+CONSTRAINT: |
+  硬件测量固定为 DV200 / tests/soc_sim；p_ready 必须来自公开或生产运行时 trace，不能用仿真 harness 的预置标签冒充。不得把信息位置对照写成设计方案。
+  p_ready、分流量类 makespan、完成数、collapsed 与环上占槽比例是 endpoints；单次仿真中预先对齐的加速比或单一流量均值是 proxies，endpoints ≠ proxies。
+  只在 harness 神谕标签内、只测单环、只测单类集合，或不记录信息可得性来源的实验属于 reduced-bbox，不等于 DV200 与公开 trace 共同构成的 full envelope；reduced-bbox ≠ full envelope。
+  若采用 0.85，0.85 is pass bar, not measured mean；不得将标签覆盖率或单类通过率当成端到端 measured mean。
+  同源但不并入 P-0198 及其他 sibling expansion cards；  证伪条件同 SYMPTOM 判定。禁止把分信息位置写成机制方案。
+  无解法提案。

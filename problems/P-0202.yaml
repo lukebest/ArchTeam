@@ -1,0 +1,29 @@
+# 中文题目: 扇入争用置零后，授权前占槽、四路并发上界与置换残差仍拉长完成时间
+generality_score: 8
+同源:
+  - P-0198
+  - github:lukebest/bufferless-ring-noc tests/soc_sim
+  - 扩展自 P-0198/M-2 纵向
+  - 同源但不并入 P-0198 及其他 sibling expansion cards
+
+CONTEXT: |
+  评估信封钉死 https://github.com/lukebest/bufferless-ring-noc 的 tests/soc_sim：DV200 最多 12 颗 top die 叠在 2 颗 bottom die 上，CHI 的 Req/Rsp/Snp/Dat 各自成环，环间经 RBRG 互联。无缓冲双向环每方向每拍只有一个 highway 槽，过路 flit 占槽时本地注入失败或等待，无片上 flit 队列。
+  本卡只研究这样的条件：集合扇入的盲目注入不再主导完成时间，成员阶段已被单独计量，点对点搬运与集合通信仍共享 Dat 织物。覆盖 gather、reduce、allreduce、allgather、alltoall 与点对点均匀读写，不把任一类平均成单一负载。
+  目标是分流量类端到端 makespan、完成事务数及 collapsed 状态；不预设完美预测或无限带宽。
+
+SYMPTOM: |
+  - 公开基线为 12+2、512 B 请求、读 outstanding 512 / 写 256：均匀读 makespan 约 4403.2 ns，峰值后 goodput 从约 5761 B/ns 降至约 2.8–3.4 TB/s；集合扫描中 gather、reduce、allreduce、allgather、alltoall 大量 collapsed=true，broadcast 峰值约 117.76 B/ns 未崩。
+  - 集合成员阶段不再主导后，授权前在途流量仍占用 Dat 槽；若该等待阶段的环上占槽比例 ρ_orbit≥20%，或相对无等待对照的 makespan 恶化≥10%，完成时间仍由占槽税主导。
+  - 真并发集合数上界为 4，而 12 颗 top die 可同时活跃的集合事务超过 4；若溢出或超时路径完成占比 p_fb≥30%，或其字节占 Dat 槽≥20%，无序竞争重新夺回完成路径。
+  - alltoall 的置换残差若使 makespan 达到同设定 gather 的≥1.5 倍，或残差环争用占比≥40%，则其完成时间不能由一般扇入指标代理。
+  - 端点按流量类报告 makespan、完成数、collapsed、ρ_orbit、p_fb 与残差占比；不得只报告 inject-success。
+
+  待证伪：在 inject-fail/成员阶段不再主导的前提下，若各类集合的 ρ_orbit、p_fb 与 alltoall 残差占比均不足以主导 makespan（相对对照恶化均远小于上述阈值），则本问题不成立。
+
+CONSTRAINT: |
+  硬件信封固定为无缓冲、每方向每拍单槽、无 flit 队列、CHI 多环与 RBRG；会合状态不持有 Dat 载荷拍。不得把剩余症状改写为成员尚未齐或阶段尚未打开。
+  makespan、完成事务数、collapsed、ρ_orbit、p_fb 与 alltoall 残差是 endpoints；单环平均利用率、单类加速比或 inject-success 是 proxies，endpoints ≠ proxies。
+  只测单环、只测单一集合、只开部分 top die，或忽略跨环路径的实验属于 reduced-bbox，不等于 12+2 DV200、多类集合、点对点与有限链路延迟的 full envelope；reduced-bbox ≠ full envelope。
+  若采用 0.85，0.85 is pass bar, not measured mean；不得用某一流量类过线替代所有流量类的端到端结果。
+  同源但不并入 P-0198 及其他 sibling expansion cards；  证伪条件同 SYMPTOM 末行。不得用单环平均注入成功率冒充分流量类 makespan 过线。
+  无解法提案。
