@@ -8,7 +8,8 @@
 
 人确认派建筑师。P-0198 无缓冲环 NoC 上 LLM 点对点/集合通信 makespan（tests/soc_sim）。占用：保守架构师 + Jim Keller（各 5 卡）。
 
-Jim Keller 已交 M-1..M-5（CBC/CSR/DPH/AODI/CRRF）于 PR #44，交 设计验证 做 Tier 0。保守架构师仍未交（已示用 M-6..M-10）。卡未合入、T0 未完，机制层仍 0；问题用量不变 4/30。
+Jim Keller 已交 M-1..M-5（CBC/CSR/DPH/AODI/CRRF）于 PR #44，交 设计验证 做 Tier 0。
+保守架构师已交 M-6..M-10（TDMA 注入窗 / CW-CCW 方向 / CHI 亲和 / RBRG 门控 / 年龄优先仲裁）于 PR #45，交 设计验证 做 Tier 0，与 Jim PR #44 并行。卡未合入、T0 未完，机制层仍 0；问题用量不变 4/30。
 
 ## 2026-09-30 人题入仓
 
