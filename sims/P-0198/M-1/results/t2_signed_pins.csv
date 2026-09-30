@@ -1,0 +1,8 @@
+metric,arm,t3,t2,rel_err,flag_gt_30pct,note
+sum_ok,all-d,,True,0.0,False,conservation exact in T2 by construction
+H-INJ-DOM T_hat/T_off,d=1/4,,0.7368,,,signed audit; cycle row filled by sweep
+H-INJ-DOM T_hat/T_off,d=1/2,,0.5833,,,signed audit; cycle row filled by sweep
+"HARD-1 T_off vs T_cbc (ns, H-INJ-DOM)",gather,,537.2>313.4,,,"T2 ns; T3 compares cycle makespan inequality, not ns"
+dual-tenant T_B_dual/T_B_solo,d_A=1/4,,1.3333,,,signed fail_T
+dual-tenant T_B_dual/T_B_solo,d_A=1/2,,2.0,,,signed fail_T
+card-claim,collapsed-collectives,NOT measured,0.55-0.85x,,,card-claim only; director did not sign
