@@ -6,7 +6,7 @@
 
 ## 2026-09-30 Jim T1
 
-P-0198 Jim T1（本 PR 着陆四人格 + 主持综合；#47–#50 由本 PR 取代）：M-1 CBC PASS → Tier 2 / #eval（4/4 有条件，无致命）。M-2 CSR / M-4 AODI / M-5 CRRF FAIL → 退回 Jim Keller（Archi 致命：latch→FIFO；第三 highway 槽 / 双忙无洞；SYNC 偏斜 + 无 epoch 排空）。卡仍未入 main，机制层用量不记，问题仍 4/30。
+P-0198 T1 共识（PR #52）：PASS M-1 CBC → 分析模型 T2 + 问题扩展（4/4 有条件，无致命）。REJECT 致命 M-2 CSR（latch→FIFO）、M-4 AODI（无洞）、M-5 CRRF（SYNC drain）。保守批已 0→T1。卡未入 main，机制层用量不记，问题仍 4/30。不记 T1/T2 过线配额。
 
 ## 2026-09-30 保守 T0
 
@@ -144,7 +144,7 @@ P-0198 无缓冲环 NoC 上 LLM 点对点/集合通信 makespan（tests/soc_sim�
 
 ## 本周占用（已派、卡未落地）
 
-P-0198：Jim T0 已裁（4→评审主持，M-3 淘汰；卡未入 main）；保守 T0 已裁（0→#review；M-7 KNOWN_CONFIRM 冻基线，不进 T1）。机制仍 0/150。
+P-0198：Jim T1 已裁（M-1 CBC → 分析模型 T2 + 问题扩展；M-2/M-4/M-5 致命退回；卡未入 main）；保守批已 0→T1（T0：M-7 KNOWN_CONFIRM 冻基线）。机制仍 0/150。
 
 ## 本周已入仓备案（未派建筑师）
 
