@@ -26,14 +26,16 @@
 
 ## 默认假设下的预测（模型输出，非测得）
 
-跑 `python3 models/P-0198/M-4/model.py` 看当期数字。定性（默认 η_use=0.25、κ_mig=0、λ_age=0.90）：
+`python3 models/P-0198/M-4/model.py` 默认 η_use=0.25、κ_mig=0、λ_age=0.90、AGE_MAX=8：
 
-- **不对称类**（均匀读/写、broadcast、gather/reduce）：`P(pref_only)>0` ⇒ `hole_asym>0`、`hole_dual=0`。纯 `T_inj` 往往 **低于** 卡下沿 0.70（注入机会被算满）；`T_mix` 把 Rejoin 等待税加回后才可能落入 **card-claim 0.70–0.95×**。卡区间不是模型输出。
-- **混合类**（allgather/allreduce）：窗更窄；对向本底更高。
-- **alltoall 双忙饱和（单独行）**：`c=+1` ⇒ `P(pref_only)≈0` ⇒ `T_inj=T_mix≈1`，增益 **≈0**。deflect-off 与 AODI-on 无差。**禁止**把该行折进任何 0.50–0.85× 叙事。
-- **消融**：不对称类 deflect-off 的 T ≥ AODI-on（归因必要非充分）。双忙类两臂都 ≈1。
-- **对向 util / 完成数**：开环 κ_mig=0 时 `ρ_opp` 不升，等功完成数 = 公开 N_txn（仅均匀读写 46080）或 n/a。闭环 κ_mig 升高则对向占用上升、`C_opp_rel` 下降——不得用首选向 inject-success 洗掉。
-- **φ**：一次偏转 + 成功 rejoin 后 φ 严格降到 0；首选向永满则 freeze 旗=真。Σage 在该走步里只是 1，不能当到达证明。
+- **不对称已坍集合** gather/reduce：`T_inj=0.6257`（低于卡下沿，纯注入过誉）、`T_mix=0.8448`（落入 card-claim **0.70–0.95×**）。卡区间不是测得。
+- **均匀读 / 写**：`T_mix=0.8770 / 0.8999`；N_txn=46080 等功完成。broadcast 低占用 `T_mix=0.9927`（近中性）。
+- **混合** allgather/allreduce：`T_mix=0.8223 / 0.8425`。
+- **alltoall 双忙饱和（单独行）**：`P(pref_only)=0`、`hole_asym=hole_dual=0`、`T_inj=T_mix=1.0000`，增益 **≈0**。deflect-off 与 AODI-on 无差。**禁止**折进 0.50–0.85×。
+- **消融**：不对称类 deflect-off T=1.0 ≥ AODI-on（归因必要非充分）。双忙两臂都 =1。
+- **对向 util / 完成数**：开环 κ_mig=0 时 `ρ_opp` 不升。κ_mig=1 时 gather 的 `ρ_opp_hat` 0.25→0.85、`T_mix` 回升到 0.93——镜像灌满。不得用 inject-success 洗掉。
+- **φ**：一次偏转 + 成功 rejoin 后 φ 6→0；该走步 Σage=1，不能当到达证明。首选向永满 ⇒ freeze。
+- **η_use 过大**：gather 在 η_use=0.70 时 `T_mix=1.11`（受害税压过注入增益）——多偏转不是免费加速。
 
 ## 灵敏度（两个最敏感）
 
