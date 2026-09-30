@@ -358,24 +358,32 @@ def sweep(mode: str, out: Path, seed: int, n_trials: int, n_txn: int | None) -> 
         }
     )
 
-    # Snp 15:1 kill hyp
+    # Snp 15:1 kill hyp — dedicated snp_path + mixed window (never fold into Dat mean)
+    off_s = mean_field("snp_path", "rebind-off", ms_store)
+    on_s15 = mean_field("snp_path", "15:1", ms_store)
+    snp_path_ratio = on_s15 / off_s if off_s and off_s > 0 else float("nan")
+    add_cmp("H-SNP-LAT snp_path", "15:1", snp_path_ratio, SNP_15_1,
+            "dedicated Snp class; 15:1 must be allowed to KILL 1.4×; T2 q=1 algebra")
     snp15 = [r for r in snp_rows if r["arm"] == "15:1"]
     if snp15:
         ratios = [float(r["T_snp_over_off"]) for r in snp15 if r["T_snp_over_off"] != "nan"]
         t3s = sum(ratios) / len(ratios) if ratios else float("nan")
         add_cmp("H-SNP-LAT", "15:1", t3s, SNP_15_1,
-                "15:1 must be allowed to KILL 1.4×; T2 q=1 algebra")
+                "Snp-on-gather window; 15:1 must be allowed to KILL 1.4×; T2 q=1 algebra")
+        path_kill = (not _nan(snp_path_ratio)) and snp_path_ratio > SNP_KILL
+        mixed_kill = any(r["kill_1.4"] for r in snp15)
+        killed = path_kill or mixed_kill
         cmp_rows.append(
             {
                 "metric": "Snp 15:1 kill_1.4",
                 "arm": "15:1",
-                "t3": any(r["kill_1.4"] for r in snp15),
+                "t3": killed,
                 "t2": True,
-                "rel_err": 0.0 if any(r["kill_1.4"] for r in snp15) else 1.0,
-                "flag_gt_30pct": not any(r["kill_1.4"] for r in snp15),
+                "rel_err": 0.0 if killed else 1.0,
+                "flag_gt_30pct": not killed,
                 "card_claim": "NOT measured",
                 "card_claim_is_measured": False,
-                "note": "kill hyp is T3>1.4 vs rebind-off, not a card-claim interval",
+                "note": "kill hyp is T3>1.4 vs rebind-off (snp_path or mixed); not a card-claim interval",
             }
         )
 

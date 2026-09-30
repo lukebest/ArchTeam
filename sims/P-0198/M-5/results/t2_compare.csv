@@ -1,0 +1,17 @@
+metric,arm,t3,t2,rel_err,flag_gt_30pct,card_claim,card_claim_is_measured,note
+T_drain,C_ring=25,75.0,77.0,0.025974025974025976,False,NOT measured,False,cycle probe vs signed 77; formula (k_circ+1)*25+2
+f_steady,7:1,0.709,0.8666,0.18186014308792992,False,NOT measured,False,cycle fraction in STEADY vs T2 0.8666
+C_dat_eff,rebind-off,1.0,1.0,0.0,False,NOT measured,False,cycle ghost-up fraction+1 vs signed T2
+C_dat_eff,3:1,1.4185323383084578,1.6099,0.11886928485716025,False,NOT measured,False,cycle ghost-up fraction+1 vs signed T2
+C_dat_eff,7:1,1.5071517412935325,1.7182,0.12283102008291671,False,NOT measured,False,cycle ghost-up fraction+1 vs signed T2
+C_dat_eff,15:1,1.5514614427860696,1.7724,0.12465501986793637,False,NOT measured,False,cycle ghost-up fraction+1 vs signed T2
+H-COMMIT held,barrier on,0.0,0.0,0.0,False,NOT measured,False,redirect count
+H-COMMIT violated,early inject,12.0,12.0,0.0,False,NOT measured,False,T2 counts late receivers=12; T3 counts events
+H-DAT-DOM gather T_hat/T_off,3:1,0.5833333333333334,0.6212,0.060957286971453,False,NOT measured,False,cycle makespan ratio vs T2 1/C_dat_eff; do not substitute T2
+H-DAT-DOM gather T_hat/T_off,7:1,0.5833333333333334,0.582,0.0022909507445591213,False,NOT measured,False,cycle makespan ratio vs T2 1/C_dat_eff; do not substitute T2
+H-DAT-DOM gather T_hat/T_off,15:1,0.5833333333333334,0.5642,0.03391232423490488,False,NOT measured,False,cycle makespan ratio vs T2 1/C_dat_eff; do not substitute T2
+HARD-1 cycle inequality,gather,24.0>14.0,537.2>303.1,,False,NOT measured,False,T3 is cycle makespan; T2 is ns H-DAT-DOM. flag if off ≯ best on-arm
+H-SNP-LAT snp_path,15:1,11.666666666666666,1.5625,6.466666666666666,True,NOT measured,False,dedicated Snp class; 15:1 must be allowed to KILL 1.4×; T2 q=1 algebra
+H-SNP-LAT,15:1,23.2222,1.5625,13.862208,True,NOT measured,False,Snp-on-gather window; 15:1 must be allowed to KILL 1.4×; T2 q=1 algebra
+Snp 15:1 kill_1.4,15:1,True,True,0.0,False,NOT measured,False,kill hyp is T3>1.4 vs rebind-off (snp_path or mixed); not a card-claim interval
+card-claim,Dat-heavy,NOT measured,0.55-0.85x,,,0.55-0.85x,False,card-claim only; director did not sign

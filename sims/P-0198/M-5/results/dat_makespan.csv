@@ -1,0 +1,49 @@
+trial,class,arm,t3_makespan,t3_C_dat_eff,t3_T_hat_over_T_off,t2_T_off_ns,card_claim,card_claim_is_measured,note
+0,gather,rebind-off,24.0,1.0000,1.0000,537.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+0,gather,3:1,14.0,1.4185,0.5833,537.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+0,gather,7:1,14.0,1.5072,0.5833,537.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+0,gather,15:1,14.0,1.5515,0.5833,537.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+0,uniform_read,rebind-off,14.0,1.0000,1.0000,4403.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+0,uniform_read,3:1,11.0,1.3941,0.7857,4403.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+0,uniform_read,7:1,11.0,1.4792,0.7857,4403.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+0,uniform_read,15:1,11.0,1.5217,0.7857,4403.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+0,uniform_write,rebind-off,14.0,1.0000,1.0000,4834.6,0.85-1.05x,False,cycle makespan; ns T_off is T2-only
+0,uniform_write,3:1,11.0,1.3941,0.7857,4834.6,0.85-1.05x,False,cycle makespan; ns T_off is T2-only
+0,uniform_write,7:1,11.0,1.4792,0.7857,4834.6,0.85-1.05x,False,cycle makespan; ns T_off is T2-only
+0,uniform_write,15:1,11.0,1.5217,0.7857,4834.6,0.85-1.05x,False,cycle makespan; ns T_off is T2-only
+0,snp_path,rebind-off,14.0,1.0000,1.0000,,<=1.4x kill,False,cycle makespan; ns T_off is T2-only
+0,snp_path,3:1,14.0,1.5034,1.0000,,<=1.4x kill,False,cycle makespan; ns T_off is T2-only
+0,snp_path,7:1,14.0,1.6001,1.0000,,<=1.4x kill,False,cycle makespan; ns T_off is T2-only
+0,snp_path,15:1,175.0,1.6391,12.5000,,<=1.4x kill,False,cycle makespan; ns T_off is T2-only
+1,gather,rebind-off,24.0,1.0000,1.0000,537.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+1,gather,3:1,14.0,1.4185,0.5833,537.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+1,gather,7:1,14.0,1.5072,0.5833,537.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+1,gather,15:1,14.0,1.5515,0.5833,537.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+1,uniform_read,rebind-off,16.0,1.0000,1.0000,4403.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+1,uniform_read,3:1,13.0,1.4109,0.8125,4403.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+1,uniform_read,7:1,13.0,1.4984,0.8125,4403.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+1,uniform_read,15:1,13.0,1.5421,0.8125,4403.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+1,uniform_write,rebind-off,16.0,1.0000,1.0000,4834.6,0.85-1.05x,False,cycle makespan; ns T_off is T2-only
+1,uniform_write,3:1,13.0,1.4109,0.8125,4834.6,0.85-1.05x,False,cycle makespan; ns T_off is T2-only
+1,uniform_write,7:1,13.0,1.4984,0.8125,4834.6,0.85-1.05x,False,cycle makespan; ns T_off is T2-only
+1,uniform_write,15:1,13.0,1.5421,0.8125,4834.6,0.85-1.05x,False,cycle makespan; ns T_off is T2-only
+1,snp_path,rebind-off,16.0,1.0000,1.0000,,<=1.4x kill,False,cycle makespan; ns T_off is T2-only
+1,snp_path,3:1,16.0,1.5057,1.0000,,<=1.4x kill,False,cycle makespan; ns T_off is T2-only
+1,snp_path,7:1,171.0,1.5895,10.6875,,<=1.4x kill,False,cycle makespan; ns T_off is T2-only
+1,snp_path,15:1,175.0,1.6391,10.9375,,<=1.4x kill,False,cycle makespan; ns T_off is T2-only
+2,gather,rebind-off,24.0,1.0000,1.0000,537.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+2,gather,3:1,14.0,1.4185,0.5833,537.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+2,gather,7:1,14.0,1.5072,0.5833,537.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+2,gather,15:1,14.0,1.5515,0.5833,537.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+2,uniform_read,rebind-off,15.0,1.0000,1.0000,4403.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+2,uniform_read,3:1,13.0,1.4109,0.8667,4403.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+2,uniform_read,7:1,13.0,1.4984,0.8667,4403.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+2,uniform_read,15:1,13.0,1.5421,0.8667,4403.2,0.55-0.85x,False,cycle makespan; ns T_off is T2-only
+2,uniform_write,rebind-off,15.0,1.0000,1.0000,4834.6,0.85-1.05x,False,cycle makespan; ns T_off is T2-only
+2,uniform_write,3:1,13.0,1.4109,0.8667,4834.6,0.85-1.05x,False,cycle makespan; ns T_off is T2-only
+2,uniform_write,7:1,13.0,1.4984,0.8667,4834.6,0.85-1.05x,False,cycle makespan; ns T_off is T2-only
+2,uniform_write,15:1,13.0,1.5421,0.8667,4834.6,0.85-1.05x,False,cycle makespan; ns T_off is T2-only
+2,snp_path,rebind-off,15.0,1.0000,1.0000,,<=1.4x kill,False,cycle makespan; ns T_off is T2-only
+2,snp_path,3:1,15.0,1.5046,1.0000,,<=1.4x kill,False,cycle makespan; ns T_off is T2-only
+2,snp_path,7:1,171.0,1.5895,11.4000,,<=1.4x kill,False,cycle makespan; ns T_off is T2-only
+2,snp_path,15:1,175.0,1.6391,11.6667,,<=1.4x kill,False,cycle makespan; ns T_off is T2-only

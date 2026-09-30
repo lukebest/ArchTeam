@@ -1,0 +1,49 @@
+trial,seed,class,arm,duty_dat,n_nodes,n_txn,makespan,makespan_dat,makespan_snp,completed_dat,completed_snp,c_dat_eff,c_dat_ideal,f_steady,tax,t_drain_mean,mismatch,snp_stall,ghost_slots,aligned,oracle_used,hint_depends,card_claim,card_claim_is_measured,hypothesis
+0,20260903,gather,rebind-off,0.0000,12,48,24,24,0,48,0,1.0000,1.0000,1.0000,0.0000,0.00,0,0,0,True,False,False,0.55-0.85x,False,H-RING-BB
+0,20260903,gather,3:1,0.7500,12,48,14,14,0,48,0,1.4185,1.7500,0.7090,0.4042,19.50,0,0,91,True,False,False,0.55-0.85x,False,H-RING-BB
+0,20260903,gather,7:1,0.8750,12,48,14,14,0,48,0,1.5072,1.8750,0.7090,0.4042,19.50,0,0,91,True,False,False,0.55-0.85x,False,H-RING-BB
+0,20260903,gather,15:1,0.9375,12,48,14,14,0,48,0,1.5515,1.9375,0.7090,0.4042,19.50,0,0,91,True,False,False,0.55-0.85x,False,H-RING-BB
+0,20260903,uniform_read,rebind-off,0.0000,12,48,14,14,0,48,0,1.0000,1.0000,1.0000,0.0000,0.00,0,0,0,True,False,False,0.55-0.85x,False,H-RING-BB
+0,20260903,uniform_read,3:1,0.7500,12,48,11,11,0,48,0,1.3941,1.7500,0.6803,0.4358,19.50,0,0,69,True,False,False,0.55-0.85x,False,H-RING-BB
+0,20260903,uniform_read,7:1,0.8750,12,48,11,11,0,48,0,1.4792,1.8750,0.6803,0.4358,19.50,0,0,69,True,False,False,0.55-0.85x,False,H-RING-BB
+0,20260903,uniform_read,15:1,0.9375,12,48,11,11,0,48,0,1.5217,1.9375,0.6803,0.4358,19.50,0,0,69,True,False,False,0.55-0.85x,False,H-RING-BB
+0,20260903,uniform_write,rebind-off,0.0000,12,48,14,14,0,48,0,1.0000,1.0000,1.0000,0.0000,0.00,0,0,0,True,False,False,0.85-1.05x,False,H-RING-BB
+0,20260903,uniform_write,3:1,0.7500,12,48,11,11,0,48,0,1.3941,1.7500,0.6803,0.4358,19.50,0,0,69,True,False,False,0.85-1.05x,False,H-RING-BB
+0,20260903,uniform_write,7:1,0.8750,12,48,11,11,0,48,0,1.4792,1.8750,0.6803,0.4358,19.50,0,0,69,True,False,False,0.85-1.05x,False,H-RING-BB
+0,20260903,uniform_write,15:1,0.9375,12,48,11,11,0,48,0,1.5217,1.9375,0.6803,0.4358,19.50,0,0,69,True,False,False,0.85-1.05x,False,H-RING-BB
+0,20260903,snp_path,rebind-off,0.0000,12,48,14,0,14,0,48,1.0000,1.0000,1.0000,0.0000,0.00,0,28,0,True,False,False,<=1.4x kill,False,H-RING-BB
+0,20260903,snp_path,3:1,0.7500,12,48,14,0,14,0,48,1.5034,1.7500,0.7918,0.2986,19.50,0,1020,0,True,False,False,<=1.4x kill,False,H-RING-BB
+0,20260903,snp_path,7:1,0.8750,12,48,14,0,14,0,48,1.6001,1.8750,0.7885,0.3014,19.50,0,1152,0,True,False,False,<=1.4x kill,False,H-RING-BB
+0,20260903,snp_path,15:1,0.9375,12,48,175,0,175,0,48,1.6391,1.9375,0.7801,0.3121,19.50,0,2084,0,True,False,False,<=1.4x kill,False,H-RING-BB
+1,20260904,gather,rebind-off,0.0000,12,48,24,24,0,48,0,1.0000,1.0000,1.0000,0.0000,0.00,0,0,0,True,False,False,0.55-0.85x,False,H-RING-BB
+1,20260904,gather,3:1,0.7500,12,48,14,14,0,48,0,1.4185,1.7500,0.7090,0.4042,19.50,0,0,91,True,False,False,0.55-0.85x,False,H-RING-BB
+1,20260904,gather,7:1,0.8750,12,48,14,14,0,48,0,1.5072,1.8750,0.7090,0.4042,19.50,0,0,91,True,False,False,0.55-0.85x,False,H-RING-BB
+1,20260904,gather,15:1,0.9375,12,48,14,14,0,48,0,1.5515,1.9375,0.7090,0.4042,19.50,0,0,91,True,False,False,0.55-0.85x,False,H-RING-BB
+1,20260904,uniform_read,rebind-off,0.0000,12,48,16,16,0,48,0,1.0000,1.0000,1.0000,0.0000,0.00,0,0,0,True,False,False,0.55-0.85x,False,H-RING-BB
+1,20260904,uniform_read,3:1,0.7500,12,48,13,13,0,48,0,1.4109,1.7500,0.7000,0.4141,19.50,0,0,72,True,False,False,0.55-0.85x,False,H-RING-BB
+1,20260904,uniform_read,7:1,0.8750,12,48,13,13,0,48,0,1.4984,1.8750,0.7000,0.4141,19.50,0,0,72,True,False,False,0.55-0.85x,False,H-RING-BB
+1,20260904,uniform_read,15:1,0.9375,12,48,13,13,0,48,0,1.5421,1.9375,0.7000,0.4141,19.50,0,0,72,True,False,False,0.55-0.85x,False,H-RING-BB
+1,20260904,uniform_write,rebind-off,0.0000,12,48,16,16,0,48,0,1.0000,1.0000,1.0000,0.0000,0.00,0,0,0,True,False,False,0.85-1.05x,False,H-RING-BB
+1,20260904,uniform_write,3:1,0.7500,12,48,13,13,0,48,0,1.4109,1.7500,0.7000,0.4141,19.50,0,0,72,True,False,False,0.85-1.05x,False,H-RING-BB
+1,20260904,uniform_write,7:1,0.8750,12,48,13,13,0,48,0,1.4984,1.8750,0.7000,0.4141,19.50,0,0,72,True,False,False,0.85-1.05x,False,H-RING-BB
+1,20260904,uniform_write,15:1,0.9375,12,48,13,13,0,48,0,1.5421,1.9375,0.7000,0.4141,19.50,0,0,72,True,False,False,0.85-1.05x,False,H-RING-BB
+1,20260904,snp_path,rebind-off,0.0000,12,48,16,0,16,0,48,1.0000,1.0000,1.0000,0.0000,0.00,0,37,0,True,False,False,<=1.4x kill,False,H-RING-BB
+1,20260904,snp_path,3:1,0.7500,12,48,16,0,16,0,48,1.5057,1.7500,0.7947,0.2956,19.50,0,1028,0,True,False,False,<=1.4x kill,False,H-RING-BB
+1,20260904,snp_path,7:1,0.8750,12,48,171,0,171,0,48,1.5895,1.8750,0.7795,0.3130,19.50,0,1295,0,True,False,False,<=1.4x kill,False,H-RING-BB
+1,20260904,snp_path,15:1,0.9375,12,48,175,0,175,0,48,1.6391,1.9375,0.7801,0.3121,19.50,0,2255,0,True,False,False,<=1.4x kill,False,H-RING-BB
+2,20260905,gather,rebind-off,0.0000,12,48,24,24,0,48,0,1.0000,1.0000,1.0000,0.0000,0.00,0,0,0,True,False,False,0.55-0.85x,False,H-RING-BB
+2,20260905,gather,3:1,0.7500,12,48,14,14,0,48,0,1.4185,1.7500,0.7090,0.4042,19.50,0,0,91,True,False,False,0.55-0.85x,False,H-RING-BB
+2,20260905,gather,7:1,0.8750,12,48,14,14,0,48,0,1.5072,1.8750,0.7090,0.4042,19.50,0,0,91,True,False,False,0.55-0.85x,False,H-RING-BB
+2,20260905,gather,15:1,0.9375,12,48,14,14,0,48,0,1.5515,1.9375,0.7090,0.4042,19.50,0,0,91,True,False,False,0.55-0.85x,False,H-RING-BB
+2,20260905,uniform_read,rebind-off,0.0000,12,48,15,15,0,48,0,1.0000,1.0000,1.0000,0.0000,0.00,0,0,0,True,False,False,0.55-0.85x,False,H-RING-BB
+2,20260905,uniform_read,3:1,0.7500,12,48,13,13,0,48,0,1.4109,1.7500,0.7000,0.4141,19.50,0,0,67,True,False,False,0.55-0.85x,False,H-RING-BB
+2,20260905,uniform_read,7:1,0.8750,12,48,13,13,0,48,0,1.4984,1.8750,0.7000,0.4141,19.50,0,0,67,True,False,False,0.55-0.85x,False,H-RING-BB
+2,20260905,uniform_read,15:1,0.9375,12,48,13,13,0,48,0,1.5421,1.9375,0.7000,0.4141,19.50,0,0,67,True,False,False,0.55-0.85x,False,H-RING-BB
+2,20260905,uniform_write,rebind-off,0.0000,12,48,15,15,0,48,0,1.0000,1.0000,1.0000,0.0000,0.00,0,0,0,True,False,False,0.85-1.05x,False,H-RING-BB
+2,20260905,uniform_write,3:1,0.7500,12,48,13,13,0,48,0,1.4109,1.7500,0.7000,0.4141,19.50,0,0,67,True,False,False,0.85-1.05x,False,H-RING-BB
+2,20260905,uniform_write,7:1,0.8750,12,48,13,13,0,48,0,1.4984,1.8750,0.7000,0.4141,19.50,0,0,67,True,False,False,0.85-1.05x,False,H-RING-BB
+2,20260905,uniform_write,15:1,0.9375,12,48,13,13,0,48,0,1.5421,1.9375,0.7000,0.4141,19.50,0,0,67,True,False,False,0.85-1.05x,False,H-RING-BB
+2,20260905,snp_path,rebind-off,0.0000,12,48,15,0,15,0,48,1.0000,1.0000,1.0000,0.0000,0.00,0,29,0,True,False,False,<=1.4x kill,False,H-RING-BB
+2,20260905,snp_path,3:1,0.7500,12,48,15,0,15,0,48,1.5046,1.7500,0.7933,0.2971,19.50,0,1115,0,True,False,False,<=1.4x kill,False,H-RING-BB
+2,20260905,snp_path,7:1,0.8750,12,48,171,0,171,0,48,1.5895,1.8750,0.7795,0.3130,19.50,0,1401,0,True,False,False,<=1.4x kill,False,H-RING-BB
+2,20260905,snp_path,15:1,0.9375,12,48,175,0,175,0,48,1.6391,1.9375,0.7801,0.3121,19.50,0,1904,0,True,False,False,<=1.4x kill,False,H-RING-BB

@@ -117,8 +117,11 @@ def test_late_newgen_inject_is_assert():
         fab.dies[i].fsm = "DRAIN"
         fab.dies[i].commit_seen_all = False
     txn = txns[0]
+    assert fab._newgen_allowed(0, 1) is False
+    empty = fab._do_inject(0, txn, "Snp", True)
+    assert empty.kind == "empty"
     try:
-        fab._do_inject(0, txn, "Snp", True)
+        fab.illegal_newgen_inject(0, txn)
         raised = False
     except crrf.LateNewgenInject:
         raised = True
@@ -133,5 +136,6 @@ def test_safe_drain_flip_steady_without_hint():
     assert r.hint_used is False
     assert r.correctness_depends_on_hint is False
     assert r.aligned
+    assert r.flips > 0
     assert r.fsm_counts["STEADY"] > 0
     assert r.fsm_counts["DRAIN"] + r.fsm_counts["ARM_DRAIN"] + r.fsm_counts["FLIP"] > 0

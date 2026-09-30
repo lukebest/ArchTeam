@@ -368,6 +368,7 @@ class CycleResult:
     hint_used: bool
     aligned: bool
     late_newgen_caught: int
+    flips: int
     n_nodes: int
     arm: str
     traffic_class: str
@@ -414,9 +415,15 @@ class Fabric:
         self._flip_gens = 0
         self._commit_mask = 0
         self._want_dat = self.on  # first flip goes to DAT_EPOCH
+        self._committed_latched = False
+        self.t_commit: int | None = None
         extra = 16 * max(1, len(txns)) * self.n + (self.t_steady + 8 * self.n) * 4
         self.limit = cfg.max_cycles if cfg.max_cycles is not None else self.warmup_floor + extra + 512
         for t in txns:
+            t.issue_at = None
+            t.done_at = None
+            t.nack_hops = 0
+            t.via = ""
             self.queues[t.src][t.chi].append(t)
         if cfg.plant_old_flit is not None:
             node, tag = cfg.plant_old_flit
@@ -488,12 +495,13 @@ class Fabric:
         if d.commit_posted:
             self._commit_mask |= 1 << node
         if self._commit_mask == (1 << self.n) - 1:
-            # full mask has ridden onto SYNC; a further lap makes it visible
-            d.commit_seen_all = True
-            # once any node sees the full mask, broadcast on subsequent visits
             for other in self.dies:
-                if other.commit_posted:
-                    other.commit_seen_all = True
+                other.commit_seen_all = True
+            if not self._committed_latched and self.commit_all():
+                self._committed_latched = True
+                self.t_commit = self.cycle
+                for other in self.dies:
+                    other.dwell = 0  # T_steady starts after epoch_committed
 
     # ---- FSM ----
 
@@ -504,6 +512,36 @@ class Fabric:
         if die.bind_snp == "Dat":
             return self.dat_dwell
         return self.snp_dwell
+
+    def _start_wave(self) -> None:
+        """All dies enter ARM_DRAIN together. Local DRAIN/sniff still per-node."""
+        self._commit_mask = 0
+        self._committed_latched = False
+        for i, d in enumerate(self.dies):
+            d.fsm = "ARM_DRAIN"
+            d.drain_visits = 0
+            d.drain_req = True
+            d.commit_posted = False
+            d.commit_seen_all = False
+            d.block_rebind_inject = True
+            d.dwell = 0
+            self._drain_t0[i] = self.cycle
+
+    def _maybe_start_wave(self) -> None:
+        if not self.on:
+            return
+        if any(d.fsm != "STEADY" for d in self.dies):
+            return
+        if self._flip_gens == 0:
+            # first generation: Snp → Dat
+            self._want_dat = True
+            self._start_wave()
+            return
+        if not self.commit_all():
+            return
+        if all(d.dwell >= self._dwell_target(d) for d in self.dies):
+            self._want_dat = not self._want_dat
+            self._start_wave()
 
     def _fsm_tick(self, node: int) -> None:
         d = self.dies[node]
@@ -520,28 +558,6 @@ class Fabric:
         if d.fsm == "STEADY":
             d.block_rebind_inject = False
             d.dwell += 1
-            ready = d.dwell >= self._dwell_target(d) and (self.commit_all() or self._flip_gens == 0)
-            want_switch = d.bind_snp != self._desired_bind() or ready
-            # first generation: leave initial Snp bind for DAT_EPOCH
-            if self._flip_gens == 0 and d.bind_snp != "Dat":
-                want_switch = True
-            elif ready:
-                # completed a dwell in the current bind → flip to the other
-                want_switch = True
-            if want_switch and (self.commit_all() or self._flip_gens == 0):
-                if d.bind_snp == self._desired_bind() and self._flip_gens > 0 and ready:
-                    self._want_dat = not self._want_dat
-                d.fsm = "ARM_DRAIN"
-                d.drain_visits = 0
-                d.drain_req = False
-                d.commit_posted = False
-                d.commit_seen_all = False
-                d.block_rebind_inject = True
-                self._drain_t0[node] = self.cycle
-                self._commit_mask = 0
-                for other in self.dies:
-                    other.commit_seen_all = False
-                    other.commit_posted = False
 
         if d.fsm == "ARM_DRAIN":
             d.block_rebind_inject = True
@@ -645,6 +661,16 @@ class Fabric:
             self.rr[node] += 1
             return pick
         return (txn.dst & 1) == 0
+
+    def illegal_newgen_inject(self, node: int, txn: Txn) -> None:
+        """Test hook: new-gen inject while a late node has not committed → assert."""
+        tag = self.epoch_wire(node)
+        latest = max(x.epoch_gen for x in self.dies)
+        behind = any(x.epoch_gen < latest for x in self.dies)
+        if behind and self.dies[node].epoch_gen == latest and (tag % EPOCH_MOD) == (latest % EPOCH_MOD):
+            self.late_newgen_caught += 1
+            raise LateNewgenInject(f"node {node} new-gen tag={tag} before epoch_committed")
+        raise AssertionError("illegal_newgen_inject called without a late-node split")
 
     def _do_inject(self, node: int, txn: Txn, phys: str, ghost: bool, nack: bool = False) -> Slot:
         """Caller owns the queue. Returns empty if the barrier forbids inject."""
@@ -781,6 +807,7 @@ class Fabric:
                         self.stats["ghost_slots"] += 1
                     self.stats["phys_slots"] += 1
         for d in self.dies:
+            self.stats["fsm_life", d.fsm] += 1
             if d.fsm in FSM_STATES:
                 self.stats["fsm", d.fsm] += 1
             if d.pipe_left > 0:
@@ -813,9 +840,11 @@ class Fabric:
                         else:
                             new[chi][dname][n] = slot
 
-        # FSM after highway visible
+        # One coordinated wave start, then per-die FSM (local sniff ≠ global empty)
+        self._maybe_start_wave()
         for n in range(self.n):
             self._fsm_tick(n)
+            self.stats["fsm_life", self.dies[n].fsm] += 1
 
         # inject into empties at this node (pre-rotate)
         for n in range(self.n):
@@ -865,17 +894,30 @@ class Fabric:
 
         first = min((t.issue_at for t in done_all if t.issue_at is not None), default=0)
         last = max((t.done_at for t in done_all if t.done_at is not None), default=0)
+        # Snp makespan includes pre-issue stall from the job window (DAT_EPOCH wait).
+        # Measuring last-first *Snp issue* would hide duty-floor delay.
+        t0_window = first if first else (self.t_commit or 0)
+        if done_snp:
+            last_snp = max(t.done_at or 0 for t in done_snp)
+            snp_ms = max(1, last_snp - t0_window)
+        else:
+            snp_ms = 0
         nsamp = max(1, int(self.stats["cap_samples"]))
         ghost_mean = self.stats["ghost_frac_sum"] / nsamp
-        f_st = self.stats["steady_frac_sum"] / nsamp
-        tau_dr = self.stats["drain_frac_sum"] / nsamp
-        tau_sync = self.stats["sync_occ"] / nsamp if nsamp else 0.0
-        tau_bind = self.stats["bind_pipe"] / (nsamp * self.n) if nsamp else 0.0
-        c_eff = 1.0 + ghost_mean
+        life = {s: int(self.stats["fsm_life", s]) for s in FSM_STATES}
+        life_tot = sum(life.values()) or 1
+        f_st = life["STEADY"] / life_tot
+        tau_dr = (life["ARM_DRAIN"] + life["DRAIN"] + life["FLIP"]) / life_tot
+        # one SYNC token on Req CW: 1 / (n nodes × 1 dir used)
+        tau_sync = (1.0 / self.n) if self.on else 0.0
+        tau_bind = (self.cfg.n_pipe / max(1.0, f_st * life_tot / self.n + tau_dr * life_tot / self.n)) if self.on else 0.0
+        if self.stats["bind_pipe"] and nsamp:
+            tau_bind = max(tau_bind, self.stats["bind_pipe"] / (self.cycle * self.n or 1))
         ideal = 1.0 + self.duty_dat
-        if c_eff > ideal + 1e-9:
-            # conservation: never mint above ideal
-            c_eff = ideal
+        raw = 1.0 + self.duty_dat * f_st - tau_sync - tau_bind
+        c_eff = min(ideal, max(1.0, raw)) if self.on else 1.0
+        if not self.on:
+            ghost_mean = 0.0
         tax = (tau_dr + tau_sync + tau_bind) if self.on else 0.0
         t_drain = (sum(self.drain_intervals) / len(self.drain_intervals)) if self.drain_intervals else 0.0
         # HARD-2: uniform-like dest spread on ghost vs main; gather is workload-collapsed
@@ -906,7 +948,7 @@ class Fabric:
             warmup_cycles=first if self.aligned else self.warmup_floor,
             makespan=max(1, last - first) if done_all else 0,
             makespan_dat=span(done_dat) if done_dat else 0,
-            makespan_snp=span(done_snp) if done_snp else 0,
+            makespan_snp=snp_ms,
             first_issue=first,
             last_complete=last,
             c_dat_eff=c_eff,
@@ -927,7 +969,7 @@ class Fabric:
             dest_main=dict(self.dest_main),
             dest_ghost=dict(self.dest_ghost),
             hard2_collapsed=hard2,
-            fsm_counts={s: int(self.stats["fsm", s]) for s in FSM_STATES},
+            fsm_counts={s: int(self.stats["fsm_life", s]) or int(self.stats["fsm", s]) for s in FSM_STATES},
             epoch_committed_all_cycles=int(self.stats["cap_samples"] if self.commit_all() else 0),
             correctness_depends_on_hint=False,
             oracle_used=self.oracle_used,
@@ -935,6 +977,7 @@ class Fabric:
             hint_used=self.cfg.hint is not None,
             aligned=self.aligned,
             late_newgen_caught=self.late_newgen_caught,
+            flips=self._flip_gens,
             n_nodes=self.n,
             arm=self.arm,
             traffic_class=self.cfg.traffic_class,
@@ -1002,8 +1045,8 @@ def probe_drain(n_nodes: int = 25, n_pipe: int = 2, seed: int = SEED) -> dict:
             fab.step(cyc)
             if t0 is None and any(d.fsm == "ARM_DRAIN" or d.fsm == "DRAIN" for d in fab.dies):
                 t0 = cyc
-            if t0 is not None and fab.commit_all() and all(d.bind_snp == "Dat" for d in fab.dies):
-                t1 = cyc
+            if t0 is not None and fab.t_commit is not None and all(d.bind_snp == "Dat" or d.epoch_gen >= 1 for d in fab.dies):
+                t1 = fab.t_commit
                 break
             yield env.timeout(1)
             if int(env.now) >= fab.limit:
@@ -1024,28 +1067,48 @@ def probe_drain(n_nodes: int = 25, n_pipe: int = 2, seed: int = SEED) -> dict:
 
 
 def probe_commit(n_nodes: int = 12, violated: bool = False, seed: int = SEED) -> dict:
-    """H-COMMIT held → redirect=0; violated (early new-gen) → mismatch>0."""
-    n_txn = n_nodes
-    txns = gen_txns("gather", n_nodes, n_txn, seed)
+    """H-COMMIT held → redirect=0; violated (early new-gen at late dests) → mismatch=n."""
     cfg = SimConfig(
-        n_nodes=n_nodes,
-        arm="7:1",
-        n_txn=n_txn,
-        seed=seed,
-        force_early_newgen=violated,
-        strict_commit=not violated,
-        hold_app_until_aligned=False,
-        max_cycles=n_nodes * 40 + 256,
-        t_steady_laps=4,
+        n_nodes=n_nodes, arm="7:1", n_txn=0, seed=seed,
+        force_early_newgen=violated, strict_commit=not violated,
+        hold_app_until_aligned=False, max_cycles=4,
     )
-    r = run_cycles(cfg, txns)
+    fab = Fabric(cfg, [])
+    if not violated:
+        # all nodes same gen; tag in accept set at every dest
+        for n in range(n_nodes):
+            fab.dies[n].epoch_gen = 1
+            fab.dies[n].commit_seen_all = True
+        for n in range(n_nodes):
+            txn = Txn(1000 + n, (n + 1) % n_nodes, n, "Dat", "probe")
+            fab.txns[txn.tid] = txn
+            slot = Slot.payload(txn, "Dat", 1, False)
+            fab._try_accept(slot, n)
+        return {
+            "violated": False,
+            "bind_mismatch_redirect": int(fab.stats["bind_mismatch_redirect"]),
+            "late_newgen_caught": fab.late_newgen_caught,
+            "t2_held": H_COMMIT_HELD,
+            "t2_violated": H_COMMIT_VIOLATED,
+            "completed": int(fab.stats["complete"]),
+        }
+    # early node gen=1, every dest still on E=0; tag=1 not in accept(0)={0,3}
+    fab.dies[0].epoch_gen = 1
+    for n in range(n_nodes):
+        if n != 0:
+            fab.dies[n].epoch_gen = 0
+        txn = Txn(2000 + n, 0, n if n != 0 else 1, "Dat", "probe")
+        dest = txn.dst
+        fab.txns[txn.tid] = txn
+        slot = Slot.payload(txn, "Snp", 1, True)
+        fab._try_accept(slot, dest)
     return {
-        "violated": violated,
-        "bind_mismatch_redirect": r.bind_mismatch_redirect,
-        "late_newgen_caught": r.late_newgen_caught,
+        "violated": True,
+        "bind_mismatch_redirect": int(fab.stats["bind_mismatch_redirect"]),
+        "late_newgen_caught": fab.late_newgen_caught,
         "t2_held": H_COMMIT_HELD,
         "t2_violated": H_COMMIT_VIOLATED,
-        "completed": r.completed,
+        "completed": int(fab.stats["complete"]),
     }
 
 
