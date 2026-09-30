@@ -1,0 +1,28 @@
+# 中文题目: 攻击前提——点对点与集合必须共无缓冲环织物、且集合相位可被运行时标成可编程 epoch（p_epoch 与分织物对照）
+generality_score: 8
+同源:
+  - P-0198
+  - github:lukebest/bufferless-ring-noc tests/soc_sim
+  - 扩展自 P-0198/M-1 基础
+
+CONTEXT: |
+  父问题能成立，是因为评估信封把 LLM 的点对点搬运与集合通信钉在同一条无缓冲多环织物上，并默认集合相位边界可被运行时或固件标成可编程 epoch，从而允许在共享介质上按拓扑类调节可注入机会密度。
+  本卡不问如何在共享织物上调节空槽，只攻击两个前提是否承重：（1）两类流量必须共环；（2）epoch 边界不是仿真 harness 神谕，在生产/公开运行时上可获得。
+  若生产运行时没有可编程的集合 epoch，或两类流量在对照测量中可分到不重叠资源后问题消失，则「共享织物上的空槽再分配」优化的是信封特有对象，而非普遍约束。
+
+SYMPTOM: |
+  - 基线共织物：均匀读峰值后崩到约 2.8–3.4 TB/s；多类集合 collapsed=true；broadcast 未崩——共织物时两类互相污染。
+  - 待测 A（共织物必要性）：在 tests/soc_sim 上把集合与点对点分到不重叠的 CHI 环或时间互斥窗，仅作对照测量（不写成分环/分时设计方案），观察集合 makespan 与点对点崩塌是否同时消失。若分后两者都达标，则共织物前提为空。
+  - 待测 B（epoch 可得性）：在生产或公开 LLM 运行时 trace 上，集合相位可被固件/运行时标成 epoch 的比例记为 p_epoch。若 p_epoch <0.5（过半集合到达无拓扑类标签），则可编程 epoch 对象体积不足，harness 神谕对齐的收益不可外推。
+  - 端点：分织物对照下的分流量类 makespan / collapsed，以及公开 trace 上的 p_epoch。
+  判定：若分织物对照后两类均不再被环槽争用主导，或 p_epoch <0.5，则「必须共织物 + 可编程 epoch」是信封特有前提；若共织物对照下两类仍互相主导且 p_epoch ≥0.5，则前提成立，本问题不成立。
+
+CONSTRAINT: |
+  禁止把「分环、分通道、加缓冲、新 ABI」写成机制或方案；分织物与时间互斥窗只允许作为对照测量行。
+  硬件评估仍钉 DV200 / tests/soc_sim；epoch 可得性必须来自公开或生产运行时 trace，不得用 harness 内置标签冒充。
+  难在：信封把共织物与可编程 epoch 写成公理，公理没有对照测量；若公理不成立，父问题的优化对象随之收缩。
+  makespan / collapsed / p_epoch 是 endpoints；单次仿真里 harness 已对齐的加速比是 proxy，endpoints ≠ proxies。
+  只在神谕对齐的 harness 内、或不做分织物对照的实验属于 reduced-bbox，不等于共织物对照 + 公开 trace p_epoch 的 full envelope；reduced-bbox ≠ full envelope。
+  及格判定若采用 0.85，0.85 是 pass bar，不是 measured mean。
+  同源但不并入 P-0198：P-0198 在共织物公理下问 makespan；本卡专门证伪该公理。
+  无解法提案，不提出分环架构、ABI 扩展、epoch 标记实现或其他具体机制。

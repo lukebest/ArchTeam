@@ -1,0 +1,28 @@
+# 中文题目: 集合扇入注入失败置零后，无缓冲环仍被空槽供给硬上界、跨环换路与双租户抢洞卡住（ρ_empty 几乎不涨；B 可读崩到 2.8–3.4 TB/s）
+generality_score: 8
+同源:
+  - P-0198
+  - github:lukebest/bufferless-ring-noc tests/soc_sim
+  - 扩展自 P-0198/M-1 纵向
+
+CONTEXT: |
+  评估信封钉死 lukebest/bufferless-ring-noc 的 tests/soc_sim：最多 12 颗 top die + 2 颗 bottom die，CHI 四通道各自成环，环间经 RBRG。无缓冲双向环——每方向每拍只有一个 highway 槽，过路 flit 占槽时本地注入失败或等待；无片上 flit 队列。
+  前提假设：父问题上集合扇入相的注入失败已不再主导 makespan（注入成功率已显著回升），已坍塌的 gather / reduce / allreduce / allgather / alltoall 的完成时间不再由 inject-fail 主导。点对点均匀读/写与集合仍叠在同一织物上。
+  本卡不问如何再提高注入成功率，只问 inject-fail 项置零之后立刻露出的下一层约束是否仍卡住端到端时间。
+
+SYMPTOM: |
+  - 公开基线（12+2、512 B、读 outstanding 512 / 写 256）：均匀读 makespan 约 4403.2 ns；峰值后 goodput 从约 5761 B/ns 崩到约 2.8–3.4 TB/s。
+  - 扇入饱和时，环上 empty 总量 ≤ 方向数 × 周期数，不能凭空增加。再分配只能抬高从过路份额抠出的注入机会（ρ_steal）；若相对关闭态 ρ_empty 提升 <5% 且 inject-success 提升 <10%，则「增加空槽供给」项已耗尽，剩下的是零和重分。
+  - 跨环：单环侧注入修好后，空槽/可注入机会的语义在 RBRG 对侧断裂；多环路径上换路仍把局部槽争用传成全局 makespan；集合跨环占比高时端到端仍由换路段主导。
+  - 双租户：租户 A 的扇入高 duty 合法吃掉租户 B 的点对点注入机会，使 B 的均匀读可再进入 2.8–3.4 TB/s 崩塌带，且 B 的 makespan 恶化可 ≥10%。
+  - 端点：按流量类分列的 makespan、是否 collapsed、ρ_empty / ρ_steal、跨环换路占比；点对点与各类集合不得平均成单一分数。
+  待证伪（分流量类，不得平均）：inject-fail 不再主导已坍集合之后，若仍可测到 (a) ρ_empty 几乎不涨、只 ρ_steal 涨，或 (b) 跨环换路主导 makespan，或 (c) 双租户下 B 的均匀读再崩塌且 makespan 恶化 ≥10%，则本问题成立；三者皆消失则本问题不成立。
+
+CONSTRAINT: |
+  硬件信封冻住：无缓冲、每方向每拍单槽、无 flit 队列、CHI 多环 + RBRG。禁止把剩余抖动写成「空槽还没造够」或「注入还没修好」。
+  难在 Amdahl 把 inject-fail 置零之后，剩下的是 empty 供给硬上界、RBRG 对侧语义断裂、多租户零和抢洞；三者都不随再调注入机会密度而消失。
+  makespan / collapsed / ρ_empty / ρ_steal / 换路占比是 endpoints；单环平均注入成功率或只测某一集合类的加速比是 proxies，endpoints ≠ proxies。
+  只开单环、单租户、或忽略 RBRG 换路的实验属于 reduced-bbox，不等于 12+2、多环、双租户、点对点+全集集合的 full envelope；reduced-bbox ≠ full envelope。
+  及格判定若采用 0.85，0.85 是 pass bar，不是 measured mean。
+  同源但不并入 P-0198：P-0198 问 inject-fail 与崩塌是否构成父问题；本卡假设 inject-fail 已置零，专问下一层三刀。
+  无解法提案，不提出空槽再分配、跨环协议、租户隔离或其他具体机制。
