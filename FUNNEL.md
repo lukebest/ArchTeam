@@ -6,6 +6,10 @@
 
 ## 2026-09-30 评估审计 T3 REJECT
 
+评估审计 T3 REJECT P-0198/M-2 CSR（仿真 PR #72；审计 PR #74；T2 比照审计 PR #68；SEED=20260903；pytest 24；未入 main）。不是 bounce。CAM Dat/retention≡0；N_cam=4；invariant_ok。spine-off HARD：gather/reduce 192 ≯ 194 → False（无优于基线）。gather/reduce r=1.0104 vs T2 0.5386（|rel| 0.876）；allreduce 1.466；alltoall op ~1.335。gate-off ≈1.0469≈T2 1.0362；high-ost f_ov=0.375 vs T2 INVALID 0.5746（诚实 delta）。30/96 flag>30%；card-claim 未签。不开 T4。不把 T2 贴到 T3。仅机制改才重开。与 M-1 CBC / M-4 AODI 同类：诚实周期未兑现主收益。M-2 死。M-5 CRRF 仍在微架构仿真 T3。问题仍 16/30。不记 T3 过线配额。
+
+## 2026-09-30 评估审计 T3 REJECT
+
 评估审计 T3 REJECT P-0198/M-4 AODI（仿真 PR #70；审计 PR #71；T2 比照审计 PR #69；SEED=20260903；未入 main）。不是 bounce。hole_dual=0 全行；φ→0 age_end=1。gather/reduce T_mix=1.0000（makespan 34=34）；hole_asym=43 抬 p_inj 但不缩短尾；vs T2 0.8448。alltoall 单列 T_mix 1.529 / 1.105 / 1.294（负）。HARD：gather/reduce/broadcast/allreduce 等式 True；P2P/allgather/alltoall False（尾回归）。t2_compare 8/24 flag>30%；card-claim 未签。不开 T4。不把 T2 贴到 T3。仅机制改才重开。与 M-1 CBC 同类：诚实周期未兑现主收益。M-4 死。M-2 CSR / M-5 CRRF 仍在微架构仿真 T3。问题仍 16/30。不记 T3 过线配额。
 
 ## 2026-09-30 评估审计 PR 批
@@ -188,7 +192,7 @@ P-0198 无缓冲环 NoC 上 LLM 点对点/集合通信 makespan（tests/soc_sim�
 
 ## 本周占用（已派、卡未落地）
 
-P-0198：Jim T1 已裁（M-1 CBC T3 REJECT 死，审计 PR #64 / 仿真 PR #62；M-4 AODI T3 REJECT 死，审计 PR #71 / 仿真 PR #70，不开 T4、不把 T2 贴到 T3、仅机制改才重开；M-2 CSR / M-5 CRRF 仍在微架构仿真 T3；卡、模型与仿真未入 main）；保守批已 0→T1（T0：M-7 KNOWN_CONFIRM 冻基线）。机制仍 0/150。
+P-0198：Jim T1 已裁（M-1 CBC T3 REJECT 死，审计 PR #64 / 仿真 PR #62；M-4 AODI T3 REJECT 死，审计 PR #71 / 仿真 PR #70；M-2 CSR T3 REJECT 死，审计 PR #74 / 仿真 PR #72，不开 T4、不把 T2 贴到 T3、仅机制改才重开；M-5 CRRF 仍在微架构仿真 T3；卡、模型与仿真未入 main）；保守批已 0→T1（T0：M-7 KNOWN_CONFIRM 冻基线）。机制仍 0/150。
 
 ## 本周已入仓备案（未派建筑师）
 
@@ -214,6 +218,7 @@ T4/停 · 扩配额 · 其余备案是否派建筑师。P-0198 已派出。
 |---|---|---|
 | P-0198/M-1 CBC | HARD-1 无加速 / 假设不成立 | T3 REJECT 死（审计 PR #64 / 仿真 #62）。HARD-1 fail（无加速）；H-INJ-DOM T3=1.0 vs T2 0.7368/0.5833；dual-tenant fail_T；H-PLACE 不成立；card-claim 未签。不开 T4。不把仿真改回 T2。 |
 | P-0198/M-4 AODI | gather/reduce T_mix=1 / 尾回归 | T3 REJECT 死（审计 PR #71 / 仿真 #70；T2 比照 #69；SEED=20260903）。不是 bounce。hole_dual=0 全行；φ→0 age_end=1。gather/reduce T_mix=1.0000（makespan 34=34）；hole_asym=43 抬 p_inj 但不缩短尾；vs T2 0.8448。alltoall 单列 T_mix 1.529 / 1.105 / 1.294（负）。HARD：gather/reduce/broadcast/allreduce 等式 True；P2P/allgather/alltoall False（尾回归）。t2_compare 8/24 flag>30%；card-claim 未签。不开 T4。不把 T2 贴到 T3。仅机制改才重开。与 M-1 CBC 同类：诚实周期未兑现主收益。 |
+| P-0198/M-2 CSR | spine-off HARD 无优于基线 / gather-reduce 无加速 | T3 REJECT 死（审计 PR #74 / 仿真 #72；T2 比照 #68；SEED=20260903；pytest 24）。不是 bounce。CAM Dat/retention≡0；N_cam=4；invariant_ok。spine-off HARD：gather/reduce 192 ≯ 194 → False（无优于基线）。gather/reduce r=1.0104 vs T2 0.5386（|rel| 0.876）；allreduce 1.466；alltoall op ~1.335。gate-off ≈1.0469≈T2 1.0362；high-ost f_ov=0.375 vs T2 INVALID 0.5746（诚实 delta）。30/96 flag>30%；card-claim 未签。不开 T4。不把 T2 贴到 T3。仅机制改才重开。与 M-1 CBC / M-4 AODI 同类：诚实周期未兑现主收益。 |
 
 ## T2 淘汰（更早）
 
