@@ -1,0 +1,28 @@
+# 中文题目: 无缓冲环 NoC 上 LLM 运行时的点对点搬运与集合通信被环槽争用拖垮，端到端 makespan 最短目标尚无解
+generality_score: 8
+同源:
+  - github:lukebest/bufferless-ring-noc tests/soc_sim
+  - P-0001
+  - P-0176
+
+CONTEXT: |
+  评估平台钉死为 https://github.com/lukebest/bufferless-ring-noc，模型入口 tests/soc_sim（DV200：最多 12 颗 top die 叠在 2 颗 bottom die 上；CHI 四通道 Req/Rsp/Snp/Dat 各自独立成环；环间经 RBRG 互联）。
+  拓扑与链路约束：无缓冲双向环——每个方向每拍只有一个 highway 槽位，过路 flit 占据该槽时本地注入只能失败或等待；无片上 flit 队列可吸收突发。链路延迟由文档区间建模；缓存一致性、HBM 时序与 bottom 间 D2D 不在范围。
+  LLM 运行时通信分两类形态，不可压成同一种合成均匀流：（1）点对点 / 近均匀的数据搬运（权值重读、KV 扫描、激活分片读写）；（2）集合通信（broadcast、gather、reduce、allgather、allreduce、alltoall）。二者在同一无缓冲环织物上叠加时，环槽占用、注入失败与跨环换路成本形态不同。
+  优化目标钉死为：在上述 SoC 与流量形态下，使 LLM 运行时相关事务的端到端时间（makespan / 完成时间）最短。评估不得假设完美预测或无限带宽。
+
+SYMPTOM: |
+  - 基线（12 top + 2 bottom、512 B 请求、AIC 读 outstanding 512 / 写 256、关闭额外流控）：均匀读 makespan 约 4403.2 ns、均匀写约 4834.6 ns（各 46080 笔事务完成）。
+  - 均匀读负载曲线：offered 约 5767 B/ns 时峰值 goodput 约 5761 B/ns，之后崩塌到约 2.8–3.4 TB/s；写侧平台约 5.5 TB/s、基线报告未崩塌——读写在无缓冲环上的饱和行为不对称。
+  - 集合类流量在公开扫描设定下大量进入崩塌区：gather / reduce / allreduce / allgather / alltoall 等在对应 bytes_per_txn 与 outstanding 下 collapsed=true；broadcast（8192 B、outstanding 4096）可维持峰值 goodput 约 117.76 B/ns 而未进崩塌区——集合形态之间差异大，不能用单一均匀读曲线代理。
+  - 无缓冲约束下，环上有效 flit 恒优先于本地注入：注入失败、绕环重试与跨环换路直接拉长单笔完成时间，并在多源竞争时放大 makespan。
+  - 端点：tests/soc_sim 上按流量类分别报告的端到端 makespan（或等价完成时间）、完成事务数、以及是否进入吞吐崩塌区；至少覆盖点对点搬运与上述集合通信集合。
+  待证伪：在同一 DV200 / tests/soc_sim 信封与公开流量设定下，若点对点与各类集合的端到端 makespan 均不再受环槽争用与注入失败主导，且均匀读负载曲线在峰值后不再崩塌到 2.8–3.4 TB/s 量级，则本问题不足以成立。
+
+CONSTRAINT: |
+  难在同一无缓冲双向环上同时服务突发形态不同的 LLM 搬运与集合通信：每方向每拍单槽使注入与过路零和；集合通信的扇入/扇出与均匀读写的饱和拐点不同；跨环路径把局部槽争用传播到全局 makespan。关闭或打开某一类注入调节不能先验保证两类流量的端到端时间同时最短。
+  端到端 makespan（分流量类）与是否崩塌是 endpoints；平均 hop、瞬时链路利用率、单环注入成功率或只测均匀读的峰值 goodput 都是 proxies，endpoints ≠ proxies。
+  只在单环单元用例、只开 top die 子集、只测均匀读、或假设完美预测/无限带宽的实验属于 reduced-bbox，不等于 12+2 DV200、CHI 多环、点对点+全集集合通信、有限链路延迟与有限 outstanding 的 full envelope；reduced-bbox ≠ full envelope。评估显式禁止完美预测与无限带宽假设。
+  及格判定若采用 0.85，0.85 是 pass bar，不是 measured mean；不得用某一流量类平均加速比过线冒充点对点与各类集合的 makespan 都过线。
+  同源但不并入 P-0001、P-0176：P-0001 问 LLM 互连应先流量后拓扑的一般设计单元；P-0176 问 2D mesh 上 express 拓扑与路由耦合。本卡钉死无缓冲环 DV200 / tests/soc_sim，只问该信封下使 LLM 运行时搬运与集合通信端到端时间最短时，环槽争用与崩塌是否构成不可回避的约束。
+  无解法提案：不预设、不点名、不偏向任何具体拥塞控制、源端流控、令牌桶、ECN、窗口、tag 策略或其他微架构机制；开放空间由后续机制卡探索。
