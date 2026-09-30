@@ -243,7 +243,11 @@ def gen_ops(cls: str, n_top: int, n_bottom: int, n_ops: int, seed: int,
 
     def mk_op(members, transfers, spine=None) -> Op:
         sc = classify(cls) if spine is None else spine
-        senders = tuple(sorted({t.src for t in transfers if t.path == "TREE" and t.phase == 0}))
+        # allreduce: first GRANT is phase-0 fan-in only. Other classes: all TREE senders.
+        if cls == "allreduce":
+            senders = tuple(sorted({t.src for t in transfers if t.path == "TREE" and t.phase == 0}))
+        else:
+            senders = tuple(sorted({t.src for t in transfers if t.path == "TREE"}))
         rendz_members = senders if senders else tuple(members)
         return Op(
             oid=len(ops),

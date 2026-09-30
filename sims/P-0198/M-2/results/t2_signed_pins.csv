@@ -1,0 +1,9 @@
+metric,arm,t3,t2,rel_err,flag_gt_30pct,note
+CAM Dat occupancy,invariant,,0,,,signed PR #68; T3 cycle probe must stay 0
+RBRG_reject_retention_depth,invariant,,0,,,signed PR #68
+N_cam,silicon,4,4,0.0,False,true concurrent; not TDM-8
+high-ost f_ov (a=8),Erlang-B,,0.5746,,,signed → card_claim INVALID; cycle row filled by sweep
+spine-off HARD,gather,,True,,,T2 T_hat_off=537.2 > T_hat_on=289.3; T3 compares cycle inequality
+gate-off r,gather-family,,1.0362,,,signed ≈1.0362; premature orbit cancels fan-in
+alltoall TREE / RESIDUAL / mix,split,,0.6932/1.0/0.8159,,,residual must stay a separate column; mix is NOT a pass number
+card-claim,all-classes,NOT measured,NOT signed,,,0.45-0.80x etc. are card-claim only; director did not sign as measured
