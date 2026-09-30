@@ -1,9 +1,10 @@
-# Dr. Sim · T1 · P-0198/M-4 · AODI
+# Dr. Sim · T1 · P-0198/M-4 · AODI Age-Bounded Opposite Deflect
 
 - reviewer: Dr. Sim
-- 机制卡: mechanisms/P-0198/M-4.md
-- T0: reviews/P-0198/M-4/tier0.md
+- 机制卡: mechanisms/P-0198/M-4.md（PR #53 修订卡，dual-busy hole≡0 + Rejoin + 逐包 φ）
+- T0: reviews/P-0198/M-4/tier0.md（PR #55 T1-return-1 重跑；判决 PASS_T1 = 纸面致命点 CLOSED，**不是** T1 方法学通过）
 - 日期: 2026-09-30
+- revision: T1-return-1
 
 ## 结论
 
@@ -13,29 +14,31 @@
 
 | 维 | 分 | 一句理由 |
 |---|---|---|
-| 可行性 | 4 | 同通道 CW↔CCW 2×2 + age 4b + AGE_MAX + 1 拍 inject-hole，深度 0，能严格 cycle 建。 |
-| 新颖性 | 3 | 相对 BLESS 族是环对向注入洞特化；可发表差在对象，不是全新偏转理论。 |
-| 预期收益 | 3 | 扇入相 0.50–0.85× 有几何空间；双方向皆忙（alltoall）时洞失效，区间上沿脆弱。 |
-| 评估可信度 | 3 | deflect-off 写了，但对向拥塞迁移、age 分布与跨通道禁令若只报聚合 makespan，杀手会被平均洗掉。 |
-| 系统可组合性 | 4 | 无日历、无永久方向绑定；与 CBC/CSR 正交，但组合须各自 off 消融，禁混功。 |
+| 可行性 | 4 | 2×2 真值表 + 独立 Rejoin + AGE_MAX 截止可按拍实现；双忙不造洞已写成硅片契约，仿真失败条件清楚。 |
+| 新颖性 | 3 | 评估切面是双向环同通道 CW↔CCW 的诚实造洞，相对 BLESS/CHIPPER 族是增量特化，不是新运算原语；与 M-2/M-5 正交但文献增量。 |
+| 预期收益 | 3 | 窗口只在不对称占用；双忙/alltoall 饱和预期增益 ≈0——若把该区平均进 0.85 bar，收益叙事立即作假。 |
+| 评估可信度 | 3 | `inject-hole` 分桶与 deflect-off 可操作；T0 残余「φ 不增循环 / 双忙偷洞」取决于同拍采样与逐包探针，错一次就能洗出第三槽。 |
+| 系统可组合性 | 3 | 范围限同 CHI 通道方向对，可与 CSR/CRRF 共存；但对向利用率是别人的公路，叠用必须单独 deflect-off，禁止把对向拥塞外溢记成「注入成功」。 |
 
 ## 最强反对意见
 
-首选方向注入成功率上升、聚合 makespan 下降的同时，对向环利用率与对向完成延迟可能被迁拥堵垮——若 harness 只报「注入失败↓ + 总 makespan」，AODI 会看起来有效，而机制只是把争用搬到对面。
+纸面真值表已经钉死「双忙禁止注入」，仿真仍极易在实现层偷第三槽：把 swap 写成「两路直通 **并且** 本地注入」、把 Rejoin U-turn 口复用成额外注入端口、或让 `inject-hole` 与 busy 掩码**不同拍**采样后做或规约。另一条假证明是用全环 Σ age / 平均 age 当进度——age 总和上涨不能推出每个包的 φ 在下降；错向环上堵在「首选向出口长期不空」的包可以无限占槽等待，T0 已承认这会拉长延迟。若报表只给 inject-success 或不对称读侧 makespan，对向利用率上升与写侧/alltoall 饱和会被洗掉：inject-success 是 proxy，completions / 分流量类 makespan / collapsed 才是 endpoint。双忙区增益必须单独报 ≈0，不得塞进均值过关。
 
 ## 评估层必须验证的一个假设
 
-在 **禁止跨 CHI 通道偏转**（仅 Dat-CW↔Dat-CCW 等同通道方向对）且 AGE_MAX 默认 8 生效的条件下：deflect-off 使已坍塌集合类注入失败计数上升且分类 makespan 变差；同时 **对向方向** 利用率、对向相关完成延迟/事务数必须分列上报——若对向指标恶化超过首选方向收益，不得把聚合 makespan 改善单归因于 AODI 为「净赢」。
+硬断言：任意 `busy T ∧ busy U`（inject pending 与否）周期 `inject-hole≡0`；仿真若在双忙下观测到 `hole>0` → **机制失败**（非法第三槽），该 run 作废。同一 harness 必须含 deflect-off 消融列：不对称占用下 makespan 应回退到基线量级，无差异则不得把收益记在 AODI。进度只许逐包 φ（已在首选向：剩余最短跳；错向：rejoin 武装后的 1+首选向剩余跳），禁止用 Σ age 或平均 age 代理。强制报告 opposite-ring util、分流量类 completions、按**单忙/双忙桶**拆开的 inject-hole 计数。alltoall / 双忙饱和区预期增益 ≈0，**不得**平均进 0.85 pass bar。
 
 ## 必须 cycle 级建模、不能解析近似
 
-1. 每节点 × CHI 四通道方向对的 2×2 deflect crossbar：deflect_enable、两入两出；深度 0；同拍或 +1 拍打拍——禁止解析成「等效第三槽」。
-2. Age 头字段 4b：每次被偏转 age++；AGE_MAX 比较器（默认可配 8）；age≥MAX 禁止再偏转、必须直通；须直方图 age 分布与活锁探针（全局 age 和是否有界消耗）。
-3. Inject-hole latch 1b：有效窗 **恰 1 周期**，与偏转拍对齐；禁止把 hole 当成可持续空槽预约。
-4. 优先级：仅当本地有 pending 注入且首选方向被过路占用时使能偏转；过路直通 vs 偏转 vs 注入三路仲裁同拍可观测。
-5. 断言：零跨通道偏转（Req/Rsp/Snp/Dat 互不横跨）；违例 run 作废。
-6. 消融 deflect-off（纯 fail-wait）：注入失败↑、集合 makespan 恶化才可归因；与满 AODI 对照。
-7. 诊断分列（非过关代理）：注入失败计数、偏转次数、对向利用率、对向完成延迟；**禁止**只用注入成功率或平均 hop 代理端到端 makespan。
-8. 流量分列：均匀读/写 + broadcast/gather/reduce/allgather/allreduce/alltoall；alltoall 与双忙相单独成列，不得并进扇入均值。
-9. 均匀读峰值后 goodput：须报是否仍坍至 2.8–3.4 TB/s 量级；偏转扰动写向时均匀写 makespan 分列。
-10. 基线：DV200 12+2、512B、outstanding 512/256、额外 FC 关；满包络；Warm-up 至 age 分布稳态后再采；禁止把「绕行 ≥1 跳」的解析下界当成测得额外代价。
+1. 2×2 端口表按拍求值：单侧 busy+inject pending → 偏转并同拍注入且 `inject-hole=1`；双侧 busy → 仅直通或合法 swap，**禁止注入**，`inject-hole=0`。
+2. `inject-hole` 必须与 busy 掩码、偏转提交**同拍**采样；计数按单忙桶 / 双忙桶拆分。双忙桶 hole 总和必须为 0，否则 fail。
+3. 被偏转 flit 仅在偏转**提交**时 `age++`；`age≥AGE_MAX` ⇒ 该 flit `deflect_enable=0`，此后只直通，不得再被偏转造洞。
+4. Rejoin 为与 deflect **解耦**的独立口：仅当 flit 在错向且首选向出口空时 1 拍 U-turn；深度 0，不得排队，不得顺便注入。
+5. 逐包 φ 探针：每次成功 rejoin 或在首选向前进一步，φ 严格下降；检测 φ 不增循环 / 单包活锁。禁止用全环 Σ age、平均 age、平均剩余跳作为进度列。
+6. 首选向长期不空时，错向等待必须保持 bufferless（继续占错向槽、无侧缓队列）；延迟可拉长，但必须出现在该包完成时间里，不得当「仍在前进」。
+7. 消融 deflect-off（主开关关偏转；rejoin 可另列）：不对称读/写窗口的 makespan 应回退；缺此列不得归因。
+8. 强制指标：分流量类 makespan、completions、collapsed、opposite-ring util、deflect 次数、分桶 inject-hole。禁止只报 inject-success。
+9. 范围断言：偏转仅同一 CHI 通道 CW↔CCW；跨 Req/Rsp/Snp/Dat 偏转 = 机制越界。
+10. 负载分列：均匀读/写（不对称窗口，预期 0.70–0.95×）与 alltoall 双忙饱和（预期 0.95–1.05×）必须分开；后者不得并进 0.85 均值。均匀读峰值后崩塌报 goodput 曲线，不单报注入成功数。
+11. 无静默丢、无侧缓、无 flit 队列；2×2 与 rejoin 深度恒 0。出现第三逻辑槽或双忙注入即 fail。
+12. 包络：DV200 12+2、CHI 四环、512 B、公开 outstanding、额外 FC 关；点对点 + 全集集合。单环/子集/只测均匀读 = reduced-bbox ≠ full envelope。禁完美预测与无限带宽。

@@ -1,25 +1,25 @@
-# Prof. Bench T1 — P-0198/M-5 CRRF
+# Prof. Bench T1 — P-0198/M-5 CRRF（T1-return-1）
 
 ## 结论
 有条件通过
-Dat:Snp 时分重绑打的是「Dat 饱和、Snp 闲」不对称；7:1 duty 可能杀 Snp makespan。必须强制 Snp 类指标与 duty 扫描，禁止只报 Dat/集合改善。
+T0-rerun（PR #55）致命点全 CLOSED；Drain/Barrier、失配重定向与「Snp≤1.4× + duty∈{3:1,7:1,15:1}」硬杀假设堵住了只报 Dat 甜区；相位改本地压力计数后，负载条件变成——drain 税与 Snp floor 是否仍让 Dat 侧净赢，15:1 是否必须被扫描暴露。
 
 ## 五维打分（1–5）
 | 维 | 分 | 一句话 |
 |---|---|---|
-| 可行性 | 4 | SYNC 只对齐 epoch ≠ 预测；无 flit 队列；Snp 仅 SNP_EPOCH 注入；rebind-off 可证伪。 |
-| 新颖性 | 4 | CHI 四环上 Channel–Ring 时分 ghost Dat，异于通用 TDM 预留与 VC 窃取。 |
-| 预期收益 | 3 | Dat 重集合 0.45–0.80× 中置信；Snp 路径 1.0–1.4× 风险带——改善可能被 Snp 代价抵消。 |
-| 评估可信度 | 2 | 库无 NoC 包；更关键的是若省略 Snp makespan/完成数，评估不可信。duty∈{3:1,7:1,15:1} 必扫。 |
-| 系统可组合性 | 3 | 与 CSR（路径树）正交层；COLL_EP/P2P 态切换依赖运行时类提示，错态会伤 P2P 或 Snp。 |
+| 可行性 | 4 | Epoch Drain + skew 接受集；ghost Dat 禁当 Snp；`bind_mismatch_redirect` 禁静默丢。 |
+| 新颖性 | 4 | 带屏障的 Channel–Ring 时分复用；杀软件 COLL_EP 主臂后更干净。 |
+| 预期收益 | 3 | Dat 侧 0.55–0.85×（扣 drain）；Snp≤1.4× 为硬杀；15:1 可能伤 Snp。 |
+| 评估可信度 | 3 | Snp makespan/completions 与 duty 扫描已强制（较初稿可信）；库仍无 NoC 包。 |
+| 系统可组合性 | 3 | 与 CSR 正交层；无 hint 也须能 drain/flip；duty floor 防 Snp 饿死。 |
 
 ## 最强反对意见
-问题端点含点对点与全集集合，但 CRRF 的杀手在 **Snp 通道**。若评测只扫 Dat 形态集合与均匀读抗坍、不报 Snp makespan/完成数，7:1 假设下的「Dat 加速」会写成全故事——那是 Dat 单通道微基准，不是 CHI 四环代表负载。Snp 无队列、只能 stall 到 SNP_EPOCH，duty 越稀 Snp 越伤。
+杀手仍在 Snp。若只跑 7:1 甜区、省略 15:1，或用 runtime hint 人为躲过 Snp 退化，Dat 改善会写成全故事。修订已禁止软件主臂并钉杀假设——评估层若跳过 duty 扫描或 Snp 列，评审作废。
 
 ## 评估层必须验证的一个假设
-在满 DV200、COLL_EP 启用下，对 duty∈{3:1,7:1,15:1} 同表报告：Dat 侧集合/均匀读 makespan/collapsed **与** Snp 通道 makespan、完成事务数。若某 duty 下 Dat 改善但 Snp makespan >1.4× 基线或完成数下降，该 duty 不得标为通过点；加密 SNP_EPOCH 或缩短 COLL_EP 须作为敏感性结果单列。rebind-off 须使 Dat 侧恶化。ghost/主 Dat 在 512B 窗下目的分布不得坍成单槽（HARD-2）。
+COLL_EP/STEADY 由本地压力计数驱动（无 hint 主路径）时，对 duty∈{3:1,7:1,15:1} 同表报告 Dat 侧 makespan/collapsed **与** Snp makespan、Snp completions。任一 duty 下 Snp makespan >1.4× rebind-off → 该点失败。`bind_mismatch_redirect` 稳态目标 ==0。 T0 close call：跨 die 本地 sniff 非全局清空，稳态 redirect 须真能 ≈0，否则 drain/skew 未闭合。rebind-off 须使 Dat 侧变差。禁止只报 Dat 均值。
 
 ## 负载特征核对
-- 机制依赖：集合/读相 Dat 饱和而 Snp 相对闲；粗相位 COLL_EP vs P2P；SYNC 对齐；Snp 仅 SNP_EPOCH。
-- 库里：无专用包。主评测 = 均匀读/写 + 全集集合 + **显式 Snp 类流量/指标**（一致性轻负载也须报完成数）。禁止 decode / 仅 Dat 代理。
-- 反例：省略 Snp 指标；只报 Dat goodput；固定 7:1 无扫描；减箱；P2P 态误开 COLL_EP；用集合均值掩盖 Snp 恶化。
+- 机制依赖：Dat 饱和且 Snp pending 低才抬 Dat duty；SNP duty floor；drain 死时间进模型。
+- 库里：无专用包。主评测 = 均匀读/写 + 全集集合 + **强制 Snp 类指标**。禁止 decode / 仅 Dat 代理。
+- 反例：省略 Snp 列；只报 7:1；runtime hint 当正确性依赖；减箱；skew 未 cycle 建模。
