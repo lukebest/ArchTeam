@@ -2,7 +2,11 @@
 
 周次: 2026-09-28 ~ 2026-10-04（上海）
 配额: 新问题 30 → 机制 150 → 过 T0 40 → 过 T1 12 → T2 8 → T3 3
-用量: 问题 16/30 · 机制 0/150 · T0 过 0/40 · T1 过 0/12 · T2 过 0/8 · T3 过 0/3
+用量: 问题 16/30 · 机制 0/150 · T0 过 0/40 · T1 过 0/12 · T2 过 0/8 · T3 过 1/3
+
+## 2026-09-30 评估审计 T3 PASS
+
+评估审计 T3 PASS P-0198/M-5 CRRF（仿真 tip `da294cb` / PR #73；审计 PR #75；T2 比照模型/签字 PR #63；SEED=20260903；pytest 25；未入 main）。存活，不是 T4。T_drain 75 vs 77；f_steady gather7:1 0.709 vs 0.8666；C_dat_eff 1.000/1.4185/1.5072/1.5515（无 >30% flag）。H-COMMIT 0/12；gather T/off 0.5833×3；HARD-1 24>14 True。Snp 15:1 KILL：snp_path 11.6667 / mixed 23.2222 vs T2 1.5625（flag 2/16，不把 T2 贴到 T3）；mixed 窗 3:1/7:1 亦 KILL；completions 未丢。oracle_used=False；card-claim 未签（0.583 不是 card-claim 签字）。合入 FUNNEL 作 T3 存活；不开 T4。M-1 CBC / M-2 CSR / M-4 AODI 仍死。问题仍 16/30。T3 过 0→1。
 
 ## 2026-09-30 评估审计 T3 REJECT
 
@@ -192,7 +196,7 @@ P-0198 无缓冲环 NoC 上 LLM 点对点/集合通信 makespan（tests/soc_sim�
 
 ## 本周占用（已派、卡未落地）
 
-P-0198：Jim T1 已裁（M-1 CBC T3 REJECT 死，审计 PR #64 / 仿真 PR #62；M-4 AODI T3 REJECT 死，审计 PR #71 / 仿真 PR #70；M-2 CSR T3 REJECT 死，审计 PR #74 / 仿真 PR #72，不开 T4、不把 T2 贴到 T3、仅机制改才重开；M-5 CRRF 仍在微架构仿真 T3；卡、模型与仿真未入 main）；保守批已 0→T1（T0：M-7 KNOWN_CONFIRM 冻基线）。机制仍 0/150。
+P-0198：Jim T1 已裁（M-1 CBC T3 REJECT 死，审计 PR #64；M-2 CSR T3 REJECT 死，审计 PR #74 / 仿真 PR #72；M-4 AODI T3 REJECT 死，审计 PR #71 / 仿真 PR #70；M-5 CRRF T3 PASS / 存活，审计 PR #75 / 仿真 tip `da294cb` #73，等人定 T4、不开 T4；卡、模型与仿真未入 main）；保守批已 0→T1（T0：M-7 KNOWN_CONFIRM 冻基线）。机制仍 0/150。
 
 ## 本周已入仓备案（未派建筑师）
 
@@ -210,7 +214,13 @@ P-0159、P-0164–P-0194。
 
 ## 拍板仍等人
 
-T4/停 · 扩配额 · 其余备案是否派建筑师。P-0198 已派出。
+T4/停 · 扩配额 · 其余备案是否派建筑师。P-0198 已派出。P-0198/M-5 CRRF T3 存活，等人定 T4（不开 T4）。
+
+## T3 存活 / 通过（本周）
+
+| ID | 类别 | 结果 |
+|---|---|---|
+| P-0198/M-5 CRRF | T3 PASS / 存活 | 评估审计通过（审计 PR #75 / 仿真 tip `da294cb` #73；T2 比照 #63；SEED=20260903；pytest 25）。T_drain 75 vs 77；f_steady gather7:1 0.709 vs 0.8666；C_dat_eff 1.000/1.4185/1.5072/1.5515（无 >30% flag）。H-COMMIT 0/12；gather T/off 0.5833×3；HARD-1 24>14 True。Snp 15:1 KILL：snp_path 11.6667 / mixed 23.2222 vs T2 1.5625（flag 2/16，不贴 T2）；mixed 3:1/7:1 亦 KILL；completions 未丢。oracle_used=False；card-claim 未签（勿把 0.583 当 card-claim 签字）。不开 T4。等人定 T4。 |
 
 ## T3 淘汰（本周）
 
