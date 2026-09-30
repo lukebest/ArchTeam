@@ -1,30 +1,36 @@
-# Dr. Archi · T1 微架构评审 · P-0198/M-2 CSR
+# Dr. Archi · T1 微架构评审 · P-0198/M-2 CSR（T1-return-1）
 
 ## 结论
-**致命缺陷。** 卡宣称「512b latch / 活跃 CAM 项 ≤1 flit、非 highway 队列」，但在 DV200 信封（512B 载荷 ⇒ Dat 多拍 flit、12 top 并发集合、bufferless 单槽/向/拍）下，COLLECT 异步收齐子节点与多 flit 载荷在结构上不可两全：要么把后续拍停在 RBRG 入站并把环面变成隐式滞留缓冲（等价 highway FIFO / 环污染活锁），要么为每活跃 txn 扩多拍暂存（直接违反「非队列」守门）。卡内「512b latch ×≤8（可时分复用 1–2 个物理 latch）」进一步自打脸——8 项 CAM 若同时处于 COLLECT 折叠态，物理上需要 8×512b 偏序状态，1–2 个物理 latch 无法承载；有效并发被偷换成 2，却仍按 CAM=8 与溢出回退讲故事。CAM 在四环汇聚下的端口/仲裁未给出，12 top 并发时 8 项必然高频 RING_P2P，回退流量与 COLLECT 占槽互相喂环争用，4 态 FSM 无超时逃逸 ⇒ COLLECT 活锁闭包。T0 的 PASS_T1 只放过「声明边界」，硅实现边界在本卡数字下已被结构性击穿。
+有条件通过
+原三项致命点（RBRG Dat latch / 假 8 槽 TDM / 无超时逃逸）在修订卡上被**结构性拆除**而非仅改措辞：无载荷存储、`N_cam=4` 专用、`overflow/timeout→RING_P2P` 计数进 endpoints，硅上可强制 `Dat_beats_held==0`。但卡文把「payload 留在 Dat 环直到 GRANT」与「授权窗内注入」并置，cycle 模型未钉死；再加 FORCE_FALLBACK「通知相关端」无对应公民/端口——这是新洞，不是旧洞回魂。条件不满足则降为致命。
 
 ## 五维打分
 | 维 | 分 | 一句话理由 |
-|----|----|------------|
-| 可行性 | 2 | 多 flit Dat + COLLECT + bufferless 单槽与「1 flit/项非队列」互相否定；1–2 latch 时分复用与 8 槽并发归约不相容 |
-| 新颖性 | 3 | RBRG 位点双路径（环 P2P / 脊骨集合）相对本信封有结构差，但归约引擎本体近亲 SHARP/FANIN，新意在位点而非算法 |
-| 预期收益 | 2 | CAM=8 对 12 源全集易溢；回退环面再扇入，alltoall 多树残差会吞掉宣称的 0.40–0.75× |
-| 评估可信度 | 2 | 面积按 1–2 latch 估、功能按 8 槽讲；缺 CAM 端口、入站反压、COLLECT 逃逸的 cycle 级自洽 |
-| 系统可组合性 | 2 | 脊骨反压直接打进四环单槽公路；与仍走环的 P2P/回退集合零和争用，无隔离预算 |
+|---|---|---|
+| 可行性 | 3 | Dat≡0 与拒收零滞留可硬；orbit/门控歧义 + 回退通知路径未进结构表，12 top 下 CAM 单端口仍紧 |
+| 新颖性 | 4 | 会合状态与 payload 切开、RBRG 只做 Tag+GRANT，相对桥上 in-network reduce 寄存器堆是真切面，非 CBC 换皮 |
+| 预期收益 | 2 | `N_cam=4` vs 12 top / 高 outstanding 易使 overflow 主导；GRANT 占 Dat 槽与窗内串行注入税可能吃掉 0.45–0.80× 区间 |
+| 评估可信度 | 2 | 预期区间依赖未钉死的注入语义；「通知相关端」像纸面闭合；T0 PASS≠硅证明 |
+| 系统可组合性 | 3 | 与 CBC 对象正交可辩；但 GRANT 公民与 P2P/日历气泡抢同一 Dat 槽，端点 fold 默认已有 RF/cache 端口 |
 
 ## 最强反对意见
-**512b 单 flit latch 在多拍 CHI Dat × 异步 COLLECT 下必然滑向「隐式 highway 缓冲」或正确性失败，且卡写的「1–2 物理 latch 时分复用」已承认没有为 8 个活跃 CAM 项预算独立偏序态。** 具体：512B 载荷 / 512b flit ⇒ 每源约 8 拍；归约要按拍对齐折叠时，子节点拍间到达失序（bufferless 环无法保证 12 源 flit_i 齐步）。先到子的 flit_{i+1} 在父仍等齐 flit_i 时无处安放——RBRG 拒收则 flit 继续占环槽绕行（环面变成分布式队列，违反「不把环改成 buffered NoC」），收纳则 latch/旁路扩展成多拍 FIFO（违反「≤1 flit/活跃项」）。与此同时面积表用 1–2 个物理 latch 撑 ≤8 CAM 项，使「每项一 flit 偏序」在物理上只对 ≤2 个并发 txn 成立；其余 CAM 命中若无独立 latch 就不能合法 COLLECT。该矛盾不是调参问题，是结构门禁失败（T1 brief 强制审计项）。
+若 COLLECT 期间各源已将 payload 注入 Dat 环做 orbit，则 GRANT 前环上已有 Ω(成员数×多拍) 公民占槽，扇入零和未被移除——spine-on 环占用应 ≥ spine-off；若改为端点持有至见 GRANT 再注入，则 §2.2「留在 Dat 环直到 GRANT」为假叙述，必须改成显式端点门控注入，并证明 512 B×outstanding 持拍只走已有 RF/cache、不发明第三 highway 槽或侧缓 FIFO。
 
 ## 评估层必须验证的一个假设
-**在 cycle 级模型中，对 512B 多 flit 的 reduce/allreduce（outstanding∈{256,512}，12 top 并发），RBRG 侧任意时刻「每活跃 CAM 项持有的 Dat 拍数 ≤1」且环上不因 RBRG 拒收而累积等价于深度 >0 的 per-destination 滞留；若该不变量被打破，或 COLLECT 平均占用导致 CAM 占用时间使有效槽 ≪8，则 CSR 归因失败并记本机制不通过。**
+**H_inject_gate（端点门控注入）**：对任意 `SPINE_RENDZ` txn，在该源端点观测到本 txn 的 GRANT flit 之前，该 txn 的 payload Dat 拍**注入计数 ≡ 0**；同时全仿真 `∀i occupancy(CAM_i, Dat_beats)==0` 且 `RBRG_reject_retention_depth==0`。若 GRANT 前已在环上出现该 txn 的 payload 拍，则按「提前 orbit」判机制失败（不得记入 CSR 收益）。
 
 ## 微架构要点
-- **CAM 容量/端口（卡：8×~30b，1 拍匹配）**：仅给项数与约 30b/项，未给读写端口数。RBRG 桥接 CHI 四环，同拍可有多环入站呈 CAM 查+改（txn_id 匹配、child bitmap 置位）。单口 CAM + 串行仲裁 ⇒ 匹配「1 拍」在多口争用下膨胀为多拍；若宣称真 1 拍需至少与入站仲裁胜者数匹配的端口或明确流水接受窗——卡未写，属**发明关系风险**。12 top 并发集合对单 RBRG：8 项上限 ⇒ ≥4 路在分配瞬间必须 RING_P2P（卡：满 CAM 显式回退）；若多集合共享汇根，溢出率是一阶项，不是边角。
-- **Latch 容量 vs 多 flit（卡：512b，≤1 flit/活跃项；面积表又写可时分复用 1–2 物理 latch）**：功能叙述要 8 槽各自 COLLECT 折叠；面积叙述只供 1–2 个 512b。二者不可同时为真。512B 载荷下单 512b 寄存器装不下整消息；拍对齐归约需要「每活跃 txn 一拍偏序态」在整个 COLLECT 窗口内稳定存在——时分复用会在 txn 间踩踏偏序。**不得**把 latch 扩成 per-child 或 per-beat FIFO 冒充仍「非队列」。
-- **FSM COLLECT 活锁（卡：IDLE/COLLECT/REDUCE/DISPATCH；COLLECT「取决于子到达，有限 outstanding」）**：无超时、无 abort、无「占槽过久 → 强制 RING_P2P/杀事务」边。CAM 满时新事务回退环面，加重子 flit 到达延迟，反而延长已占槽的 COLLECT；有限 outstanding 只限端点未完成数，不打破「占槽等子、子被环堵」的正反馈。缓冲环上若再叠加 RBRG 拒收绕行，易进活锁/类死锁，卡未给反压协议。
-- **RBRG ↔ 环反压**：bufferless = 每向每拍一 highway 槽、无 on-chip flit 队列。引擎处于 REDUCE 1–2 拍或 DISPATCH 等待出环口时，入站策略（旁路 / 绕行 / 杀死 / 信用）未定义。Classifier 已标 SPINE_TREE 的 flit 不能静默变 RING_P2P（与 HARD-4 精神冲突），除非在入 CAM 前重分类——卡只在「满 CAM」分配失败时允许回退，中途反压缺口是硅洞。
-- **alltoall 多树（卡：拆多棵有界深度树或分段脊骨，预期 0.55–0.90×）**：12×12 稠密置换使同时活跃树边/txn 极易 >8 CAM；多树共享同一 RBRG 引擎时仲裁与 latch 复用更挤。残差环争用与回退计数必须进指标，否则收益区间不可信。
-- **RING_P2P 回退会计（卡：显式降级，禁静默丢弃）**：方向对，但须 cycle 级计数「分配失败回退 / COLLECT 超时类回退（若补）/ 回退字节占 Dat 环槽比例」。回退一旦成为热路径，脊骨加速段被环面 Ω(N) 扇入夺回，与「路径集合变更减争用」因果相反。
-- **面积/功耗自洽（卡：每 RBRG ~0.01–0.03 mm²、~5–15 mW；CAM+FSM 0.005–0.015；latch 0.002–0.008）**：该面积量级只在「1–2×512b + 弱口 CAM」下勉强说得通；若补齐 **8×512b 真偏序态 + 多口/仲裁 CAM + 四环入站控制**，面积/功耗应上修，否则属用缩水硅支撑满规格声称。Classifier 32×2 ROM/NIC ~0.0001 mm² 可忽略，不是瓶颈。
-- **时序拍 vs 流水（卡：Classifier 1 拍；入 RBRG→CAM 1 拍；REDUCE 1–2 拍；DISPATCH 1 拍+链路）**：未含多口仲裁、bitmap 最后一子到达与 REDUCE 发射的旁路、以及 Dat 多拍与 REDUCE 流水的拍对齐开销。端到端「树深 O(log 12)≈3–4」只在忽略 COLLECT 等待与环短跳争用时成立；等待是有限 outstanding 下的随机变量，不是 1–3 拍机制延时可吞掉的。
-- **与 T0 边界**：T0 明确「若实现把 latch 扩成多 flit highway FIFO 则越界；T1 须按每活跃 txn ≤1 flit 宽审计」。本卡在多 flit 信封 + 1–2 latch 复用表述下，**已经**越过该门禁；故判致命缺陷，而非可靠调 ROM/树表挽救的有条件通过。
+- **CAM / 端口（§2.1）**：`N_cam=4`，每项 `txn_id16 + child_bitmap12 + state3 + timeout8 ≈ 39 b`，专用非 TDM；端口声明 1 读匹配 + 1 写分配 / 拍。相对旧「1–2 latch 装 8」——**原致命点 2 真闭合**（面积按 4 路真并发，§5）。**发明性省略**：四环/多 divert 同拍双头抵达时的 CAM 仲裁优先级未给；busy 即 overflow 回退，可活，但 12 top 并发集合下 `cam_overflow_fallback` 预期偏高。
+- **Dat≡0 不变式（§0/§2.2/§2.3）**：禁止 RBRG 内任何 Dat payload 寄存器/多拍 fold/reject-and-orbit 滞留队列；断言 `Dat_beats_held==0`、`retention_depth==0`。RENDZ 限定 1-flit header/credit 短 divert——**原致命点 1 在「桥内不持拍」意义上真闭合**，强于旧「≤1 Dat latch」。硅可在 divert mux 按 tag 拒载荷。
+- **GRANT 公民（§2.1–2.2）**：位图齐 → `GRANT_PENDING` → 向 Dat 环注 1 拍 GRANT（txn_id+相位），占既有 1-slot/向，**未发明第三槽**。与 payload / RING_P2P 零和抢槽——诚实。窗内按静态 order 表串行注入：扇入从盲目 Ω(N) 变为有界窗口并发，逻辑自洽，但窗长与 GRANT 本身占槽是收益税。
+- **timeout / overflow（§0/§2.2）**：每项 `timeout` 到期 → `FORCE_FALLBACK` 释 CAM + `collect_timeout_fallback++`；CAM 满/busy → 头继续前进并立即 `RING_P2P` + `cam_overflow_fallback++`。禁止静默等死/丢弃；两计数进 endpoints——**原致命点 3 的「逃逸存在性」真闭合**。**发明性省略**：结构表无 FALLBACK/Notify flit 端口，却写「通知相关端改走 RING_P2P」——分布式超时与源端本地等待若不同步，会 orphan CAM 项或源永等 GRANT；须双端同源超时上界或显式回退公民，否则纸面闭合。
+- **端点 fold（§2.2/§2.3）**：折叠声明在目的/root NIC 的已有 RF/cache，1 拍/运算宽度，不在 RBRG。不发明 highway FIFO——方向正确。**发明性省略**：假定集合 fold 所需 RF/累加端口与写回带宽已存在且不与普通 CHI complete 路径打架；评估须确认不是「默认有归约 ALU」。
+- **反压 / bufferless（§1/§2.2）**：RBRG 拒 RENDZ 不造深度>0 滞留；满则重分类而非侧缓。Payload 若不提前 orbit，环反压形态回到「单槽公路 + 端点门控」——与信封一致。若提前 orbit，则反压被自我污染，机制自毁。
+- **面积自洽（§5）**：~156 b CAM + 4×(timeout/FSM) + GRANT 装配/仲裁 + 2×32 b CSR；明确为零：512 b Dat latch、fold RAM、highway FIFO。叙事与并发上限一致，无「小存储装大并发」自打脸。
+- **与 envelope 拟合（§4）**：DV200 ≤12+2、CHI 四环、禁完美预测/无限 BW；消融 spine-off 须回基线量级；512 B、outstanding 256/512、全集扫描。预期 gather/reduce 等 0.45–0.80× 在 `N_cam=4` 下偏乐观——卡已写「回退主导则区间失效」，评估必须把该杀开关当真，不得只报均值。
+- **与 T0**：T0 PASS_T1 /「原致命点全部 CLOSED」只确认声明边界进 T1；本评独立认定旧三点**结构上可闭合**，但 **H_inject_gate** 与 FORCE_FALLBACK 通知路径为 T1 新条件——未钉死前不得无条件通过。
+
+**通过条件（须同时满足，否则改判致命缺陷）**：
+1. 实现与断言采用 **端点门控注入**（见 H_inject_gate），禁止 GRANT 前 payload orbit；卡文歧义在实现规范中消除。
+2. FORCE_FALLBACK 的端点可见性有具体路径（显式环上回退 flit **或** 源/桥双端同源 timeout 上界 + orphan CAM 有界释放），并进仿真计数。
+3. 满信封下若 `cam_overflow_fallback` 或 `collect_timeout_fallback` 主导完成路径，不得宣称集合 makespan 区间达成。

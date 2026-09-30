@@ -1,4 +1,4 @@
-# T1 · Prof. Sys · P-0198/M-5 · CRRF
+# T1 · Prof. Sys · P-0198/M-5 · CRRF（T1-return-1）
 
 ## 结论
 
@@ -8,24 +8,32 @@
 
 | 维 | 分 | 一句理由 |
 |---|---|---|
-| 可行性 | 3 | 时分重绑电路可做；但 Snp 无队列只 stall，把一致性流量绑到 epoch，系统风险高于另三张。 |
-| 新颖性 | 4 | CHI 四环上 Channel–Ring epoch 重绑，不是通用 TDM 复述。 |
-| 预期收益 | 4 | 直接打 Dat 饱和 / Snp 闲的不对称；Amdahl 叙事清楚。 |
-| 评估可信度 | 3 | 必须强制 Snp makespan；duty 扫描可证伪；ghost Dat 正确性难一次测净。 |
-| 系统可组合性 | 2 | COLL_EP 是整 die/整环织物模式；多租户与一致性延迟同绑一条 SYNC。 |
+| 可行性 | 3 | Drain+skew+失配重定向堵住鬼影；仍依赖全环 SYNC/`epoch_committed`，实现与 skew 模型重。 |
+| 新颖性 | 3 | 通道–环时间复用已知思路；系统贡献在杀软件预言 + 强制屏障协议。 |
+| 预期收益 | 3 | Dat 侧可赢，但 drain/SYNC 税 + Snp≤1.4× 杀假设把窗口收窄；duty 过敏必须暴露。 |
+| 评估可信度 | 4 | rebind-off、Snp makespan、duty∈{3:1,7:1,15:1}、`bind_mismatch_redirect`、skew cycle 模型都可强制。 |
+| 系统可组合性 | 3 | 正确性不再绑 COLL_EP；但 flip 是织物级屏障，多租户/一致性税仍在。 |
+
+## 退回项审计（T1-return-1）
+
+对照 T0 rerun PR #55：原致命点全部 CLOSED，判决 PASS_T1；close call 强调跨 die 本地 sniff 非全局瞬时清空——正确性靠 committed+skew+redirect。
+
+1. **Epoch Drain / Barrier + skew**：ARM_DRAIN→DRAIN→FLIP+`epoch_committed`；skew 接受 `epoch_tag ∈ {local, local−1}`；cycle 模型必打 skew。**判定：CLOSED**——纸面闭合翻转窗口。
+2. **Ghost Dat @ RBRG**：保留 channel-id + epoch_tag；按绑定表译码；失配 → NACK/原 Dat 环重注入，`bind_mismatch_redirect++`；禁静默丢、禁永久 inject stall。**判定：CLOSED**。
+3. **杀相位预言**：主臂改为本地 Dat util EMA / Snp pending；runtime hint 至多 advisory；强制 Snp makespan/completions + duty 扫描。**判定：CLOSED**——软件暗示不再是正确性依赖。
 
 ## 最强反对
 
-CRRF 在 DAT_EPOCH 把 **Snp 环硬件改成 ghost Dat**，Snp 只能等 SNP_EPOCH，且**无队列**。缓存一致性的关键路径（Snp/SnpResp）被推进一个与 LLM 集合相位耦合的全局时间表。Rebind FSM 若由「软件/运行时类提示」切入 COLL_EP，一个租户的 allreduce 相位会抬高**所有**核的 Snp 尾延迟——包括无关 VM。若改由本地计数器自动切，则误判 COLL_EP 时仍锁全环。SYNC 在 Req 环对齐；跨 RBRG 的 epoch 视图一旦歪一拍，channel-id 核对会拒注或（更糟）若实现放松核对就会上错环。这是本批对一致性/多租户伤害面最大的一张，不是「再分配闲带宽」这么轻。
+CRRF 的 flip 仍是 **整机织物事件**：DRAIN + `epoch_committed` 绕环期间，所有依赖「即将重绑物理环」的新注入停住——多租户下租户 A 的 Dat 压力可以触发全局 drain，租户 B 的 Snp/旁路流量吃屏障税，且没有 per-tenant 拒绝 flip 的旋钮。Snp 在 DAT_EPOCH 被时间复用：即使有 duty floor 与 ≤1.4× 杀假设，一致性流量（目录嗅探）与数据搬运抢同一物理环的**时间片**，OS/运行时看不见 epoch，只能看见偶发长尾。失配重定向正确但不免费——稳态 `bind_mismatch_redirect` 非零意味着 skew/绑定发散，会把重注入送回本已饱和的 Dat 环。多 bottom / 多 RBRG 时 epoch 对齐域未钉死：一 die 本地压力触发、全织物 SYNC，域过大则税爆，域过小则 ghost Dat 译码不一致。
 
 ## 评估层必须验证的一个假设
 
-COLL_EP、duty=7:1 下，在混合负载（Dat 向集合 + 后台缓存一致性抖动）中，Snp 类 makespan ≤1.2× 基线，且无 CHI 通道错绑（ghost Dat flit 永不进 Snp 逻辑消费口）。若 Snp 越出 1.2× 或出现错绑，本卡不能进多租户/有目录的 SoC，只能当无 Snp 压力的加速器专环模式。
+满 DV200、无 runtime hint、duty 扫描含 15:1：Snp makespan ≤1.4× rebind-off，且稳态 `bind_mismatch_redirect==0`（T0 close call：跨 die 在途靠 redirect 兜底，稳态必须真能 ≈0）；同时 Dat 重集合 makespan 相对 rebind-off 仍改善（扣 drain/SYNC 税后）。任一失败——尤其无 hint 就不能安全 flip，或 15:1 下 Snp 越界而只报 7:1 甜区——本卡在真实多租户/一致性负载下不可组合。
 
 ## 系统视角
 
-- 软件可见性：高。运行时至少要暴露 COLL_EP/P2P 提示，或接受计数器误判。同步错误是全机故障，不是单流性能毛刺。
-- 编程模型：新控制面（epoch 表、duty、FSM 态）。与 CBC 的日历类似但更重——改的是通道–环绑定，不是空槽密度。集合库与一致性子系统必须联合回归。
-- 协议/一致性：Req/Rsp 不重绑是必要减伤。Snp stall 无队列 ⇒ 一致性 outstanding 在 SNP_EPOCH 饥饿时堆积在端点；端点若也无队列，会反压到核侧 fence/原子。必须在模型里打开「有 Snp 流量」的用例，不能只用纯 Dat 集合刷分。
-- 多芯片：NIC 与 RBRG 各一份 4×4，必须共享同一 epoch 视图。12 top + 2 bottom 经 RBRG 传播 SYNC；bottom 间若有第二条时间源，卡未写仲裁。
-- 多租户：织物级模式，无 per-tenant bind。一租户 COLL_EP，全员吃 Snp 税。不可与「每 VM 独立 NoC QoS」故事共存，除非禁止自动 COLL_EP、改为整机作业切换。
+- 软件可见性：正确性路径可无 hint（加分）；遥测仍应暴露 epoch、duty、redirect、Snp stall 计数，否则运行时无法解释长尾。
+- 编程模型：无新集合 API；但驱动/固件需配置 duty floor 与压力阈值，并禁止把 COLL_EP 类提示写成唯一使能。SYNC 是屏障不是预测——不得在文档里写成「软件预报相位」。
+- 协议/一致性：Ghost Dat 不得按 Snp 语义处理（修订已钉）；Snp 仅在 SNP_EPOCH/duty 窗注入。Drain 期间目录/一致性延迟上界必须进模型——否则「Snp≤1.4×」只是平均数。CHI 通道-id 在 RBRG 的绑定译码是协议扩展面，需与现有互连验证计划对齐。
+- 多芯片：12+2 内 SYNC 绕环可行；跨包无定义。多 RBRG 时绑定表副本一致性 = 另一个分布式共识，卡只写了 NIC+RBRG 各一份 one-hot，未写多桥收敛。
+- 多租户：织物级 drain 无租户隔离（见最强反对）。与 AODI/CSR 叠加时责任更难拆——评估必须能 rebind-off 单独消融。

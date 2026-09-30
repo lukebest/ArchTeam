@@ -1,32 +1,48 @@
-# Dr. Archi · T1 微架构评审 · P-0198/M-5 CRRF
+# Dr. Archi · T1 微架构评审 · P-0198/M-5 CRRF（T1-return-1）
 
 ## 结论
-**致命缺陷。** T0 `PASS_T1` 只说明叙事自洽、可进入硅级拷问，不代表过关。卡 §2 把「Req 环 SYNC → 2b epoch → NIC/RBRG 4×4 one-hot → Snp 环硬件在 DAT_EPOCH 运 ghost Dat」写成零缓冲的结构重绑，却**从未规定 epoch 翻转前对环上周长在途 flit 的排空/栅栏**，也未给出环周 SYNC 采样偏斜下「全环同一 epoch 视图」的硅实现。bufferless-ring、每方向每拍一槽时，偏斜窗内 NIC 与远端 RBRG 必然短暂分裂：一端按 DAT_EPOCH 把 Dat channel-id 注入 Snp 物理环，另一端已进 SNP_EPOCH 按 Snp 语义解绑或按 §2「channel-id 与绑定不符则不上环」拒收——结果是**静默丢包、CHI 通道语义串扰，或注入口永久 stall**。再叠加 Snp「无队列、仅 SNP_EPOCH 注入、DAT_EPOCH 硬 stall」（§2），一致性路径的背压直接顶进目录/缓存流水，7:1 duty 下这是 makespan killer，也是活锁候选。所谓「Dat 有效近 2×」是在掩盖：**时间复用导线 ≠ 发明带宽**；偏斜死区、+1–2 拍绑定流水、SYNC 占 Req 偶发槽、SNP_EPOCH 让出，把理想 1.75× 打成远低于 Amdahl 文案的数。软件/运行时类提示切 COLL_EP（§2 Rebind FSM）是**相位预言**，与「SYNC≠预测」并列表述不能洗白。在补齐排空协议、偏斜周期模型、ghost Dat 在 RBRG 的 channel-id 正确性证明、以及 Snp 类强制指标之前，**不得据此宣称集合/抗坍收益可交付**。
+有条件通过
 
 ## 五维打分
 | 维 | 分 | 一句话理由 |
 |---|---|---|
-| 可行性 | 2 | 4×4+epoch 可画，但 SYNC 周长偏斜与无排空翻转使 ghost Dat 的 CHI channel-id 在 RBRG 上不可证明正确（§2 数据路径 1/5）。 |
-| 新颖性 | 4 | CHI 四环信封下把空闲 Snp 硬件时分为 ghost Dat、Snp 无队只在 SNP_EPOCH 注，确非通用 TDM/VC 复述（T0 轴二成立，新颖≠可流片）。 |
-| 预期收益 | 2 | 文案 0.45–0.80×（§4）默认偏斜死区≈0 且 Snp 可吞 1.0–1.4×；零和一槽/拍下真实 Dat 增益被翻转窗口与 stall 吃掉。 |
-| 评估可信度 | 2 | duty≈7:1「可证伪假设」写成设计默认（§2/§3）；HARD-2 只「须展示」无负载均衡硅规则；类提示切 FSM 未进评估门禁。 |
-| 系统可组合性 | 2 | Snp stall 耦全集一致性；SYNC 污染 Req；COLL_EP 与同环其他机制争绑定；Req/Rsp「本假设 1:1」一改即爆炸。 |
+| 可行性 | 3 | Drain+skew+redirect 语义上堵住鬼影译码，但无缓冲下 NACK 暂存与跨 die `epoch_committed` 聚合仍欠硅级钉死 |
+| 新颖性 | 4 | CHI 四环绑定世代 + ghost Dat 强制屏障，对本 DV200 信封是切面级新做法，非第二 Dat 端口伪装 |
+| 预期收益 | 3 | 零和时分复用诚实；1–2× 环周 drain + committed 税重，集合净利依赖低 flip 率与 7:1 甜区 |
+| 评估可信度 | 4 | Snp≤1.4×、duty 扫描、redirect==0、skew cycle 模型均已写成可杀 endpoints |
+| 系统可组合性 | 3 | 不占第三 highway 槽，但 Req 环 SYNC/DRAIN 与 Snp duty stall 会耦合他机制的注入与会合窗 |
 
 ## 最强反对意见
-**epoch 翻转与环周 SYNC 偏斜下，Snp 物理环上在途 ghost Dat 的 channel-id 与接收端绑定视图不一致，卡未给出排空/栅栏，bufferless 一槽/拍无法吸收该竞态——CHI 语义在硅里直接破环，而非「慢一点」。**（对应 §2 SYNC 对齐、4×4 切换「组合+1 拍」、channel-id 核对；偏斜「≤环周可建模」不是协议。）
+跨 die 本地 sniff≠全局瞬时清空，正确性靠 skew 接受集 + `bind_mismatch_redirect` 兜底；而信封禁止 flit 队列——NACK/原 Dat 环重注入若无显式 1 深 staging（或等价不占 highway 的暂存）就会在硅里变成静默发明侧缓或重注入活锁，T0 的 CLOSED 在稳态 redirect≈0 被证伪前只是纸面闭合。
 
 ## 评估层必须验证的一个假设
-**在 12+2 CHI 四环、一槽/拍、无 flit 队列下，若 NIC/RBRG 仅按本地采样的 SYNC 边沿更新 2b epoch、且 epoch 翻转前不对 Snp 物理环做整圈排空，则集合相 COLL_EP（duty 7:1）运行 N 圈后，ghost Dat 的错绑/拒收事件数 = 0 且 Snp 完成数不下降、Snp makespan ≤ 1.1× rebind-off——该联合命题必须被 cycle 级模型证伪或证实；任一失败则 CRRF 结构不成立。**
+稳态（STEADY、无 flip 窗）`bind_mismatch_redirect == 0`，且单次 flip 窗内 redirect 有上界、不触发永久 inject stall；否则跨 die drain 协议在硅上未闭合。
 
 ## 微架构要点
-- **4×4 one-hot（§2 表）**：NIC 与 RBRG 各一份，组合+1 拍防毛刺；通道口→物理环相对裸绑 **+1 拍**，机制合计 1–2 拍（§2 时序表）。一高速槽/向/拍时，绑定切换拍若与注入仲裁重叠，等价少一次公路机会——**非免费复用**。卡未给出四口同时请求（Req/Rsp/Snp/Dat）在 one-hot 矩阵上的优先级与毛刺窗口；**发明关系**：暗示切换延迟不影响吞吐，未证明。
-- **SYNC / epoch 类 CDC 偏斜（§2 数据路径 1）**：SYNC 在 Req 环循环，每节点锁存 2b；对齐误差上界 = 环周链路延迟。偏斜窗内全芯片**无单一 epoch 真理**。RBRG「同一 epoch 视图经 SYNC」（§2）在周长延迟内为假。**须 cycle 级建模偏斜窗内的注入/弹出**；卡把「可建模」当成已解决——掩盖。
-- **Snp stall 背压（§2）**：SNP_EPOCH≈1/8，DAT_EPOCH 对 Snp 口硬 stall、**无队列**。stall 最长期望 ~8 epoch 步（§2 时序）。背压进入 CHI Snp 源（目录/探测器）后，无环上缓冲可吸收 → 一致性流水停顿；与 killer「Snp makespan 1.0–1.4×」（§3/§4）同根。长时间 COLL_EP + 稀 SNP_EPOCH ⇒ **活锁/完成数崩**候选。评估必须强制 Snp 类 makespan/完成数（§4），T1 要求写进门禁而非附录。
-- **ghost Dat channel-id（§2）**：flit 2b channel-id 与当前绑定核对；不匹配不上环。物理环是 Snp、逻辑是 Dat 时，正确性完全依赖收发 **同一 epoch**。偏斜或翻转瞬间：拒收=丢 Dat；误按 Snp 解=协议毒。Req/Rsp「本假设不变」只降低一面风险，**不保护 ghost 路径**。
-- **HARD-2（§3）**：绑定 channel↔ring epoch，不冻结地址高位——语义对。但 Dat 双注入「本地轮转或目的 LSB」（§2）在 512B 窗、集合目的高度相关时，**LSB/轮转不能保证目的集不坍成单槽**；卡只说「须验证」，无硅级防坍规则。**发明关系**：把 HARD-2 合规写成结构设计已满足。
-- **「软件/运行时类提示」切 FSM（§2）**：P2P/COLL_EP/IDLE 三相；类提示先于流量切 COLL_EP = **相位预测**；本地计数阈值 = 滞后反应，错误窗口内错误 duty。与「SYNC≠预测」「非消息级预测」并列是话术分割，不是硅隔离。T1 禁止把类提示当免费先知。
-- **面积/功耗（§5）**：~0.005–0.015 mm²/top、~3–10 mW，主项 4×4×2。数字**未计入**安全翻转所需的排空控制、偏斜检测、误绑毒化计数、以及 Snp stall 向上游扩散的功耗。无 flit 队列省面积，把状态推到端点——**面积外移，不是面积消失**。
-- **bufferless 完整性**：零和仍是每物理环每向每拍 1 槽（§2）——承认。第二 Dat「高速」= DAT_EPOCH 占 Snp 导线时隙，**不是**第二并行槽。Amdahl s_D<2（§3）方向对，但未扣：偏斜死区、翻转排空（若补上则吞吐更差）、SYNC 偶发占 Req、+1–2 拍注入。**发明关系**：用「近 2× 物理环」修辞暗示带宽倍增；硅上只是导线时分，完整性约束下有效增益必须实测且含 Snp 代价。
-- **与 T0 边界**：T0 已标 CHI/ghost 正确性、SYNC、epoch 误差为 T1 风险；本评把未写的**排空栅栏**升为否决项。消融 rebind-off、duty∈{3:1,7:1,15:1}、HARD-2 目的分布（§4）仍是必要但**非充分**——先证明不毒化通道，再谈 makespan。
 
-**判决：致命缺陷。**
+### 原致命点再审计（§0 自称 CLOSED）
+1. **Epoch Drain + skew 接受集** — **协议层可标 CLOSED，硅层有条件**。ARM_DRAIN→DRAIN→FLIP→`epoch_committed` 顺序清楚；接受集 `{local, local−1}` 与「永不按 Snp 语义重解释 Dat」写死。无缓冲环上「本地嗅探 ≥1 环周未见 old tag」在「停旧世代注入 + highway 每拍前进」前提下是完备的（在途 flit 必过本节点）。**漏洞在跨 die 异步**：各 die 本地 DRAIN 完成时刻不同；若 `epoch_committed` 只是早到节点发出的巡游位而非「全员已 FLIP」的 AND 屏障，则晚节点仍停在 epoch `e` 时可能收到 tag=`e+1` 的 ghost Dat → 接受集未命中 → 依赖 redirect。卡文强调「晚节点不得提前按新绑定注入」，却未同等钉死「早节点不得在全员 flip 前注入新世代」。T1 条件：committed 必须是全员 drain+flip 的聚合屏障，或新世代注入门控与之等价。
+2. **Ghost Dat @ RBRG + `bind_mismatch_redirect`** — **channel-id 毒化路径协议 CLOSED**。头保留 Dat id + `epoch_tag`；RBRG 按绑定表+epoch 译码；禁当 Snp 嗅探、禁静默丢。与 T0/SUMMARY close-call 一致：正确性闭合倚 redirect。**未闭合的是数据通路**：§5 只写「控制路径 + CSR」，未声明失配 flit 在等原 Dat 环空槽时住在哪里。信封「无片上 flit 队列」下，允许且必须显式化的是 RBRG 侧有界（建议深度 1）redirect holding register / 等价端口占用，并证明与 highway 单槽零和、不引入突发吸收队列；禁止用「NACK」一词掩盖无限重试占槽。
+
+### Drain 协议 / 环周完备性
+- Marker 双回或连续 ≥1–2× 周长 sniff 清 old tag：单环方向内成立。
+- 税：ARM_DRAIN→DRAIN ≥1–2× 环周，加 `epoch_committed` +1 环周，再加 bind pipe 1–2 拍——每次 flip 的死时间必须进 makespan；作者已承认「近乎双 Dat 无税」是撒谎，保留此诚实。
+- 嗅探漏检风险：仅当 ARM_DRAIN 后仍有节点漏停旧注入，或 committed 聚合失败；属屏障实现 bug，不是「倒数不够」的简单问题。
+
+### 压力臂 / 非预测
+- 主臂改为 Dat util EMA + Snp pending：**拔掉 COLL_EP 预言主臂，SYNC≠预测**——此前「软件相位暗示」致命点可 CLOSED。
+- 残余非正确性风险：EMA 滞后 → duty 来回抽打 → flip 过频，drain 税吃掉 0.55–0.85× 声称区间。需 STEADY 最小驻留 / 迟滞；属收益与稳定性，不把卡打回致命。
+
+### Snp duty floor 与杀假设
+- min 1/8 地板 + Snp makespan≤1.4× rebind-off + duty∈{3:1,7:1,15:1} 扫描：诚实可证伪，15:1 过敏必须暴露。Stall 有界声称成立当且仅当 SNP_EPOCH 窗真正可注入（不被 Req 环 SYNC 风暴与 divert 饿死）。
+
+### 时分复用 vs「第二 Dat 端口」
+- 卡文明确：每方向每拍仍 1 槽；有效 ≤1+duty_dat − drain − SYNC − pipe。**未把 time-mux 卖成并行第二 Dat**——这一点通过作者自证，评审不记为掩盖。
+- 面积：FSM+2b tag+4×4 one-hot×(NIC,RBRG)+EMA 计数，量级可接受；真正成本是环上税与 Snp 退化，不是门数。
+
+### 条件（全部满足才维持「有条件通过」；否则升级致命）
+1. 显式声明 mismatch 路径的有界 staging（深度、压在哪一端口、是否计入零和槽），证明无静默丢、无永久 inject stall、无活锁重注入。
+2. `epoch_committed` 定义为跨 die 全员 drain+flip 聚合（或等价门控），cycle 模型打 SYNC 采样偏斜；稳态 `bind_mismatch_redirect==0`，flip 窗 redirect 有上界并进 endpoints。
+3. 压力臂带最小 STEADY 驻留/迟滞；评估强制报 drain 税占比与 Snp makespan/completions，不得只报 Dat 甜区。
+
+T0 PASS_T1 / 原致命点 CLOSED ≠ 本评审硅通过：纸面毒化洞已堵，无缓冲 redirect 与跨 die 屏障仍是流片前必须钉死的条件。
