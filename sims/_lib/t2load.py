@@ -26,3 +26,13 @@ def load_sns_t2():
 
 def load_affine_t2():
     return load_model("models/P-0106/M-5/model.py", "t2_p0106_m5")
+
+
+def load_crrf_t2():
+    """Load T2 CRRF model if it has landed on this tree.
+
+    P-0198/M-5 T2 still lives on draft PR #63 (`cursor/p-0198-m-5-crrf-t2-4b32`)
+    and is not on main. Callers must tolerate FileNotFoundError and fall back
+    to the signed audit constants in the T3 sim — do not copy T2 files here.
+    """
+    return load_model("models/P-0198/M-5/model.py", "t2_p0198_m5")
