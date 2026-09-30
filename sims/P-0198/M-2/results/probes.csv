@@ -1,0 +1,10 @@
+trial,seed,probe,t3_r,t2,rel_err,flag_gt_30pct,t3_inject_before_grant,t3_gate_on_r,note
+0,20260903,gate-off,1.046875,1.0362,0.010302065238370961,False,109,1.010417,H_inject_gate off; T2 ≈1.0362; do not treat card-claim as measured
+0,20260903,high-ost-8ops,0.375000,0.5746,0.347372084928646,True,0,,f_ov=0.3750 ov=3 dominates=False card_claim=still-labeled-not-pass (T2 a=8 Erlang-B 0.5746 → INVALID)
+0,20260903,timeout=8,0.000000,late-fraction (H-TIMEOUT-WINDOW),,,0,,collect_timeout_fallback=0 ff_notify_max=1 dominates=False
+1,20260904,gate-off,1.046875,1.0362,0.010302065238370961,False,109,1.010417,H_inject_gate off; T2 ≈1.0362; do not treat card-claim as measured
+1,20260904,high-ost-8ops,0.375000,0.5746,0.347372084928646,True,0,,f_ov=0.3750 ov=3 dominates=False card_claim=still-labeled-not-pass (T2 a=8 Erlang-B 0.5746 → INVALID)
+1,20260904,timeout=8,0.000000,late-fraction (H-TIMEOUT-WINDOW),,,0,,collect_timeout_fallback=0 ff_notify_max=1 dominates=False
+2,20260905,gate-off,1.046875,1.0362,0.010302065238370961,False,109,1.010417,H_inject_gate off; T2 ≈1.0362; do not treat card-claim as measured
+2,20260905,high-ost-8ops,0.375000,0.5746,0.347372084928646,True,0,,f_ov=0.3750 ov=3 dominates=False card_claim=still-labeled-not-pass (T2 a=8 Erlang-B 0.5746 → INVALID)
+2,20260905,timeout=8,0.000000,late-fraction (H-TIMEOUT-WINDOW),,,0,,collect_timeout_fallback=0 ff_notify_max=1 dominates=False
