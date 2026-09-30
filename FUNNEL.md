@@ -4,12 +4,16 @@
 配额: 新问题 30 → 机制 150 → 过 T0 40 → 过 T1 12 → T2 8 → T3 3
 用量: 问题 4/30 · 机制 0/150 · T0 过 0/40 · T1 过 0/12 · T2 过 0/8 · T3 过 0/3
 
+## 2026-09-30 Jim T0
+
+Jim Keller P-0198 T0（PR #44 卡与评审未入 main，机制层用量不记，问题仍 4/30）：PASS_T1 M-1 CBC、M-2 CSR、M-4 AODI、M-5 CRRF → 交评审主持。REJECT M-3 DPH（FUNCTIONAL_EQUIVALENT）。保守 M-6..M-10 T0 仍待（PR #45 并行，卡未合入）。
+
 ## 2026-09-30 派出
 
 人确认派建筑师。P-0198 无缓冲环 NoC 上 LLM 点对点/集合通信 makespan（tests/soc_sim）。占用：保守架构师 + Jim Keller（各 5 卡）。
 
-Jim Keller 已交 M-1..M-5（CBC/CSR/DPH/AODI/CRRF）于 PR #44，交 设计验证 做 Tier 0。
-保守架构师已交 M-6..M-10（TDMA 注入窗 / CW-CCW 方向 / CHI 亲和 / RBRG 门控 / 年龄优先仲裁）于 PR #45，交 设计验证 做 Tier 0，与 Jim PR #44 并行。卡未合入、T0 未完，机制层仍 0；问题用量不变 4/30。
+Jim Keller 已交 M-1..M-5（CBC/CSR/DPH/AODI/CRRF）于 PR #44，交 设计验证 做 Tier 0；T0 见上。
+保守架构师已交 M-6..M-10（TDMA 注入窗 / CW-CCW 方向 / CHI 亲和 / RBRG 门控 / 年龄优先仲裁）于 PR #45，交 设计验证 做 Tier 0，与 Jim PR #44 并行。保守 T0 仍待。卡与评审未入 main，机制层仍 0；问题用量不变 4/30。
 
 ## 2026-09-30 人题入仓
 
@@ -132,7 +136,7 @@ P-0198 无缓冲环 NoC 上 LLM 点对点/集合通信 makespan（tests/soc_sim�
 
 ## 本周占用（已派、卡未落地）
 
-P-0198：保守架构师 + Jim Keller（各 5 卡）。机制仍 0/150。
+P-0198：Jim T0 已裁（4→评审主持，M-3 淘汰；卡未入 main）；保守 M-6..M-10 T0 仍待。机制仍 0/150。
 
 ## 本周已入仓备案（未派建筑师）
 
