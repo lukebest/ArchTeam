@@ -4,9 +4,9 @@
 配额: 新问题 30 → 机制 150 → 过 T0 40 → 过 T1 12 → T2 8 → T3 3
 用量: 问题 7/30 · 机制 0/150 · T0 过 0/40 · T1 过 0/12 · T2 过 0/8 · T3 过 0/3
 
-## 2026-09-30 T1-return-1 host → #eval
+## 2026-09-30 Jim T1-return-1
 
-P-0198 T1-return-1 共识（本 PR 着陆四人格 + 主持综合；#57–#60 由本 PR 取代）：PASS M-2 CSR → Tier 2 / #eval（4/4 有条件，无致命）；PASS M-4 AODI → Tier 2 / #eval（Sys 通过 + 3 有条件，无致命）；PASS M-5 CRRF → Tier 2 / #eval（4/4 有条件，无致命）。前轮致命合成作废。与 M-1 CBC 并列过 T1（M-1 已在微架构仿真 T3）。来源机制 PR #53、T0 重跑 PR #55。卡未入 main，机制层用量不记，问题仍 7/30。不记 T1/T2 过线配额。
+P-0198 T1-return-1 共识（PR #61）：PASS M-2 CSR、M-4 AODI、M-5 CRRF → 分析模型 T2 + 问题扩展（M-2/M-5 4/4 有条件，M-4 Sys 通过 + 3 有条件，无致命）。M-1 CBC 仍在微架构仿真 T3。卡未入 main，机制层用量不记，问题仍 7/30。不记 T1/T2 过线配额。
 
 ## 2026-09-30 评估审计 T2 PASS → 微架构仿真 T3
 
@@ -168,7 +168,7 @@ P-0198 无缓冲环 NoC 上 LLM 点对点/集合通信 makespan（tests/soc_sim�
 
 ## 本周占用（已派、卡未落地）
 
-P-0198：Jim T1 已裁（M-1 CBC T2 评估审计 PASS，模型 PR #54，审计 PR #56 / bc-fe019356，交 微架构仿真 T3；M-2 CSR / M-4 AODI / M-5 CRRF T1-return-1 PASS → 分析模型 T2 / #eval；卡与模型未入 main）；保守批已 0→T1（T0：M-7 KNOWN_CONFIRM 冻基线）。机制仍 0/150。
+P-0198：Jim T1 已裁（M-1 CBC 仍在微架构仿真 T3；M-2/M-4/M-5 T1-return-1 PASS → 分析模型 T2 + 问题扩展；卡与模型未入 main）；保守批已 0→T1（T0：M-7 KNOWN_CONFIRM 冻基线）。机制仍 0/150。
 
 ## 本周已入仓备案（未派建筑师）
 
