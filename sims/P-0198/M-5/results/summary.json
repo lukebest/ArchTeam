@@ -1,0 +1,271 @@
+{
+  "card": "P-0198/M-5 CRRF",
+  "seed": 20260903,
+  "mode": "smoke",
+  "t2_model_on_tree": false,
+  "t2_source": "signed audit pins (director) + PR #63 spec; model.py not on main",
+  "t2_signed": {
+    "T_drain": 77.0,
+    "f_steady": 0.8666,
+    "C_dat_eff": {
+      "rebind-off": 1.0,
+      "3:1": 1.6099,
+      "7:1": 1.7182,
+      "15:1": 1.7724
+    },
+    "H-COMMIT": {
+      "held": 0,
+      "violated": 12
+    },
+    "H-DAT-DOM gather": {
+      "3:1": 0.6212,
+      "7:1": 0.582,
+      "15:1": 0.5642
+    },
+    "HARD-1": "537.2>303.1",
+    "Snp 15:1": 1.5625
+  },
+  "t2_flags_gt_30pct": 2,
+  "n_cap_rows": 48,
+  "n_cyc_rows": 48,
+  "n_snp_rows": 12,
+  "capacity_csv": "/workspace/sims/P-0198/M-5/results/capacity.csv",
+  "t2_compare_csv": "/workspace/sims/P-0198/M-5/results/t2_compare.csv",
+  "bw_ci": [
+    {
+      "class": "gather",
+      "arm": "15:1",
+      "makespan_ci": "14.00 \u00b1 0.00 (n=3)",
+      "c_dat_eff_ci": "1.5515 \u00b1 0.0000 (n=3)",
+      "mean_makespan": 14.0,
+      "ci95_hw": 0.0,
+      "n": 3,
+      "card_claim": "0.55-0.85x",
+      "card_claim_is_measured": false,
+      "hypothesis": "H-RING-BB"
+    },
+    {
+      "class": "gather",
+      "arm": "3:1",
+      "makespan_ci": "14.00 \u00b1 0.00 (n=3)",
+      "c_dat_eff_ci": "1.4185 \u00b1 0.0000 (n=3)",
+      "mean_makespan": 14.0,
+      "ci95_hw": 0.0,
+      "n": 3,
+      "card_claim": "0.55-0.85x",
+      "card_claim_is_measured": false,
+      "hypothesis": "H-RING-BB"
+    },
+    {
+      "class": "gather",
+      "arm": "7:1",
+      "makespan_ci": "14.00 \u00b1 0.00 (n=3)",
+      "c_dat_eff_ci": "1.5072 \u00b1 0.0000 (n=3)",
+      "mean_makespan": 14.0,
+      "ci95_hw": 0.0,
+      "n": 3,
+      "card_claim": "0.55-0.85x",
+      "card_claim_is_measured": false,
+      "hypothesis": "H-RING-BB"
+    },
+    {
+      "class": "gather",
+      "arm": "rebind-off",
+      "makespan_ci": "24.00 \u00b1 0.00 (n=3)",
+      "c_dat_eff_ci": "1.0000 \u00b1 0.0000 (n=3)",
+      "mean_makespan": 24.0,
+      "ci95_hw": 0.0,
+      "n": 3,
+      "card_claim": "0.55-0.85x",
+      "card_claim_is_measured": false,
+      "hypothesis": "H-RING-BB"
+    },
+    {
+      "class": "snp_path",
+      "arm": "15:1",
+      "makespan_ci": "175.00 \u00b1 0.00 (n=3)",
+      "c_dat_eff_ci": "1.6391 \u00b1 0.0000 (n=3)",
+      "mean_makespan": 175.0,
+      "ci95_hw": 0.0,
+      "n": 3,
+      "card_claim": "<=1.4x kill",
+      "card_claim_is_measured": false,
+      "hypothesis": "H-RING-BB"
+    },
+    {
+      "class": "snp_path",
+      "arm": "3:1",
+      "makespan_ci": "15.00 \u00b1 1.13 (n=3)",
+      "c_dat_eff_ci": "1.5046 \u00b1 0.0013 (n=3)",
+      "mean_makespan": 15.0,
+      "ci95_hw": 1.1316065276116665,
+      "n": 3,
+      "card_claim": "<=1.4x kill",
+      "card_claim_is_measured": false,
+      "hypothesis": "H-RING-BB"
+    },
+    {
+      "class": "snp_path",
+      "arm": "7:1",
+      "makespan_ci": "118.67 \u00b1 102.57 (n=3)",
+      "c_dat_eff_ci": "1.5930 \u00b1 0.0069 (n=3)",
+      "mean_makespan": 118.66666666666667,
+      "ci95_hw": 102.57333333333332,
+      "n": 3,
+      "card_claim": "<=1.4x kill",
+      "card_claim_is_measured": false,
+      "hypothesis": "H-RING-BB"
+    },
+    {
+      "class": "snp_path",
+      "arm": "rebind-off",
+      "makespan_ci": "15.00 \u00b1 1.13 (n=3)",
+      "c_dat_eff_ci": "1.0000 \u00b1 0.0000 (n=3)",
+      "mean_makespan": 15.0,
+      "ci95_hw": 1.1316065276116665,
+      "n": 3,
+      "card_claim": "<=1.4x kill",
+      "card_claim_is_measured": false,
+      "hypothesis": "H-RING-BB"
+    },
+    {
+      "class": "uniform_read",
+      "arm": "15:1",
+      "makespan_ci": "12.33 \u00b1 1.31 (n=3)",
+      "c_dat_eff_ci": "1.5353 \u00b1 0.0134 (n=3)",
+      "mean_makespan": 12.333333333333334,
+      "ci95_hw": 1.3066666666666669,
+      "n": 3,
+      "card_claim": "0.55-0.85x",
+      "card_claim_is_measured": false,
+      "hypothesis": "H-RING-BB"
+    },
+    {
+      "class": "uniform_read",
+      "arm": "3:1",
+      "makespan_ci": "12.33 \u00b1 1.31 (n=3)",
+      "c_dat_eff_ci": "1.4053 \u00b1 0.0110 (n=3)",
+      "mean_makespan": 12.333333333333334,
+      "ci95_hw": 1.3066666666666669,
+      "n": 3,
+      "card_claim": "0.55-0.85x",
+      "card_claim_is_measured": false,
+      "hypothesis": "H-RING-BB"
+    },
+    {
+      "class": "uniform_read",
+      "arm": "7:1",
+      "makespan_ci": "12.33 \u00b1 1.31 (n=3)",
+      "c_dat_eff_ci": "1.4920 \u00b1 0.0126 (n=3)",
+      "mean_makespan": 12.333333333333334,
+      "ci95_hw": 1.3066666666666669,
+      "n": 3,
+      "card_claim": "0.55-0.85x",
+      "card_claim_is_measured": false,
+      "hypothesis": "H-RING-BB"
+    },
+    {
+      "class": "uniform_read",
+      "arm": "rebind-off",
+      "makespan_ci": "15.00 \u00b1 1.13 (n=3)",
+      "c_dat_eff_ci": "1.0000 \u00b1 0.0000 (n=3)",
+      "mean_makespan": 15.0,
+      "ci95_hw": 1.1316065276116665,
+      "n": 3,
+      "card_claim": "0.55-0.85x",
+      "card_claim_is_measured": false,
+      "hypothesis": "H-RING-BB"
+    },
+    {
+      "class": "uniform_write",
+      "arm": "15:1",
+      "makespan_ci": "12.33 \u00b1 1.31 (n=3)",
+      "c_dat_eff_ci": "1.5353 \u00b1 0.0134 (n=3)",
+      "mean_makespan": 12.333333333333334,
+      "ci95_hw": 1.3066666666666669,
+      "n": 3,
+      "card_claim": "0.85-1.05x",
+      "card_claim_is_measured": false,
+      "hypothesis": "H-RING-BB"
+    },
+    {
+      "class": "uniform_write",
+      "arm": "3:1",
+      "makespan_ci": "12.33 \u00b1 1.31 (n=3)",
+      "c_dat_eff_ci": "1.4053 \u00b1 0.0110 (n=3)",
+      "mean_makespan": 12.333333333333334,
+      "ci95_hw": 1.3066666666666669,
+      "n": 3,
+      "card_claim": "0.85-1.05x",
+      "card_claim_is_measured": false,
+      "hypothesis": "H-RING-BB"
+    },
+    {
+      "class": "uniform_write",
+      "arm": "7:1",
+      "makespan_ci": "12.33 \u00b1 1.31 (n=3)",
+      "c_dat_eff_ci": "1.4920 \u00b1 0.0126 (n=3)",
+      "mean_makespan": 12.333333333333334,
+      "ci95_hw": 1.3066666666666669,
+      "n": 3,
+      "card_claim": "0.85-1.05x",
+      "card_claim_is_measured": false,
+      "hypothesis": "H-RING-BB"
+    },
+    {
+      "class": "uniform_write",
+      "arm": "rebind-off",
+      "makespan_ci": "15.00 \u00b1 1.13 (n=3)",
+      "c_dat_eff_ci": "1.0000 \u00b1 0.0000 (n=3)",
+      "mean_makespan": 15.0,
+      "ci95_hw": 1.1316065276116665,
+      "n": 3,
+      "card_claim": "0.85-1.05x",
+      "card_claim_is_measured": false,
+      "hypothesis": "H-RING-BB"
+    }
+  ],
+  "drain_probe": {
+    "n_nodes": 25,
+    "n_pipe": 2,
+    "t0": 0,
+    "t1": 75,
+    "t_drain": 75,
+    "t2_t_drain": 77.0,
+    "formula": 77
+  },
+  "h_commit": {
+    "held": {
+      "violated": false,
+      "bind_mismatch_redirect": 0,
+      "late_newgen_caught": 0,
+      "t2_held": 0,
+      "t2_violated": 12,
+      "completed": 12
+    },
+    "violated": {
+      "violated": true,
+      "bind_mismatch_redirect": 12,
+      "late_newgen_caught": 0,
+      "t2_held": 0,
+      "t2_violated": 12,
+      "completed": 0
+    }
+  },
+  "bbox": "12+0 nodes, CHI 4 rings \u00d7 2 dirs, outstanding=16 (not envelope rd512/wr256), |I|=48, |Snp|=6, t_steady_laps=8, warmup until SYNC-aligned STEADY, reduced-bbox vs 12+2 DV200 tests/soc_sim; clock UNKNOWN",
+  "note": "card-claim 0.55\u20130.85\u00d7 is NOT measured. 0.85 is a pass bar. Do not average duty arms. Do not hide Snp behind Dat mean. Ablation vs rebind-off only \u2014 not M-1 CBC / M-2 / M-4. If |T3\u2212T2|/T2>30% the T3 number stands; do not substitute T2.",
+  "dr_sim": {
+    "five_state_fsm": true,
+    "marker_double_return": true,
+    "local_sniff_ne_global": true,
+    "epoch_committed_barrier": true,
+    "accept_set": true,
+    "ghost_channel_id_dat": true,
+    "nack_reinject": true,
+    "no_hint_required": true,
+    "sync_not_oracle": true,
+    "hard2_dest": true,
+    "warmup_sync_aligned": true
+  },
+  "eliminated_sibling": "P-0198/M-1 CBC T3 REJECT (PR #62) \u2014 not mixed here"
+}
