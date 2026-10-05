@@ -1,8 +1,12 @@
 # FUNNEL
 
-周次: 2026-09-28 ~ 2026-10-04（上海）
+周次: 2026-10-05 ~ 2026-10-11（上海）
 配额: 新问题 30 → 机制 150 → 过 T0 40 → 过 T1 12 → T2 8 → T3 3
-用量: 问题 20/30 · 机制 0/150 · T0 过 0/40 · T1 过 0/12 · T2 过 0/8 · T3 过 1/3
+用量: 问题 0/30 · 机制 0/150 · T0 过 0/40 · T1 过 0/12 · T2 过 0/8 · T3 过 0/3
+
+## 2026-10-05 09:00 台账
+
+新周开账。今日无派出、无退回、不派建筑师。无新规范化问题可勾（最高仍 P-0214，无 P-0215+；cards tip `eebbf8c`）。机制层仍空。上周收口：问题 20/30、T3 过 1/3（P-0198/M-5 CRRF 存活，M-1/M-2/M-4 T3 淘汰）。P-0198/M-5 CRRF 与旧 Top P-0105/M-4 SNS、P-0106/M-5 AffineRebind 均等人定 T4（不开 T4）。自 10-04 09:00 以来无新合入、无新 PR。文献 PR #27–#43+#77+#78+#79 仍 DRAFT OPEN。P-0198 产物 #44–#75 等多份仍 DRAFT OPEN（#76 已合）。拍板仍等人（T4/停 · 扩配额 · 是否派建筑师）。
 
 ## 2026-10-04 09:00 台账
 
@@ -236,35 +240,36 @@ P-0198 无缓冲环 NoC 上 LLM 点对点/集合通信 makespan（tests/soc_sim�
 1. P-0184 STA 上 MoE 解码专家权值 DMA 钉死端到端与计算空转
 2. P-0185 WAN 多路径下 BDP 位图打穿 FPGA NIC 片上状态并拉长流完成时间
 
-## 本周占用（已派、卡未落地）
+## 上周 09-28~10-04 占用（已派、卡未落地）
 
 P-0198：Jim T1 已裁（M-1 CBC T3 REJECT 死，审计 PR #64；M-2 CSR T3 REJECT 死，审计 PR #74 / 仿真 PR #72；M-4 AODI T3 REJECT 死，审计 PR #71 / 仿真 PR #70；M-5 CRRF T3 PASS / 存活，night 确认通过 审计 PR #76 / 仿真 tip `b0b4cf9` #73（smoke #75 / `da294cb`），等人定 T4、不开 T4；卡、模型与仿真未入 main）；保守批已 0→T1（T0：M-7 KNOWN_CONFIRM 冻基线）。机制仍 0/150。
 
 ## 本周已入仓备案（未派建筑师）
 
-P-0195、P-0196、P-0197、P-0199、P-0200、P-0201、P-0202、P-0203、P-0204、P-0205、P-0206、P-0207、P-0208、P-0209、P-0210、P-0211、P-0212、P-0213、P-0214
+（暂无）
 
 ## 上周备案残留（未派入本周配额）
 
-P-0159、P-0164–P-0194。
+P-0159、P-0164–P-0214。
 
 ## Top（已签 T3；等人定 T4）
 
 - P-0105/M-4 SNS：smoke+night 通过。占用 `rel_err=0`。BW 未签 0.85。30 晚 vs main tip `c5f5b74` bit-identical；无数字 delta、未开 PR。
 - P-0106/M-5 AffineRebind：smoke+night 通过。占用 `rel_err=0`。BW 未签 0.85。30 晚 vs main tip `c5f5b74` bit-identical；无数字 delta、未开 PR。
+- P-0198/M-5 CRRF：T3 smoke+night 通过（审计 #75/#76，仿真 #73 tip b0b4cf9）；card-claim 未签；Snp 15:1 KILL；等人定 T4。
 - 21–30 晚 T3 night 复扫：21–29 无数字 delta、未开 PR；30 晚相对 main tip `c5f5b74` bit-identical、无数字 delta、未开 PR；占用 rel_err=0 不变；BW 仍不签 0.85；签字不变。
 
 ## 拍板仍等人
 
 T4/停 · 扩配额 · 其余备案是否派建筑师。P-0198 已派出。P-0198/M-5 CRRF T3 存活，等人定 T4（不开 T4）。
 
-## T3 存活 / 通过（本周）
+## T3 存活 / 通过（上周 09-28~10-04）
 
 | ID | 类别 | 结果 |
 |---|---|---|
 | P-0198/M-5 CRRF | T3 PASS / 存活 | 评估审计通过（smoke 审计 PR #75 / 仿真 tip `da294cb` #73；night 确认通过 审计 PR #76 / tip `b0b4cf9`；T2 比照 #63；SEED=20260903；pytest 25）。T_drain 75 vs 77；f_steady gather7:1 0.709 vs 0.8666；C_dat_eff 1.000/1.4185/1.5072/1.5515（无 >30% flag）。H-COMMIT 0/12；gather T/off 0.5833×3；HARD-1 24>14 True。Snp 15:1 KILL：snp_path 11.6667 / mixed 23.2222 vs T2 1.5625（flag 2/16，不贴 T2）；mixed 3:1/7:1 亦 KILL；completions 未丢。oracle_used=False；card-claim 未签（勿把 0.583 当 card-claim 签字）。Night：Snp 15:1 仍 KILL（加严 17.0533 / 32.5873 vs T2 1.5625，不贴作 pass）；card-claim 未签；smoke/#75 未动。不开 T4。等人定 T4。 |
 
-## T3 淘汰（本周）
+## T3 淘汰（上周 09-28~10-04）
 
 | ID | 类别 | 原因 |
 |---|---|---|
