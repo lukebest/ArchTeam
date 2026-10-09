@@ -25,6 +25,9 @@ T1（10:52）：M-5r1 CRRF-SB 共识 FAIL（PR #95），退回 Jim。致命点�
 方向二（~11:39 上海）：P-0221 Jim M-1 STB/M-2 DVC/M-3 IPCW/M-4 SOSG/M-5 PMQR 全 REJECT FUNCTIONAL_EQUIVALENT（PR #100 卡、#102 T0），0 进 T1。主因：库已有环内流控/i-tag/leaf-tag 先例；一圈时间误用站数 21（实际顶层 42 拍、横环 72–76、纵环 132/148/152）；每 flit 加 1 bit 算加线。总监裁定 M-2 维持 REJECT，待基线重核（库三项全开后梯度是否仍在）再定是否重写；P-0221 题卡已补三条约束（PR #103：加 1 bit 算加线、一圈时间按链路延迟之和、库三项全开为基线）。等保守架构师 M-6..M-10。机制 12→17/150。
 方向二（~11:52 上海）：P-0221 保守架构师 M-6..M-10 全 REJECT（PR #104 卡、#105 T0）：M-6/M-7/M-8/M-10 FUNCTIONAL_EQUIVALENT，M-9 EXACT_MATCH（=端口 insertAfterRemoval=false）；M-8 ≈ platform --sub-rr；M-10 同构 P-0198 M-3 DPH。P-0221 两批 10 张 0 进 T1。
 重要发现：不加 --sub-rr 时 pick_sub 恒为 0（Endpoint.h:180-181），bufferless-ring-noc 基线分支 89f9c88 上 P-0198 全部 11 个基线配置只用 Dat0，第二 Dat 子环/Rsp 子环闲置。已派负载基线加 sub-rr、insertAfterRemoval 对照臂与“库全开”组合基线；P-0221 后续是否继续出卡等库全开后饿死梯度是否仍在。机制 17→22/150。
+方向一（~13:47 上海）：评估审计签 bufferless-ring-noc PR #1 @94498c7（PR #106）。可签（smoke 级、相对值）：sub_rr p2p 0.878 / allreduce 0.931 / RS 0.961 / mix_L 0.933，属基线配置修正（启用闲置的第二 Dat 子环），不是机制增益；lib_all_on 相对 sub_rr 无可测增量；dat_mcast p2p 0.938 / mix_S 0.898；issue_longest/shortest 使 moe 变慢 1.149/1.175；其余旋钮在噪声内或 FC 未触发；没有一行 ≤0.85。噪声门限 |1−ratio| > max(3×噪声, 2%)。
+「库全开后除 Req 外无饿死」不签：池化口径错，先平均再取比后 Req0 0.81、Req1 0.83，结论反转；底 die 侧未测。P-0221 继续暂停出卡。
+已派负载基线：修池化脚本、测底 die 侧、真随机 ≥8 seed、outstanding 扫 16/128/512、拆开 kv 与权值、lib_all_on 消融、给参数找出处。完整 12+2 die 信封已请船长拍板。
 
 ## 2026-10-09 Jim T1 M-5r1 CRRF-SB
 
