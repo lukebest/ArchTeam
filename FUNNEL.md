@@ -33,6 +33,8 @@ T1（10:52）：M-5r1 CRRF-SB 共识 FAIL（PR #95），退回 Jim。致命点�
 (~18:10 上海) 评估审计 gate r3（bufferless-ring-noc PR #1 @242aae4，PR #108）：有条件放大。饿死与挂法无关（所有可启动挂法均饿），链路时延敏感性不改结论；die1 aic_down 下游 2.096 cycle/inject、8/8 seed。根因为集合单根 incast（root 默认 rank0 在 die1 CS0；root 移 die2 饿死跟着搬，移环中 rank5 不过线；对称负载无梯度）。顶层链路时延=1 时 AR/RS 死锁未查。
 (~18:21 上海) 船长拍 A：先小规模用环形/分段集合替换单根并扫 root；仍饿则带审计全部条件（root 扫描、等待剖面、两种挂法、查死锁、非单根对照）放大到 12+2；不饿则不放大、P-0221 关闭。死锁一并查。结果需审计签字。已派负载基线。
 (~18:27 上海) 船长拍：内存交织 SNS / AffineRebind 停止，不开 T4，记为淘汰（原因：船长决定停止）。
+(~20:16 上海) 评估审计 gate r4（bufferless-ring-noc PR #1 tip bbb7baf，PR #109）：不放大，关 P-0221。真环形集合（ring_*）+库全开+os512 无任何单 die 单环过饿死线；此前饿死=单根 incast。hier_allreduce 误标为非单根（每 die 单根），但单独也不过线。签名范围：HA 中转、chunks=1。Lat=1 AR/RS 死锁可签（无缓冲 Dat 资源环 + TRingConfig.cpp:439 偶一圈补丁），环模型未改，只备案。
+(~20:16 上海) 按船长 18:21 拍 A：不放大、P-0221 关闭。方向一可签结论不变：只有 sub_rr 有证据（p2p 0.966），基线配置修正。
 
 ## 2026-10-09 Jim T1 M-5r1 CRRF-SB
 
@@ -322,13 +324,14 @@ P-0159、P-0164–P-0214。
 - P-0105/M-4 SNS：淘汰（船长 10-09 18:27 决定停止，不开 T4）。smoke+night 通过。占用 `rel_err=0`。BW 未签 0.85。30 晚 vs main tip `c5f5b74` bit-identical；无数字 delta、未开 PR。
 - P-0106/M-5 AffineRebind：淘汰（船长 10-09 18:27 决定停止，不开 T4）。smoke+night 通过。占用 `rel_err=0`。BW 未签 0.85。30 晚 vs main tip `c5f5b74` bit-identical；无数字 delta、未开 PR。
 - P-0198/M-5 CRRF 路线已关闭（10-09，M-5r2 T0 KILL）：T3 smoke+night 通过（审计 #75/#76，仿真 #73 tip b0b4cf9）；card-claim 撤回；Snp 15:1 KILL。
+- P-0221：关闭（10-09，非单根下无饿死，船长 A 规则）。
 - 21–30 晚 T3 night 复扫：21–29 无数字 delta、未开 PR；30 晚相对 main tip `c5f5b74` bit-identical、无数字 delta、未开 PR；占用 rel_err=0 不变；BW 仍不签 0.85；签字不变。
 
 ## 拍板仍等人
 
 扩配额 · 其余备案是否派建筑师。P-0198 已派出。P-0198/M-5 CRRF 路线已关闭（10-09，M-5r2 T0 KILL），不再等人定 T4。SNS/AffineRebind 已淘汰（船长 10-09 18:27 决定停止，不开 T4），不再等人定 T4。
 2026-10-09：P-0198 已拍 A+B 并行；CRRF 路线已关闭。SNS/AffineRebind 已淘汰。
-放大门：已拍 A（10-09 18:21，先非单根对照）。
+放大门 / P-0221 已关（10-09 20:16）。
 
 ## T3 存活 / 通过（上周 09-28~10-04）
 
