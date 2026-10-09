@@ -36,7 +36,7 @@ M-5 中绑定表是 Snp 物理环的排他身份：DAT_EPOCH 期间本征 Snp �
 - HARD-1 保持：rebind-off 的推理 Dat makespan 必须严格差于 SB 最佳 on-arm；只涨 `p_inj`/注入次数不计分。
 
 ## RTL / 仿真器改动核查
-- 卡 §7 写「本环境读不到该仓（GitHub 404）」：本次核查时 https://github.com/lukebest/bufferless-ring-noc 为公开仓，`main@63163ca` 可正常 clone；另有分支 `cursor/p0198-llm-noc-baseline-aa90`（推理负载）。
+- 卡 §7 写「本环境读不到该仓（GitHub 404）」：https://github.com/lukebest/bufferless-ring-noc 是私有仓（未认证访问 404），以仓主账号认证后可 clone，本次核查 `main@63163ca`；另有分支 `cursor/p0198-llm-noc-baseline-aa90`（推理负载）。卡作者 404 是权限问题，不是仓不存在。
 - 仓内无 RTL 源（无 .v/.sv）。`include/`、`src/` 是导入的哈希锁定 ChiRingFabric ESL 库（`provenance/esl-2026-09-15.json`），`tests/soc_sim/` 是平台。基线没有通道–环绑定层：每个 CHI 通道在 `m_networkList[channel][sub_channel]` 上有自己的环（参见 `src/TCsHighWay.cpp:341` 对 `m_networkList[Dat_CHANNEL]` 的访问），NI 注入（`src/TNetworkInterface*.cpp`）、highway 仲裁（`src/TCsHighWay.cpp` `tryLocalToWay`/`tryWayToLocal`）、RBRG 译码（`src/TBridge.cpp`、`src/TNetworkInterfaceRbrg.cpp`）都在库内。
 - 卡 §7 的 5 个钩子（NIC 注入仲裁、绑定资格位、RBRG 按 header 转发、Drain 门控、遥测）全部落在库内，属仿真器结构改动，只能在 bufferless-ring-noc 新分支实现，须默认关闭并进新的 provenance manifest；不改 RTL。卡的说法（「不得改 RTL」「若无绑定层应新增」）成立。
 - PR #85 在 ArchTeam 只新增 `mechanisms/P-0198/M-5r1.md` 与 `models/P-0198/M-5r1/*`，未改 M-5.md / reviews/。
