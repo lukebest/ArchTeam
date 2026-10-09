@@ -7,8 +7,12 @@ One-command smoke:
 Night:
   python3 sims/P-0198/M-5/sweep.py --mode night --seed 20260903
 
+Unsigned card-claim (writes only results/card_claim/; not a conclusion):
+  python3 sims/P-0198/M-5/sweep.py --mode card_claim --seed 20260903
+
 Night capacity / t2_compare write to <out>/night/ and do not
 overwrite the signed smoke fixture at <out>/{capacity,t2_compare}.csv.
+card_claim never writes into results/ or results/night/.
 
 Ablation is rebind-off only. Duty arms are never averaged. Snp is never
 folded into a Dat mean. This card is not ranked against M-1 / M-2 / M-4.
@@ -566,12 +570,20 @@ def sweep(mode: str, out: Path, seed: int, n_trials: int, n_txn: int | None) -> 
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser()
-    p.add_argument("--mode", choices=("smoke", "night"), default="smoke")
+    p.add_argument("--mode", choices=("smoke", "night", "card_claim"), default="smoke")
     p.add_argument("--out", type=Path, default=_HERE / "results")
     p.add_argument("--seed", type=int, default=SEED)
     p.add_argument("--n-trials", type=int, default=3)
     p.add_argument("--n-txn", type=int, default=None)
     args = p.parse_args(argv)
+    if args.mode == "card_claim":
+        from card_claim import run_card_claim
+
+        dest = args.out
+        if dest.resolve() == (_HERE / "results").resolve():
+            dest = _HERE / "results" / "card_claim"
+        run_card_claim(dest, args.seed, args.n_trials, args.n_txn)
+        return 0
     sweep(args.mode, args.out, args.seed, args.n_trials, args.n_txn)
     return 0
 
