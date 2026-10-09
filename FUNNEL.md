@@ -15,6 +15,9 @@ B：Jim 交 M-5 CRRF 修订卡修 15:1 小包延迟；微架构仿真补测现�
 B 进展（10:40）：M-5 CRRF card-claim 补测（PR #83）经评估审计（PR #86）判部分成立，不签全信封。可引用：gather 0.551 / allgather 0.667 / alltoall 0.719（过 0.85）；allreduce 1.000 不过；decode_kv_p2p 0.824 边缘。全类 0.55–0.85× 与推理相关性不签（负载基线表未到，existing_config）。卡收益收窄为 gather/allgather 型集合，本 bbox。15:1 Snp 仍 KILL。T3 存活，不开 T4。
 A/B 在途：Jim M-11..M-15（PR #84）、M-5r1 CRRF-SB 修订卡（PR #85）已交设计验证 T0；保守架构师 5 张、负载基线表未到。
 T0 收口（10:45）：第二轮 11 张（Jim M-11..M-15、保守 M-16..M-20、M-5r1）仅 M-5r1 CRRF-SB 过（PASS_T1/INCREMENTAL），已交评审主持 T1。REJECT：M-11 MELB、M-12 HSSL、M-13 WSOR、M-15 TOSE、M-16 RBRG 拼接、M-17 highway 对换、M-19 饥饿气泡中继。KNOWN_CONFIRM：M-14 PSCK、M-18 目的位图组播（=环库已有 Dat 多播）、M-20 最长弧先发（按 M-7 先例）。口径：环库已有功能算先例；Snp 无数据载荷位宽问题列 M-5 线 T1 必验，不判 KILL。基线补充已交负载基线：开库内多播、i-tag 门限扫 8/16/32、发射顺序三臂、UturnConnect。
+T1（10:52）：M-5r1 CRRF-SB 共识 FAIL（PR #95），退回 Jim。致命点：Snp flit 无数据字段，ghost Dat 需 k≈6–8 槽或加线；卡上基线少算一条 Dat 子环；无逐节点 ghost 密度上限。drain-off/header-only 数字与全机制一致，epoch/bind 赘余。
+审计更正（11:03，PR #96）：原 M-5 CRRF T3 仿真一槽载整笔 512B（k=1）、Dat 只建 1 环、作业未跨 flip。M-5 T3 PASS → 退回重测；card-claim（#86 部分成立）→ 撤回。估算真实条件 gather/allgather/alltoall 约 0.92–0.97，均不过 0.85；15:1 Snp 仍 KILL。
+船长拍板（10:57）：CRRF 路线不加线，只在现有线宽内拼槽重试一次（M-5r2，即本次重测），过不了关闭。k 按 CHI 规范字段宽推算，扫 64B/128B beat 与 k 区间，KILL 按最不利 k；Dat ×2 基线；作业跨多次 flip。
 
 ## 2026-10-09 Jim T1 M-5r1 CRRF-SB
 
@@ -303,12 +306,12 @@ P-0159、P-0164–P-0214。
 
 - P-0105/M-4 SNS：smoke+night 通过。占用 `rel_err=0`。BW 未签 0.85。30 晚 vs main tip `c5f5b74` bit-identical；无数字 delta、未开 PR。
 - P-0106/M-5 AffineRebind：smoke+night 通过。占用 `rel_err=0`。BW 未签 0.85。30 晚 vs main tip `c5f5b74` bit-identical；无数字 delta、未开 PR。
-- P-0198/M-5 CRRF：T3 smoke+night 通过（审计 #75/#76，仿真 #73 tip b0b4cf9）；card-claim 未签；Snp 15:1 KILL；等人定 T4。
+- P-0198/M-5 CRRF（T3 退回重测，10-09）：T3 smoke+night 通过（审计 #75/#76，仿真 #73 tip b0b4cf9）；card-claim 撤回；Snp 15:1 KILL。
 - 21–30 晚 T3 night 复扫：21–29 无数字 delta、未开 PR；30 晚相对 main tip `c5f5b74` bit-identical、无数字 delta、未开 PR；占用 rel_err=0 不变；BW 仍不签 0.85；签字不变。
 
 ## 拍板仍等人
 
-T4/停 · 扩配额 · 其余备案是否派建筑师。P-0198 已派出。P-0198/M-5 CRRF T3 存活，等人定 T4（不开 T4）。
+T4/停 · 扩配额 · 其余备案是否派建筑师。P-0198 已派出。P-0198/M-5 CRRF（T3 退回重测，10-09）。
 2026-10-09：P-0198 已拍 A+B 并行；CRRF 仍不开 T4。
 
 ## T3 存活 / 通过（上周 09-28~10-04）
