@@ -42,10 +42,12 @@ Seed 20260903; trials `20260903+i`; n≥3; report mean ± 95% CI (n).
 
 | type | label | outstanding | meaning |
 |---|---|---|---|
-| no_cc | 无拥塞控制 | \|I\| | fail-wait only; window never binds |
-| source_fc | 源端流控 | 1 | existing per-source outstanding window |
+| no_cc | 信封 outstanding（窗口不绑定） | \|I\| | 窗口不绑定；outstanding≥8 时比值已不变 |
+| source_fc | 下界敏感性列，过保守 | 1 | existing per-source outstanding window |
 
 Proposal = CRRF `{3:1, 7:1, 15:1}`, same driver / same txn list / same outstanding / same seed. Arms never averaged.
+3:1 / 7:1 / 15:1 makespan 相同是 eject/root 串行封顶（C_dat_eff 与 Snp 随 duty 变），不是旋钮失效；3:1 支配。
+gather 与 reduce 同形，不是两条独立证据。
 
 A destination-credit protocol is **not** in the sim. It is not implemented (would be an inject-path structure change). `source_fc` is the existing window knob.
 

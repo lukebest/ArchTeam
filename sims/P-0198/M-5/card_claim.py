@@ -16,11 +16,9 @@ Writes **only** to ``results/card_claim/``. Does not touch signed
 Does **not** change RTL, FSM, arbitration, or timing. Baselines use
 existing driver knobs:
 
-  * 无拥塞控制 (no_cc): rebind-off, outstanding = |I| (window never binds;
-    bufferless fail-wait only — problem text「关闭额外流控」).
-  * 源端流控 (source_fc): rebind-off, outstanding = 1 (the only source-side
-    window the existing inject path can express without a new credit
-    protocol / inject structure).
+  * no_cc display: 信封 outstanding（窗口不绑定）. outstanding = |I|;
+    ratio is unchanged for outstanding≥8.
+  * source_fc display: 下界敏感性列，过保守. outstanding = 1.
 
 Proposal = CRRF duty arm, **same** outstanding / same txn list / same seed.
 Duty arms {3:1, 7:1, 15:1} are never averaged. 15:1 Snp 1.4× remains KILL.
@@ -80,7 +78,8 @@ WORKLOADS = (
         "workload": "decode_kv_gather",
         "cls": "gather",
         "role": "primary",
-        "note": "decode-phase KV gather; existing gather (card Dat-heavy collective)",
+        "note": "decode-phase KV gather; existing gather (card Dat-heavy collective). gather 与 reduce 同形，不是两条独立证据。",
+        "same_shape_as": "reduce",
     },
     {
         "category": "inference",
@@ -101,7 +100,8 @@ WORKLOADS = (
         "workload": "train_reduce",
         "cls": "reduce",
         "role": "secondary",
-        "note": "training-class reduce; secondary only — not averaged with inference",
+        "note": "training-class reduce; secondary only — not averaged with inference. gather 与 reduce 同形，不是两条独立证据。",
+        "same_shape_as": "gather",
     },
     {
         "category": "training",
@@ -116,16 +116,27 @@ WORKLOADS = (
 BASELINES = (
     {
         "type": "no_cc",
-        "label": "无拥塞控制",
+        "label": "信封 outstanding（窗口不绑定）",
         "outstanding_mode": "unbound",  # outstanding = n_txn
-        "note": "rebind-off; outstanding=|I|; fail-wait only; no extra CC",
+        "note": (
+            "信封 outstanding（窗口不绑定）：rebind-off; outstanding=|I|。 "
+            "outstanding≥8 时比值已不变（与 ost=16/32/96 同一 makespan）。"
+        ),
     },
     {
         "type": "source_fc",
-        "label": "源端流控",
+        "label": "下界敏感性列，过保守",
         "outstanding_mode": "window1",  # existing per-source outstanding=1
-        "note": "rebind-off; outstanding=1 (existing source window; no new credit proto)",
+        "note": (
+            "下界敏感性列，过保守：rebind-off; outstanding=1 "
+            "（现有源端窗口，不是目的端 credit）。"
+        ),
     },
+)
+
+DUTY_TIE_NOTE = (
+    "3:1 / 7:1 / 15:1 makespan 相同是 eject/root 串行封顶所致"
+    "（C_dat_eff 和 Snp 都随 duty 变化），不是旋钮失效；3:1 支配。"
 )
 
 PROPOSAL_ARMS = ("3:1", "7:1", "15:1")
@@ -192,6 +203,19 @@ def _in_interval(ratio: float | None) -> str:
         return "NOT measured"
     r = float(ratio)
     return "yes" if CLAIM_LO - 1e-12 <= r <= CLAIM_HI + 1e-12 else "no"
+
+
+def _ci_hi_vs_085(mean: float, hw: float) -> tuple[float, str]:
+    """CI upper (mean+hw) vs the 0.85 pass bar. Does not rewrite in_0.55_0.85."""
+    if _nan(mean) or _nan(hw):
+        return float("nan"), "NOT measured"
+    hi = float(mean) + float(hw)
+    return hi, ("yes" if hi <= CLAIM_HI + 1e-12 else "no")
+
+
+def _fmt_trial_ratios(xs: list[float]) -> str:
+    """Per-trial ratios, 3 d.p., slash-separated (audit example 0.852 / 0.880 / 0.739)."""
+    return " / ".join(_f(x, 3) for x in xs)
 
 
 def _assert_not_signed_dir(out: Path) -> None:
@@ -387,6 +411,7 @@ def run_card_claim(
         t2 = _t2_ratio(cls, arm)
         err = rel_err(mr, t2) if t2 is not None and not _nan(mr) else ""
         flag = bool(err > 0.30) if err != "" and err == err else ""
+        ci_hi, ci_hi_vs = _ci_hi_vs_085(mr, hwr)
         row = {
             "load_category": category,
             "workload": workload,
@@ -414,6 +439,11 @@ def run_card_claim(
             "flag_gt_30pct": flag,
             "workload_source": WORKLOAD_SOURCE,
             "note": wl["note"],
+            "ci_hi": _f(ci_hi, 4),
+            "ci_hi_vs_0.85": ci_hi_vs,
+            "trial_ratios": _fmt_trial_ratios(xs_r),
+            "same_shape_as": wl.get("same_shape_as", ""),
+            "duty_note": DUTY_TIE_NOTE,
         }
         summary_rows.append(row)
         if flag is True:
@@ -437,6 +467,7 @@ def run_card_claim(
         keep = (
             "load_category", "workload", "cls", "baseline_type", "arm",
             "baseline_ci", "crrf_ci", "ratio_ci", "in_0.55_0.85",
+            "ci_hi", "ci_hi_vs_0.85", "trial_ratios",
             "t2_ref", "rel_err_vs_t2", "flag_gt_30pct", "workload_source",
         )
         return [{k: r[k] for k in keep} for r in rows]
@@ -473,7 +504,12 @@ def run_card_claim(
             }
             for b in BASELINES
         ],
-        "proposal": "CRRF duty arms {3:1, 7:1, 15:1} — never averaged",
+        "proposal": (
+            "CRRF duty arms {3:1, 7:1, 15:1} — never averaged. "
+            + DUTY_TIE_NOTE
+        ),
+        "gather_reduce_same_shape": True,
+        "gather_reduce_independent_evidence": False,
         "not_measured_columns": [],
         "structure_changes": [],
         "structure_change_reason": (
@@ -500,6 +536,22 @@ def run_card_claim(
         "not_a_conclusion": True,
         "eval_audit_signed": False,
         "t4_opened": False,
+        "eval_audit": {
+            "verdict": "部分成立",
+            "signed_full_envelope": False,
+            "returned": False,
+            "detail": (
+                "部分成立（gather 0.551、allgather 0.667、alltoall 0.719 过；"
+                "decode_kv_p2p 0.824 边缘；allreduce 1.000 不过）"
+            ),
+            "existing_config_signs_inference_decode": False,
+            "existing_config_note": (
+                "existing_config 不签推理 / decode 相关性"
+            ),
+            "card_all_class_0.55_0.85_signed": False,
+            "card_all_class_note": "卡上 0.55–0.85× 全类声明不签",
+            "snp_15_1": "KILL",
+        },
         "snp_15_1_kill": {
             "hypothesis": "T_snp / rebind-off > 1.4 → KILL",
             "no_cc": snp_kill_15.get("no_cc"),

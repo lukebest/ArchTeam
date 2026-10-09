@@ -67,8 +67,20 @@ def test_card_claim_csv_schema_and_unsigned():
     need = {
         "load_category", "workload", "baseline_type", "metric",
         "baseline_ci", "crrf_ci", "ratio", "in_0.55_0.85", "workload_source",
+        "ci_hi", "ci_hi_vs_0.85", "trial_ratios",
     }
     assert need <= set(rows[0].keys())
+    p2p = next(
+        r for r in rows
+        if r["workload"] == "decode_kv_p2p" and r["baseline_type"] == "no_cc" and r["arm"] == "7:1"
+    )
+    assert p2p["trial_ratios"] == "0.852 / 0.880 / 0.739"
+    assert p2p["in_0.55_0.85"] == "yes"
+    assert p2p["ci_hi_vs_0.85"] == "no"
+    g = next(r for r in rows if r["workload"] == "decode_kv_gather")
+    red = next(r for r in rows if r["workload"] == "train_reduce")
+    assert g.get("same_shape_as") == "reduce"
+    assert red.get("same_shape_as") == "gather"
     cats = {r["load_category"] for r in rows}
     assert "inference" in cats
     # inference and training must never be collapsed into one mean arm
@@ -97,6 +109,17 @@ def test_summary_is_unsigned_not_a_conclusion():
     assert meta["workload_source"] == WORKLOAD_SOURCE
     assert meta["snp_15_1_kill"]["softened"] is False
     assert meta["structure_changes"] == []
+    audit = meta["eval_audit"]
+    assert audit["verdict"] == "部分成立"
+    assert audit["signed_full_envelope"] is False
+    assert audit["returned"] is False
+    assert audit["existing_config_signs_inference_decode"] is False
+    assert audit["card_all_class_0.55_0.85_signed"] is False
+    assert audit["snp_15_1"] == "KILL"
+    assert meta["gather_reduce_independent_evidence"] is False
+    labels = {b["type"]: b["label"] for b in meta["baselines"]}
+    assert "信封 outstanding" in labels["no_cc"]
+    assert "过保守" in labels["source_fc"]
 
 
 def test_snp_15_1_still_kill():
