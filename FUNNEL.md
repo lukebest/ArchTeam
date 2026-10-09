@@ -18,7 +18,7 @@ T0 收口（10:45）：第二轮 11 张（Jim M-11..M-15、保守 M-16..M-20、M
 
 ## 2026-10-09 Jim T1 M-5r1 CRRF-SB
 
-P-0198/M-5r1 CRRF-SB T1 = FAIL（Archi 致命）→ 退回 Jim Keller（T1-return）。票：Dr.Archi 致命缺陷 · Prof.Sys / Prof.Bench / Dr.Sim 有条件通过。卡 PR #85、T0 PR #89 未入 main。不进 T2 / #eval。不记 T1 过线配额。
+P-0198/M-5r1 CRRF-SB T1 = FAIL（Archi 致命）→ 退回 Jim Keller（T1-return）。票：Dr.Archi 致命缺陷 · Prof.Sys / Prof.Bench / Dr.Sim 有条件通过。不进 T2 / #eval。不记 T1 过线配额。
 
 ## 2026-10-08 09:00 台账
 

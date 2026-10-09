@@ -1,7 +1,7 @@
 # T1 综合 · P-0198/M-5r1 CRRF-SB
 
 - 裁决：**FAIL**，未过线，退回架构师 Jim Keller（T1-return）；不进 Tier 2 / #eval
-- 卡：PR #85 `mechanisms/P-0198/M-5r1.md`（未入 main，本综合不合并、不抄卡）；T0：PR #89（PASS_T1 / INCREMENTAL，未入 main，不抄 T0）
+- 卡：PR #85 `mechanisms/P-0198/M-5r1.md`（本综合不改卡）；T0：PR #89（PASS_T1 / INCREMENTAL，本综合不改 T0）
 - 规则：≥3 通过/有条件通过 **且无致命** → Tier 2。有条件通过计过线票；致命缺陷一票否决
 - 票：3 有条件 + 1 致命 → 否决
 - 分歧最大意见：Dr. Archi（Snp 窄环载 Dat；无 per-node ghost 密度帽）
