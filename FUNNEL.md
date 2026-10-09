@@ -15,6 +15,10 @@ B：Jim 交 M-5 CRRF 修订卡修 15:1 小包延迟；微架构仿真补测现�
 B 进展（10:40）：M-5 CRRF card-claim 补测（PR #83）经评估审计（PR #86）判部分成立，不签全信封。可引用：gather 0.551 / allgather 0.667 / alltoall 0.719（过 0.85）；allreduce 1.000 不过；decode_kv_p2p 0.824 边缘。全类 0.55–0.85× 与推理相关性不签（负载基线表未到，existing_config）。卡收益收窄为 gather/allgather 型集合，本 bbox。15:1 Snp 仍 KILL。T3 存活，不开 T4。
 A/B 在途：Jim M-11..M-15（PR #84）、M-5r1 CRRF-SB 修订卡（PR #85）已交设计验证 T0；保守架构师 5 张、负载基线表未到。
 
+## 2026-10-09 Jim T1 M-5r1 CRRF-SB
+
+P-0198/M-5r1 CRRF-SB T1 = FAIL（Archi 致命）→ 退回 Jim Keller（T1-return）。票：Dr.Archi 致命缺陷 · Prof.Sys / Prof.Bench / Dr.Sim 有条件通过。卡 PR #85、T0 PR #89 未入 main。不进 T2 / #eval。不记 T1 过线配额。
+
 ## 2026-10-08 09:00 台账
 
 今日无派出、无退回、不派建筑师。昨夜已入账：P-0217–P-0220 备案（问题 6/30；cards tip `b78770e`）；其中 P-0218/P-0219/P-0220 来自文献 PR #82（cs.AR 2026-10-08 Trail 2610.08483 / SVRF 2610.07078 / DynaCore 2610.07443，DRAFT OPEN，同源已入仓，不另勾），P-0217 来自 PR #81（Terracotta 2610.06475）。无 P-0221+ 可勾。机制层仍空（0/150）。T0–T3 本周均 0。自 10-07 09:00 以来 main 仅备案入仓（tip `a4dab65`），无新审计/仿真、无新 night 结果。P-0198/M-5 CRRF 与旧 Top P-0105/M-4 SNS、P-0106/M-5 AffineRebind 均等人定 T4（不开 T4）。文献 PR #27–#43+#77–#82 仍 DRAFT OPEN。P-0198 产物 #44–#75 等多份仍 DRAFT OPEN（#76 已合）。拍板仍等人（T4/停 · 扩配额 · 本周备案 P-0215–P-0220 是否派建筑师）。
