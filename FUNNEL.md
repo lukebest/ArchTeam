@@ -8,8 +8,8 @@
 
 船长 2026-10-09 10:24 经 Firstmate 给题（bufferless ring NoC 上 LLM 数据搬运与集合通信端到端时间最短的拥塞控制），即已有 P-0198；10:26 拍板 A+B 并行。
 A：第二轮机制，Jim Keller 5 张 + 保守架构师 5 张（带上周淘汰约束）；负载基线补推理（decode KV/P2P/权重）与训练（AllReduce/AllGather/ReduceScatter/All-to-All）负载表；cycle 级基线=无拥塞控制/源端流控/M-5 CRRF。
-B：Jim 交 M-5 CRRF 修订卡修 15:1 小包延迟；微架构仿真补测现版 CRRF card-claim（推理/训练分报），交评估审计。不开 T4。
-默认约束（船长未否）：不改 RTL、不动仿真器结构，只在 soc_sim 加模型；推理与训练分开报。汇报只经 Firstmate。
+B：Jim 交 M-5 CRRF 修订卡修 15:1 小包延迟；微架构仿真补测现版 CRRF card-claim（以推理为主），交评估审计。不开 T4。
+默认约束（船长 10:27 补充）：仍不改 RTL；允许新分支改仿真器结构（不动 main，审计后再谈合入）；负载以推理为主（decode KV/P2P + 推理集合通信），训练降为次要不单独报，主指标以推理为准。汇报只经 Firstmate。
 同日船长令：未给题不自发派活；微架构仿真夜间复扫、文献情报每日扫描、问题提炼每日出题均已停。
 本周配额用量未变（卡未入 main 不记机制层）。今日 09:00 台账 routine 失败，本条代补。
 
