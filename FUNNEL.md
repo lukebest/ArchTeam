@@ -8,6 +8,10 @@
 
 今日无派出、无退回、不派建筑师。自 10-09 20:19 tip `64a2ae2`（P-0221 关闭 / gate r4）以来 main 无新合入、无新审计/仿真、无新 night 结果、无新文献 PR、无新规范化问题（最高仍 P-0221，无 P-0222+）。用量不变：问题 7/30 · 机制 22/150 · T0 过 1/40 · T1 过 0/12 · T2 过 0/8 · T3 过 0/3。自发活仍停（等 Luke 给题）。拍板仍等人：扩配额 · 备案是否派建筑师。方向一仅留 sub_rr 可签；P-0221/CRRF/SNS/Affine 均已关或淘汰。
 
+## 2026-10-10 09:46 船长拍停 NoC
+
+(~09:46 上海) 船长拍：整条 NoC 拥塞控制课题全部停止（含方向一旋钮基线、已关的 P-0221、相关仿真与出卡）。记为关闭/淘汰，原因：船长决定整题停止。不再派后续工作。
+
 ## 2026-10-09 船长给题派出
 
 船长 2026-10-09 10:24 经 Firstmate 给题（bufferless ring NoC 上 LLM 数据搬运与集合通信端到端时间最短的拥塞控制），即已有 P-0198；10:26 拍板 A+B 并行。
@@ -39,6 +43,7 @@ T1（10:52）：M-5r1 CRRF-SB 共识 FAIL（PR #95），退回 Jim。致命点�
 (~18:27 上海) 船长拍：内存交织 SNS / AffineRebind 停止，不开 T4，记为淘汰（原因：船长决定停止）。
 (~20:16 上海) 评估审计 gate r4（bufferless-ring-noc PR #1 tip bbb7baf，PR #109）：不放大，关 P-0221。真环形集合（ring_*）+库全开+os512 无任何单 die 单环过饿死线；此前饿死=单根 incast。hier_allreduce 误标为非单根（每 die 单根），但单独也不过线。签名范围：HA 中转、chunks=1。Lat=1 AR/RS 死锁可签（无缓冲 Dat 资源环 + TRingConfig.cpp:439 偶一圈补丁），环模型未改，只备案。
 (~20:16 上海) 按船长 18:21 拍 A：不放大、P-0221 关闭。方向一可签结论不变：只有 sub_rr 有证据（p2p 0.966），基线配置修正。
+(~10-10 09:46 上海) 船长拍：整条 NoC 拥塞控制课题全部停止（含方向一旋钮基线、已关的 P-0221、相关仿真与出卡）。记为关闭/淘汰，原因：船长决定整题停止。不再派后续工作。
 
 ## 2026-10-09 Jim T1 M-5r1 CRRF-SB
 
@@ -308,7 +313,7 @@ P-0198 无缓冲环 NoC 上 LLM 点对点/集合通信 makespan（tests/soc_sim�
 
 ## 上周 09-28~10-04 占用（已派、卡未落地）
 
-P-0198：Jim T1 已裁（M-1 CBC T3 REJECT 死，审计 PR #64；M-2 CSR T3 REJECT 死，审计 PR #74 / 仿真 PR #72；M-4 AODI T3 REJECT 死，审计 PR #71 / 仿真 PR #70；M-5 CRRF T3 PASS / 存活，night 确认通过 审计 PR #76 / 仿真 tip `b0b4cf9` #73（smoke #75 / `da294cb`），等人定 T4、不开 T4；卡、模型与仿真未入 main）；保守批已 0→T1（T0：M-7 KNOWN_CONFIRM 冻基线）。机制仍 0/150。
+P-0198：关闭（船长 10-10 09:46 决定整题停止）。Jim T1 已裁（M-1 CBC T3 REJECT 死，审计 PR #64；M-2 CSR T3 REJECT 死，审计 PR #74 / 仿真 PR #72；M-4 AODI T3 REJECT 死，审计 PR #71 / 仿真 PR #70；M-5 CRRF T3 PASS / 存活后于 10-09 M-5r2 T0 KILL 关路线，night 确认通过 审计 PR #76 / 仿真 tip `b0b4cf9` #73（smoke #75 / `da294cb`），不开 T4；卡、模型与仿真未入 main）；保守批已 0→T1（T0：M-7 KNOWN_CONFIRM 冻基线）。整题含方向一旋钮基线、P-0221、相关仿真与出卡均停，不再等人定 T4。机制仍 0/150。
 
 ## 本周已入仓备案（未派建筑师）
 
@@ -323,25 +328,25 @@ P-0198：Jim T1 已裁（M-1 CBC T3 REJECT 死，审计 PR #64；M-2 CSR T3 REJE
 
 P-0159、P-0164–P-0214。
 
-## Top（已签 T3；SNS/Affine 已淘汰）
+## Top（已签 T3；SNS/Affine 已淘汰；P-0198/NoC 整题关闭）
 
 - P-0105/M-4 SNS：淘汰（船长 10-09 18:27 决定停止，不开 T4）。smoke+night 通过。占用 `rel_err=0`。BW 未签 0.85。30 晚 vs main tip `c5f5b74` bit-identical；无数字 delta、未开 PR。
 - P-0106/M-5 AffineRebind：淘汰（船长 10-09 18:27 决定停止，不开 T4）。smoke+night 通过。占用 `rel_err=0`。BW 未签 0.85。30 晚 vs main tip `c5f5b74` bit-identical；无数字 delta、未开 PR。
-- P-0198/M-5 CRRF 路线已关闭（10-09，M-5r2 T0 KILL）：T3 smoke+night 通过（审计 #75/#76，仿真 #73 tip b0b4cf9）；card-claim 撤回；Snp 15:1 KILL。
-- P-0221：关闭（10-09，非单根下无饿死，船长 A 规则）。
+- P-0198 / NoC 拥塞控制（含方向一旋钮基线）：关闭（船长 10-10 09:46 决定整题停止）。M-5 CRRF 路线已于 10-09 M-5r2 T0 KILL 关闭；T3 smoke+night 通过（审计 #75/#76，仿真 #73 tip b0b4cf9）；card-claim 撤回；Snp 15:1 KILL。方向一仅 sub_rr 可签（基线配置修正）。相关仿真与出卡停止，不再派后续工作。
+- P-0221：关闭（船长 10-10 09:46 决定整题停止；此前 10-09 非单根下无饿死、船长 A 规则已关）。
 - 21–30 晚 T3 night 复扫：21–29 无数字 delta、未开 PR；30 晚相对 main tip `c5f5b74` bit-identical、无数字 delta、未开 PR；占用 rel_err=0 不变；BW 仍不签 0.85；签字不变。
 
 ## 拍板仍等人
 
-扩配额 · 其余备案是否派建筑师。P-0198 已派出。P-0198/M-5 CRRF 路线已关闭（10-09，M-5r2 T0 KILL），不再等人定 T4。SNS/AffineRebind 已淘汰（船长 10-09 18:27 决定停止，不开 T4），不再等人定 T4。
-2026-10-09：P-0198 已拍 A+B 并行；CRRF 路线已关闭。SNS/AffineRebind 已淘汰。
-放大门 / P-0221 已关（10-09 20:16）。
+扩配额 · 其余备案是否派建筑师。
+P-0198 / NoC 拥塞控制整题关闭（船长 10-10 09:46 决定整题停止），含方向一旋钮基线、已关的 P-0221、相关仿真与出卡；不再等人、不再派后续工作。
+P-0198/M-5 CRRF 路线已关闭（10-09，M-5r2 T0 KILL）。SNS/AffineRebind 已淘汰（船长 10-09 18:27 决定停止，不开 T4）。
 
 ## T3 存活 / 通过（上周 09-28~10-04）
 
 | ID | 类别 | 结果 |
 |---|---|---|
-| P-0198/M-5 CRRF | T3 PASS / 存活 | 评估审计通过（smoke 审计 PR #75 / 仿真 tip `da294cb` #73；night 确认通过 审计 PR #76 / tip `b0b4cf9`；T2 比照 #63；SEED=20260903；pytest 25）。T_drain 75 vs 77；f_steady gather7:1 0.709 vs 0.8666；C_dat_eff 1.000/1.4185/1.5072/1.5515（无 >30% flag）。H-COMMIT 0/12；gather T/off 0.5833×3；HARD-1 24>14 True。Snp 15:1 KILL：snp_path 11.6667 / mixed 23.2222 vs T2 1.5625（flag 2/16，不贴 T2）；mixed 3:1/7:1 亦 KILL；completions 未丢。oracle_used=False；card-claim 未签（勿把 0.583 当 card-claim 签字）。Night：Snp 15:1 仍 KILL（加严 17.0533 / 32.5873 vs T2 1.5625，不贴作 pass）；card-claim 未签；smoke/#75 未动。不开 T4。等人定 T4。 |
+| P-0198/M-5 CRRF | T3 PASS / 存活后整题关闭 | 评估审计通过（smoke 审计 PR #75 / 仿真 tip `da294cb` #73；night 确认通过 审计 PR #76 / tip `b0b4cf9`；T2 比照 #63；SEED=20260903；pytest 25）。T_drain 75 vs 77；f_steady gather7:1 0.709 vs 0.8666；C_dat_eff 1.000/1.4185/1.5072/1.5515（无 >30% flag）。H-COMMIT 0/12；gather T/off 0.5833×3；HARD-1 24>14 True。Snp 15:1 KILL：snp_path 11.6667 / mixed 23.2222 vs T2 1.5625（flag 2/16，不贴 T2）；mixed 3:1/7:1 亦 KILL；completions 未丢。oracle_used=False；card-claim 未签（勿把 0.583 当 card-claim 签字）。Night：Snp 15:1 仍 KILL（加严 17.0533 / 32.5873 vs T2 1.5625，不贴作 pass）；card-claim 未签；smoke/#75 未动。不开 T4。整题已关闭（船长 10-10 09:46 决定整题停止），不再等人定 T4。 |
 
 ## T3 淘汰（上周 09-28~10-04）
 
@@ -352,6 +357,7 @@ P-0159、P-0164–P-0214。
 | P-0198/M-2 CSR | spine-off HARD 无优于基线 / gather-reduce 无加速 | T3 REJECT 死（审计 PR #74 / 仿真 #72；T2 比照 #68；SEED=20260903；pytest 24）。不是 bounce。CAM Dat/retention≡0；N_cam=4；invariant_ok。spine-off HARD：gather/reduce 192 ≯ 194 → False（无优于基线）。gather/reduce r=1.0104 vs T2 0.5386（|rel| 0.876）；allreduce 1.466；alltoall op ~1.335。gate-off ≈1.0469≈T2 1.0362；high-ost f_ov=0.375 vs T2 INVALID 0.5746（诚实 delta）。30/96 flag>30%；card-claim 未签。不开 T4。不把 T2 贴到 T3。仅机制改才重开。与 M-1 CBC / M-4 AODI 同类：诚实周期未兑现主收益。 |
 | P-0105/M-4 SNS | 淘汰（船长 10-09 18:27 决定停止，不开 T4） | 船长决定停止（T3 存活，带宽 0.85 未签，不开硬件级验证） |
 | P-0106/M-5 AffineRebind | 淘汰（船长 10-09 18:27 决定停止，不开 T4） | 船长决定停止（T3 存活，带宽 0.85 未签，不开硬件级验证） |
+| P-0198 / NoC 拥塞控制（含方向一旋钮基线、P-0221） | 关闭/淘汰（船长 10-10 09:46 决定整题停止） | 船长决定整题停止 |
 
 ## T2 淘汰（更早）
 
