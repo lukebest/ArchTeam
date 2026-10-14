@@ -1,7 +1,11 @@
 # sims/ — Tier 3 cycle-level simulators
 
-Tonight only two cards that passed T2 audit: **P-0105/M-4 SNS** and **P-0106/M-5 AffineRebind**.
-Eliminated cards are not here. Mechanism cards and T2 models are frozen (read-only).
+Batch A (signed occupancy / DRAM bbox): **P-0105/M-4 SNS** and **P-0106/M-5 AffineRebind**.
+P-0198 (DV200 bufferless-ring, separate envelope): **P-0198/M-2 CSR** Rendezvous–Grant.
+**P-0198/M-1 CBC was eliminated at T3** (PR #62 sim / PR #64 audit) — evidence only, not in this tree.
+**P-0198/M-5 CRRF** is a separate in-flight T3 (`sims/P-0198/M-5/` if present) — do not mix conclusions, ranking, or shared speedup with M-1 / M-4 / M-5.
+
+Mechanism cards and T2 models are frozen (read-only). Do not land T2 `models/P-0198/M-2/` here unless already on main.
 
 `reviews/*/t2_audit.md` was not in-tree at implementation time. Frozen inputs used:
 T2 `models/<P>/<M>/spec.md` + `model.py`, T1 `Dr.Sim.md` (must-verify list), mechanism cards, problem YAML.
@@ -21,10 +25,12 @@ From repo root, after `pip install -r sims/requirements.txt`:
 # smoke (small N, writes tables + T2 overlay plot; minutes)
 python3 sims/P-0105/M-4/sweep.py --mode smoke --seed 20260903 --n-trials 3 --out sims/P-0105/M-4/results
 python3 sims/P-0106/M-5/sweep.py --mode smoke --seed 20260903 --n-trials 3 --out sims/P-0106/M-5/results
+python3 sims/P-0198/M-2/sweep.py --mode smoke --seed 20260903
 
 # night (capacity / ports / policy variants)
 python3 sims/P-0105/M-4/sweep.py --mode night --seed 20260903 --n-trials 5 --out sims/P-0105/M-4/results
 python3 sims/P-0106/M-5/sweep.py --mode night --seed 20260903 --n-trials 5 --out sims/P-0106/M-5/results
+python3 sims/P-0198/M-2/sweep.py --mode night --seed 20260903
 ```
 
 One-liner tests:
@@ -43,3 +49,4 @@ Absolute GB/s are not printed (μ_d UNKNOWN). 0.85 is the problem pass line, not
 |------|----------------|-----------------------------------|
 | SNS | 12b shear, 256×8 ROM, XOR, fold384, bitmap+PE | DRAM tRCD/tCL/tFAW/…, cores, HA, refresh |
 | AffineRebind | CSR 1R, XOR_fold6, `mod n`, kth-one, α search, REPAIR-before-RUN | same DRAM bbox, cores, HA, refresh |
+| P-0198/M-2 CSR | 4-item CAM FSM, GRANT + static order table, H_inject_gate, fold ports, alltoall residual | hop=1, clock UNKNOWN, HBM/coherence/D2D (假设 H-RING-BB) |
