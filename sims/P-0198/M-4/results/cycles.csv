@@ -1,0 +1,55 @@
+trial,seed,class,arm,age_max,n_nodes,n_txn,makespan,completed,completions_cw,completions_ccw,collapsed,p_inj,inject_ok,inject_fail,deflect,rejoin,hole_asym,hole_dual,dual_busy_cycles,rho_pref,rho_opp,goodput_B_per_cyc,warmup,phi_freeze,illegal_third,dropped,hypothesis,note
+0,20260903,uniform_read,deflect-off,8,12,64,19,64,37,27,False,0.516129,64,60,0,0,0,0,36,0.429167,0.000000,1724.6316,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+0,20260903,uniform_read,AODI-on,8,12,64,21,64,36,28,True,0.407643,64,93,26,25,26,0,79,0.492424,0.125000,1560.3810,12,65,0,0,H-RING-BB,inject-success is NOT the endpoint
+0,20260903,uniform_write,deflect-off,8,12,64,19,64,37,27,False,0.516129,64,60,0,0,0,0,36,0.429167,0.000000,1724.6316,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+0,20260903,uniform_write,AODI-on,8,12,64,21,64,36,28,True,0.407643,64,93,26,25,26,0,79,0.492424,0.125000,1560.3810,12,65,0,0,H-RING-BB,inject-success is NOT the endpoint
+0,20260903,broadcast,deflect-off,8,12,64,41,64,36,28,False,1.000000,64,0,0,0,0,0,0,0.211310,0.000000,799.2195,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+0,20260903,broadcast,AODI-on,8,12,64,41,64,36,28,False,1.000000,64,0,0,0,0,0,0,0.211310,0.000000,799.2195,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+0,20260903,gather,deflect-off,8,12,64,34,64,34,30,True,0.300469,64,149,0,0,0,0,0,0.253571,0.000000,963.7647,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+0,20260903,gather,AODI-on,8,12,64,34,64,34,30,True,0.355556,64,116,43,43,43,0,73,0.391667,0.138095,963.7647,12,116,0,0,H-RING-BB,inject-success is NOT the endpoint
+0,20260903,reduce,deflect-off,8,12,64,34,64,34,30,True,0.300469,64,149,0,0,0,0,0,0.253571,0.000000,963.7647,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+0,20260903,reduce,AODI-on,8,12,64,34,64,34,30,True,0.355556,64,116,43,43,43,0,73,0.391667,0.138095,963.7647,12,116,0,0,H-RING-BB,inject-success is NOT the endpoint
+0,20260903,allgather,deflect-off,8,12,64,25,64,34,30,True,0.488550,64,67,0,0,0,0,16,0.328526,0.000000,1310.7200,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+0,20260903,allgather,AODI-on,8,12,64,31,64,34,30,True,0.369942,64,109,24,24,24,0,45,0.324219,0.057292,1057.0323,12,44,0,0,H-RING-BB,inject-success is NOT the endpoint
+0,20260903,allreduce,deflect-off,8,12,64,23,64,35,29,True,0.460432,64,75,0,0,0,0,39,0.371528,0.000000,1424.6957,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+0,20260903,allreduce,AODI-on,8,12,64,23,64,35,29,False,0.581818,64,46,17,17,17,0,81,0.449653,0.078125,1424.6957,12,45,0,0,H-RING-BB,inject-success is NOT the endpoint
+0,20260903,alltoall,deflect-off,8,12,64,17,64,38,26,False,0.566372,64,49,0,0,0,0,30,0.520833,0.000000,1927.5294,12,0,0,0,H-RING-BB,alltoall dual-busy-sat SEPARATE; do not fold
+0,20260903,alltoall,AODI-on,8,12,64,26,64,37,27,False,0.516129,64,60,12,11,12,0,74,0.404321,0.075617,1260.3077,12,48,0,0,H-RING-BB,alltoall dual-busy-sat SEPARATE; do not fold
+0,20260903,dual-busy-sat,deflect-off,8,12,64,1,0,0,0,True,0.000000,0,180,0,0,0,0,288,1.000000,0.000000,0.0000,12,0,0,0,H-RING-BB,FORCED dual-busy-sat separate row; expected gain≈0
+0,20260903,dual-busy-sat,AODI-on,8,12,64,1,0,0,0,True,0.000000,0,180,0,0,0,0,288,1.000000,0.000000,0.0000,12,0,0,0,H-RING-BB,FORCED dual-busy-sat separate row; expected gain≈0
+1,20260904,uniform_read,deflect-off,8,12,64,17,64,37,27,True,0.496124,64,65,0,0,0,0,43,0.502315,0.000000,1927.5294,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+1,20260904,uniform_read,AODI-on,8,12,64,25,64,37,27,True,0.470588,64,72,16,16,16,0,71,0.415064,0.067308,1310.7200,12,42,0,0,H-RING-BB,inject-success is NOT the endpoint
+1,20260904,uniform_write,deflect-off,8,12,64,17,64,37,27,True,0.496124,64,65,0,0,0,0,43,0.502315,0.000000,1927.5294,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+1,20260904,uniform_write,AODI-on,8,12,64,25,64,37,27,True,0.470588,64,72,16,16,16,0,71,0.415064,0.067308,1310.7200,12,42,0,0,H-RING-BB,inject-success is NOT the endpoint
+1,20260904,broadcast,deflect-off,8,12,64,41,64,36,28,False,1.000000,64,0,0,0,0,0,0,0.211310,0.000000,799.2195,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+1,20260904,broadcast,AODI-on,8,12,64,41,64,36,28,False,1.000000,64,0,0,0,0,0,0,0.211310,0.000000,799.2195,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+1,20260904,gather,deflect-off,8,12,64,34,64,34,30,True,0.300469,64,149,0,0,0,0,0,0.253571,0.000000,963.7647,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+1,20260904,gather,AODI-on,8,12,64,34,64,34,30,True,0.355556,64,116,43,43,43,0,73,0.391667,0.138095,963.7647,12,116,0,0,H-RING-BB,inject-success is NOT the endpoint
+1,20260904,reduce,deflect-off,8,12,64,34,64,34,30,True,0.300469,64,149,0,0,0,0,0,0.253571,0.000000,963.7647,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+1,20260904,reduce,AODI-on,8,12,64,34,64,34,30,True,0.355556,64,116,43,43,43,0,73,0.391667,0.138095,963.7647,12,116,0,0,H-RING-BB,inject-success is NOT the endpoint
+1,20260904,allgather,deflect-off,8,12,64,25,64,34,30,True,0.488550,64,67,0,0,0,0,16,0.328526,0.000000,1310.7200,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+1,20260904,allgather,AODI-on,8,12,64,31,64,34,30,True,0.369942,64,109,24,24,24,0,45,0.324219,0.057292,1057.0323,12,44,0,0,H-RING-BB,inject-success is NOT the endpoint
+1,20260904,allreduce,deflect-off,8,12,64,23,64,35,29,True,0.460432,64,75,0,0,0,0,39,0.371528,0.000000,1424.6957,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+1,20260904,allreduce,AODI-on,8,12,64,23,64,35,29,False,0.581818,64,46,17,17,17,0,81,0.449653,0.078125,1424.6957,12,45,0,0,H-RING-BB,inject-success is NOT the endpoint
+1,20260904,alltoall,deflect-off,8,12,64,19,64,38,26,False,0.561404,64,50,0,0,0,0,34,0.437500,0.000000,1724.6316,12,0,0,0,H-RING-BB,alltoall dual-busy-sat SEPARATE; do not fold
+1,20260904,alltoall,AODI-on,8,12,64,21,64,37,27,False,0.576577,64,47,14,13,14,0,56,0.435606,0.060606,1560.3810,12,31,0,0,H-RING-BB,alltoall dual-busy-sat SEPARATE; do not fold
+1,20260904,dual-busy-sat,deflect-off,8,12,64,1,0,0,0,True,0.000000,0,204,0,0,0,0,288,1.000000,0.000000,0.0000,12,0,0,0,H-RING-BB,FORCED dual-busy-sat separate row; expected gain≈0
+1,20260904,dual-busy-sat,AODI-on,8,12,64,1,0,0,0,True,0.000000,0,204,0,0,0,0,288,1.000000,0.000000,0.0000,12,0,0,0,H-RING-BB,FORCED dual-busy-sat separate row; expected gain≈0
+2,20260905,uniform_read,deflect-off,8,12,64,13,64,28,36,False,0.507937,64,62,0,0,0,0,38,0.592262,0.000000,2520.6154,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+2,20260905,uniform_read,AODI-on,8,12,64,25,64,28,36,False,0.581818,64,46,19,19,19,0,62,0.383013,0.064103,1310.7200,12,40,0,0,H-RING-BB,inject-success is NOT the endpoint
+2,20260905,uniform_write,deflect-off,8,12,64,13,64,28,36,False,0.507937,64,62,0,0,0,0,38,0.592262,0.000000,2520.6154,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+2,20260905,uniform_write,AODI-on,8,12,64,25,64,28,36,False,0.581818,64,46,19,19,19,0,62,0.383013,0.064103,1310.7200,12,40,0,0,H-RING-BB,inject-success is NOT the endpoint
+2,20260905,broadcast,deflect-off,8,12,64,41,64,36,28,False,1.000000,64,0,0,0,0,0,0,0.211310,0.000000,799.2195,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+2,20260905,broadcast,AODI-on,8,12,64,41,64,36,28,False,1.000000,64,0,0,0,0,0,0,0.211310,0.000000,799.2195,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+2,20260905,gather,deflect-off,8,12,64,34,64,34,30,True,0.300469,64,149,0,0,0,0,0,0.253571,0.000000,963.7647,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+2,20260905,gather,AODI-on,8,12,64,34,64,34,30,True,0.355556,64,116,43,43,43,0,73,0.391667,0.138095,963.7647,12,116,0,0,H-RING-BB,inject-success is NOT the endpoint
+2,20260905,reduce,deflect-off,8,12,64,34,64,34,30,True,0.300469,64,149,0,0,0,0,0,0.253571,0.000000,963.7647,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+2,20260905,reduce,AODI-on,8,12,64,34,64,34,30,True,0.355556,64,116,43,43,43,0,73,0.391667,0.138095,963.7647,12,116,0,0,H-RING-BB,inject-success is NOT the endpoint
+2,20260905,allgather,deflect-off,8,12,64,25,64,34,30,True,0.488550,64,67,0,0,0,0,16,0.328526,0.000000,1310.7200,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+2,20260905,allgather,AODI-on,8,12,64,31,64,34,30,True,0.369942,64,109,24,24,24,0,45,0.324219,0.057292,1057.0323,12,44,0,0,H-RING-BB,inject-success is NOT the endpoint
+2,20260905,allreduce,deflect-off,8,12,64,23,64,35,29,True,0.460432,64,75,0,0,0,0,39,0.371528,0.000000,1424.6957,12,0,0,0,H-RING-BB,inject-success is NOT the endpoint
+2,20260905,allreduce,AODI-on,8,12,64,23,64,35,29,False,0.581818,64,46,17,17,17,0,81,0.449653,0.078125,1424.6957,12,45,0,0,H-RING-BB,inject-success is NOT the endpoint
+2,20260905,alltoall,deflect-off,8,12,64,17,64,36,28,False,0.592593,64,44,0,0,0,0,36,0.500000,0.000000,1927.5294,12,0,0,0,H-RING-BB,alltoall dual-busy-sat SEPARATE; do not fold
+2,20260905,alltoall,AODI-on,8,12,64,22,64,36,28,False,0.609524,64,41,15,15,15,0,64,0.463768,0.072464,1489.4545,12,40,0,0,H-RING-BB,alltoall dual-busy-sat SEPARATE; do not fold
+2,20260905,dual-busy-sat,deflect-off,8,12,64,1,0,0,0,True,0.000000,0,192,0,0,0,0,288,1.000000,0.000000,0.0000,12,0,0,0,H-RING-BB,FORCED dual-busy-sat separate row; expected gain≈0
+2,20260905,dual-busy-sat,AODI-on,8,12,64,1,0,0,0,True,0.000000,0,192,0,0,0,0,288,1.000000,0.000000,0.0000,12,0,0,0,H-RING-BB,FORCED dual-busy-sat separate row; expected gain≈0

@@ -1,0 +1,9 @@
+metric,arm,t3,t2,rel_err,flag_gt_30pct,note
+hole_dual,all-classes,,0,0.0,False,HARD; hole>0 = mechanism fail
+phi_age_end,"phi_walk(6,1,AGE_MAX,rejoin)",,1,,,φ→0; age_end=1 is NOT Σage progress
+deflect-off HARD,asymmetric classes,,True,,,deflect-off T >= AODI-on T required to attribute
+alltoall T_mix,dual-busy-sat,,1.0,,,expected gain≈0; separate row; never fold into 0.50-0.85x
+gather T_mix,default H-*,,0.8448,,,T2 analytical; cycle T_mix is measured separately
+reduce T_mix,default H-*,,0.8448,,,T2 analytical; same occupancy as gather
+uniform_read T_mix,default H-*,,0.877,,,T2 analytical; cycle T_mix is measured separately
+card-claim,asym / dual-busy,NOT measured,0.70-0.95x / 0.95-1.05x,,,card-claim only; director did not sign

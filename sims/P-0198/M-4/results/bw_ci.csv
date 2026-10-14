@@ -1,0 +1,17 @@
+class,arm,age_max,makespan_ci,p_inj_ci,mean_makespan,ci95_hw,n,card_claim,card_claim_is_measured,alltoall_separate,hypothesis
+allgather,AODI-on,8,31.00 ± 0.00 (n=3),0.369942 ± 0.000000 (n=3),31.0,0.0,3,0.70-0.95x asym,False,False,H-RING-BB
+allgather,deflect-off,8,25.00 ± 0.00 (n=3),0.488550 ± 0.000000 (n=3),25.0,0.0,3,0.70-0.95x asym,False,False,H-RING-BB
+allreduce,AODI-on,8,23.00 ± 0.00 (n=3),0.581818 ± 0.000000 (n=3),23.0,0.0,3,0.70-0.95x asym,False,False,H-RING-BB
+allreduce,deflect-off,8,23.00 ± 0.00 (n=3),0.460432 ± 0.000000 (n=3),23.0,0.0,3,0.70-0.95x asym,False,False,H-RING-BB
+alltoall,AODI-on,8,23.00 ± 2.99 (n=3),0.567410 ± 0.053601 (n=3),23.0,2.9939494540378155,3,0.95-1.05x (~0 gain),False,True,H-RING-BB
+alltoall,deflect-off,8,17.67 ± 1.31 (n=3),0.573456 ± 0.018963 (n=3),17.666666666666668,1.3066666666666666,3,0.95-1.05x (~0 gain),False,True,H-RING-BB
+broadcast,AODI-on,8,41.00 ± 0.00 (n=3),1.000000 ± 0.000000 (n=3),41.0,0.0,3,0.70-0.95x asym,False,False,H-RING-BB
+broadcast,deflect-off,8,41.00 ± 0.00 (n=3),1.000000 ± 0.000000 (n=3),41.0,0.0,3,0.70-0.95x asym,False,False,H-RING-BB
+gather,AODI-on,8,34.00 ± 0.00 (n=3),0.355556 ± 0.000000 (n=3),34.0,0.0,3,0.70-0.95x asym,False,False,H-RING-BB
+gather,deflect-off,8,34.00 ± 0.00 (n=3),0.300469 ± 0.000000 (n=3),34.0,0.0,3,0.70-0.95x asym,False,False,H-RING-BB
+reduce,AODI-on,8,34.00 ± 0.00 (n=3),0.355556 ± 0.000000 (n=3),34.0,0.0,3,0.70-0.95x asym,False,False,H-RING-BB
+reduce,deflect-off,8,34.00 ± 0.00 (n=3),0.300469 ± 0.000000 (n=3),34.0,0.0,3,0.70-0.95x asym,False,False,H-RING-BB
+uniform_read,AODI-on,8,23.67 ± 2.61 (n=3),0.486683 ± 0.099803 (n=3),23.666666666666668,2.6133333333333337,3,0.70-0.95x asym,False,False,H-RING-BB
+uniform_read,deflect-off,8,16.33 ± 3.46 (n=3),0.506730 ± 0.011380 (n=3),16.333333333333332,3.457115046457732,3,0.70-0.95x asym,False,False,H-RING-BB
+uniform_write,AODI-on,8,23.67 ± 2.61 (n=3),0.486683 ± 0.099803 (n=3),23.666666666666668,2.6133333333333337,3,0.70-0.95x asym,False,False,H-RING-BB
+uniform_write,deflect-off,8,16.33 ± 3.46 (n=3),0.506730 ± 0.011380 (n=3),16.333333333333332,3.457115046457732,3,0.70-0.95x asym,False,False,H-RING-BB
