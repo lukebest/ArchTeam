@@ -26,3 +26,13 @@ def load_sns_t2():
 
 def load_affine_t2():
     return load_model("models/P-0106/M-5/model.py", "t2_p0106_m5")
+
+
+def load_cbc_t2():
+    """Load T2 CBC model if it has landed on this tree.
+
+    P-0198/M-1 T2 still lives on draft PR #54 (`cursor/p-0198-m-1-cbc-t2-ee28`)
+    and is not on main. Callers must tolerate FileNotFoundError and fall back
+    to the signed audit constants in the T3 sim — do not copy T2 files here.
+    """
+    return load_model("models/P-0198/M-1/model.py", "t2_p0198_m1")
