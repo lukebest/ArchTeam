@@ -1,0 +1,13 @@
+trial,seed,window,arm,makespan_snp,makespan_dat,completed_snp,completed_dat,snp_stall,T_snp_over_off,kill_1.4,comp_drop,card_claim,card_claim_is_measured,note
+0,20260903,snp_on_gather,rebind-off,6,49,12,96,1,1.0000,False,False,0.55-0.85x,False,Snp column mandatory; 15:1 may KILL
+0,20260903,snp_on_gather,3:1,173,27,12,96,1329,28.8333,True,False,0.55-0.85x,False,Snp column mandatory; 15:1 may KILL
+0,20260903,snp_on_gather,7:1,194,27,12,96,1511,32.3333,True,False,0.55-0.85x,False,Snp column mandatory; 15:1 may KILL
+0,20260903,snp_on_gather,15:1,205,27,12,96,1623,34.1667,True,False,0.55-0.85x,False,Snp column mandatory; 15:1 may KILL
+1,20260904,snp_on_gather,rebind-off,7,49,12,96,1,1.0000,False,False,0.55-0.85x,False,Snp column mandatory; 15:1 may KILL
+1,20260904,snp_on_gather,3:1,174,27,12,96,1477,24.8571,True,False,0.55-0.85x,False,Snp column mandatory; 15:1 may KILL
+1,20260904,snp_on_gather,7:1,195,27,12,96,1673,27.8571,True,False,0.55-0.85x,False,Snp column mandatory; 15:1 may KILL
+1,20260904,snp_on_gather,15:1,206,27,12,96,1799,29.4286,True,False,0.55-0.85x,False,Snp column mandatory; 15:1 may KILL
+2,20260905,snp_on_gather,rebind-off,6,49,12,96,1,1.0000,False,False,0.55-0.85x,False,Snp column mandatory; 15:1 may KILL
+2,20260905,snp_on_gather,3:1,173,27,12,96,1333,28.8333,True,False,0.55-0.85x,False,Snp column mandatory; 15:1 may KILL
+2,20260905,snp_on_gather,7:1,194,27,12,96,1515,32.3333,True,False,0.55-0.85x,False,Snp column mandatory; 15:1 may KILL
+2,20260905,snp_on_gather,15:1,205,27,12,96,1599,34.1667,True,False,0.55-0.85x,False,Snp column mandatory; 15:1 may KILL

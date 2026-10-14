@@ -1,0 +1,17 @@
+metric,arm,t3,t2,rel_err,flag_gt_30pct,card_claim,card_claim_is_measured,note
+T_drain,C_ring=25,75.0,77.0,0.025974025974025976,False,NOT measured,False,cycle probe vs signed 77; formula (k_circ+1)*25+2
+f_steady,7:1,0.7727,0.8666,0.10835448880683127,False,NOT measured,False,cycle fraction in STEADY vs T2 0.8666
+C_dat_eff,rebind-off,1.0,1.0,0.0,False,NOT measured,False,cycle ghost-up fraction+1 vs signed T2
+C_dat_eff,3:1,1.487914862914863,1.6099,0.07577187221885646,False,NOT measured,False,cycle ghost-up fraction+1 vs signed T2
+C_dat_eff,7:1,1.5845057720057723,1.7182,0.07781063205344413,False,NOT measured,False,cycle ghost-up fraction+1 vs signed T2
+C_dat_eff,15:1,1.6328012265512266,1.7724,0.07876256682959454,False,NOT measured,False,cycle ghost-up fraction+1 vs signed T2
+H-COMMIT held,barrier on,0.0,0.0,0.0,False,NOT measured,False,redirect count
+H-COMMIT violated,early inject,12.0,12.0,0.0,False,NOT measured,False,T2 counts late receivers=12; T3 counts events
+H-DAT-DOM gather T_hat/T_off,3:1,0.5510204081632653,0.6212,0.11297423025874875,False,NOT measured,False,cycle makespan ratio vs T2 1/C_dat_eff; do not substitute T2
+H-DAT-DOM gather T_hat/T_off,7:1,0.5510204081632653,0.582,0.05322953923837579,False,NOT measured,False,cycle makespan ratio vs T2 1/C_dat_eff; do not substitute T2
+H-DAT-DOM gather T_hat/T_off,15:1,0.5510204081632653,0.5642,0.023359787020090006,False,NOT measured,False,cycle makespan ratio vs T2 1/C_dat_eff; do not substitute T2
+HARD-1 cycle inequality,gather,49.0>27.0,537.2>303.1,,False,NOT measured,False,T3 is cycle makespan; T2 is ns H-DAT-DOM. flag if off ≯ best on-arm
+H-SNP-LAT snp_path,15:1,17.05333333333333,1.5625,9.914133333333332,True,NOT measured,False,dedicated Snp class; 15:1 must be allowed to KILL 1.4×; T2 q=1 algebra
+H-SNP-LAT,15:1,32.58733333333333,1.5625,19.855893333333334,True,NOT measured,False,Snp-on-gather window; 15:1 must be allowed to KILL 1.4×; T2 q=1 algebra
+Snp 15:1 kill_1.4,15:1,True,True,0.0,False,NOT measured,False,kill hyp is T3>1.4 vs rebind-off (snp_path or mixed); not a card-claim interval
+card-claim,Dat-heavy,NOT measured,0.55-0.85x,,,0.55-0.85x,False,card-claim only; director did not sign

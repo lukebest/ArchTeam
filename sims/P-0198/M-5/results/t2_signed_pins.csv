@@ -1,0 +1,15 @@
+metric,arm,t3,t2,rel_err,flag_gt_30pct,note
+T_drain,C_ring=25,,77.0,,,signed; cycle row filled by drain probe
+f_steady,default,,0.8666,,,signed
+C_dat_eff,rebind-off,,1.0,,,signed
+C_dat_eff,3:1,,1.6099,,,signed
+C_dat_eff,7:1,,1.7182,,,signed
+C_dat_eff,15:1,,1.7724,,,signed
+H-COMMIT held,barrier on,,0,,,signed
+H-COMMIT violated,early inject,,12,,,signed (n_nodes=12)
+H-DAT-DOM gather T_hat/T_off,3:1,,0.6212,,,signed
+H-DAT-DOM gather T_hat/T_off,7:1,,0.582,,,signed
+H-DAT-DOM gather T_hat/T_off,15:1,,0.5642,,,signed
+"HARD-1 T_off vs T_best (ns, H-DAT-DOM)",gather,,537.2>303.1,,,T2 ns; T3 compares cycle inequality
+H-SNP-LAT,15:1,,1.5625,,,signed KILL (1.4× hyp)
+card-claim,Dat-heavy,NOT measured,0.55-0.85x,,,card-claim only; director did not sign
