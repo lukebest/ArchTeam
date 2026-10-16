@@ -22,3 +22,14 @@ ISCA 2026 / MICRO 2025 / HPCA 2026 / ASPLOS 2026 public programs checked; no fre
 ## Prior (ArchZero PR #11; not yet mirrored here)
 
 See lukebest/ArchZero draft PR for 2609.01084, 2608.30509, 2609.00857, 2609.00450 if importing the earlier index.
+
+## 2026-09-24 additions (cs.AR new list Wed 2026-09-23)
+
+| Slug | Paper | One-line structure |
+|---|---|---|
+| `hbf-hotcold-agentic-kv` | [2609.25782](insights/2609.25782.md) | Hot–cold KV hierarchy inside GPU memory tier: active decode KV in HBM, paused-session cold pool in co-packaged HBF; base-die D2D eviction/prefetch keeps per-step reads on HBM |
+| `dsac-ntc-tpu-clocking` | [2609.26644](insights/2609.26644.md) | Per-MAC HD/MSB/Hybrid predictors → three timing tiers; local dummy-hold under fixed global clock + feedback threshold updates (reclaim NTC slack without global DVFS) |
+
+### Rejected this scan (not indexed)
+
+25022 NPLSD (NPU operator adapt / vision detection port); 25335 GRADE-RTL (LLM RTL eval framework); 25624 fused-upcast GEMM cross-GPU determinism (SW kernel fixed reduction order); 25869 Tessera BSA runtime (logical mask ↔ execution SW runtime); 26374 ESupNNet (soft-error supervised net); 26551 Toki (HBM profiling framework/tool); Cross 25637 SLED-IFV, 25873 AgenticSizing; all replacements.
