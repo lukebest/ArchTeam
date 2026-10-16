@@ -22,3 +22,13 @@ ISCA 2026 / MICRO 2025 / HPCA 2026 / ASPLOS 2026 public programs checked; no fre
 ## Prior (ArchZero PR #11; not yet mirrored here)
 
 See lukebest/ArchZero draft PR for 2609.01084, 2608.30509, 2609.00857, 2609.00450 if importing the earlier index.
+
+## 2026-09-29 additions (cs.AR new list Mon 2026-09-28)
+
+| Slug | Paper | One-line structure |
+|---|---|---|
+| `pipedram-horizontal-pud-mat-pipeline` | [2609.30998](insights/2609.30998.md) | PUD without runtime H↔V transpose: memory-controller deterministic bit permutation places each N-bit word in one DRAM chip with bit-positions spread across mats in a horizontal layout; mats act as pipeline stages with inter-mat carry moves; bit-dependent vs bit-independent in-DRAM primitives overlapped under static modulo schedule; hierarchical in-DRAM copy keeps carry off critical path (detail unread) |
+
+### Rejected this scan (not indexed)
+
+No new-section rejects (factory window had 1 new). Cross 30534 GRACIDIT (FPGA routing-delay digital twin / prediction; policy skip cross) / 30538 neutron SEU→AXI SDC study (policy skip cross) / 31252 Peregrino Falcon PQC full-hardware accelerator (policy skip cross). Replacement: none on /new. Fri 2026-09-25 list not re-screened.
